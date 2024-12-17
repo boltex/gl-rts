@@ -1,0 +1,87 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #004;
+  overflow: hidden;
+  user-select: none;
+  /* cursor: none; */
+}
+
+html.cur-pointer {
+  cursor: url("images/cursor-pointer32.png"), auto;
+}
+
+html.cur-target {
+  cursor: url("images/cursor-target32.png") 15 15, auto;
+}
+
+/* html.cur-select {
+  cursor: url('images/cursor3.png'), auto;
+} */
+
+canvas {
+  /* border: 1px solid #000; */
+  background-color: #111;
+  /* width: 800px; */
+  /* height: 600px; */
+  /* width: 100%; */
+  /* height: 100%; */
+  /* display: block; */
+  /* Prevent blurring of scaled canvas */
+  /* image-rendering: pixelated; */
+}
+
+button.btn-start {
+  user-select: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  font-size: 18px;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* semi-transparent dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it appears above everything else */
+}
+
+.menu-container {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  width: 300px;
+}
+
+.menu-btn {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.menu-btn:hover {
+  background-color: #555;
+}

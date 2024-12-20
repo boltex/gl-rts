@@ -35,6 +35,10 @@ canvas {
   /* display: block; */
   /* Prevent blurring of scaled canvas */
   /* image-rendering: pixelated; */
+  /* image-rendering: crisp-edges; */
+  display: block; /* prevents scrollbar */
+  width: 100vw;
+  height: 100vh;
 }
 
 button.btn-start {

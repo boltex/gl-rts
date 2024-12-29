@@ -10,7 +10,6 @@ body {
   background-color: #004;
   overflow: hidden;
   user-select: none;
-  /* cursor: none; */
 }
 
 html.cur-pointer {
@@ -26,23 +25,25 @@ html.cur-target {
 } */
 
 canvas {
-  /* border: 1px solid #000; */
-  background-color: #111;
-  /* width: 800px; */
-  /* height: 600px; */
-  /* width: 100%; */
-  /* height: 100%; */
-  /* display: block; */
-  /* Prevent blurring of scaled canvas */
-  /* image-rendering: pixelated; */
-  /* image-rendering: crisp-edges; */
-  display: block; /* prevents scrollbar */
+  background-color: #333;
+  display: block;
   width: 100vw;
   height: 100vh;
 }
 
-button.btn-start {
-  user-select: none;
+.loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-family: "monospace";
+  background-color: #2a2727;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.btn-start {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -51,41 +52,11 @@ button.btn-start {
   font-size: 18px;
 }
 
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* semi-transparent dark background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Ensure it appears above everything else */
-}
-
-.menu-container {
-  background-color: #333;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  color: white;
-  width: 300px;
-}
-
-.menu-btn {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
+.resolution-select {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px;
   font-size: 16px;
-  background-color: #444;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.menu-btn:hover {
-  background-color: #555;
 }

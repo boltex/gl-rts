@@ -7,8 +7,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="felix.20241217200720.1"><vh>introduction</vh></v>
-<v t="felix.20241217232722.1"><vh>TODO</vh></v>
-<v t="felix.20241217201352.1"><vh>@clean src/main.ts</vh>
+<v t="felix.20241217201352.1"><vh>@@clean src/main.ts</vh>
 <v t="felix.20241220001536.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241217225754.1"><vh>shaders</vh></v>
 <v t="felix.20241217225604.1"><vh>loadImage</vh></v>
@@ -20,17 +19,41 @@
 <v t="felix.20241217230518.1"><vh>resize</vh></v>
 <v t="felix.20241220001712.1"><vh>toggleGameMenu</vh></v>
 <v t="felix.20241220001715.1"><vh>setCursor</vh></v>
+<v t="felix.20241224223317.1"><vh>checkKeys</vh></v>
 <v t="felix.20241220001738.1"><vh>mouseDown</vh></v>
 <v t="felix.20241220001741.1"><vh>mouseUp</vh></v>
 <v t="felix.20241220001745.1"><vh>mouseMove</vh></v>
 <v t="felix.20241220001755.1"><vh>setCursorPos</vh></v>
+<v t="felix.20241224222932.1"><vh>procGame</vh></v>
 <v t="felix.20241217230522.1"><vh>update</vh></v>
 <v t="felix.20241220001814.1"><vh>checkUpdate</vh></v>
+<v t="felix.20241224222952.1"><vh>tick</vh></v>
+<v t="felix.20241224223038.1"><vh>animateCursor</vh></v>
+<v t="felix.20241224223235.1"><vh>trydefault</vh></v>
+<v t="felix.20241224223239.1"><vh>tryselect</vh></v>
 </v>
 <v t="felix.20241220001453.1"><vh>class Entities</vh>
 <v t="felix.20241220001453.2"><vh>constructor</vh></v>
 <v t="felix.20241220001453.3"><vh>spawn</vh></v>
 <v t="felix.20241220001453.4"><vh>remove</vh></v>
+</v>
+</v>
+<v t="felix.20241227202430.1"><vh>@clean src/main.ts</vh>
+<v t="felix.20241227202519.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+<v t="felix.20241227213048.1"><vh>startup</vh></v>
+<v t="felix.20241227213056.1"><vh>class Game</vh>
+<v t="felix.20241227213841.1"><vh>constructor</vh></v>
+<v t="felix.20241227213217.1"><vh>resize</vh></v>
+<v t="felix.20241228191055.1"><vh>resizeCanvasToDisplaySize</vh></v>
+<v t="felix.20241227213236.1"><vh>update</vh></v>
+<v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
+<v t="felix.20241229163326.1"><vh>addGameEventListeners</vh></v>
+<v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
+<v t="felix.20241229162110.1"><vh>mouseMove</vh></v>
+<v t="felix.20241229162200.1"><vh>mouseDown</vh></v>
+<v t="felix.20241229162201.1"><vh>mouseUp</vh></v>
+<v t="felix.20241229180756.1"><vh>mouseWheel</vh></v>
+<v t="felix.20241229162229.1"><vh>checkUpdate</vh></v>
 </v>
 </v>
 <v t="felix.20241220001515.1"><vh>@clean src/maths.ts</vh>
@@ -49,14 +72,30 @@
 <v t="felix.20241220002054.2"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241220002054.3"><vh>types</vh></v>
 </v>
+<v t="felix.20241224183015.1"><vh>@clean src/utils.ts</vh>
+<v t="felix.20241224223142.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+<v t="felix.20241224183532.1"><vh>createProgram</vh></v>
+<v t="felix.20241224183525.1"><vh>fullScreen</vh></v>
+<v t="felix.20241224223104.1"><vh>interpolate</vh></v>
+<v t="felix.20241228192145.1"><vh>loadImage</vh></v>
+</v>
 </vnodes>
 <tnodes>
-<t tx="felix.20241217200720.1">WebGL RTS game
+<t tx="felix.20241217200720.1">Basic WebGL RTS game engine
 
-Credits:
+Based on the following tutorials:
+
+- Main features use WebGL concepts such as VAO (Vertex Array Objects), UBO (Uniform Buffer Objects), draw instances, and shaders from the Andrew Adamson WebGL tutorials at https://www.youtube.com/watch?v=-T6EbWCq99c&amp;list=PLPbmjY2NVO_X1U1JzLxLDdRn4NmtxyQQo
+
 - Window resize detection and handling for canvas from https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+
+- Game class setup inspired by [James Byrde](https://github.com/jamesrehabstudio) tutorials at [https://www.youtube.com/@jamesbyrde3798](https://www.youtube.com/@jamesbyrde3798)
+
+- Timing inspired from the [Glenn Fiedler](https://github.com/gafferongames) tutorial at [https://gafferongames.com/post/fix_your_timestep/](https://gafferongames.com/post/fix_your_timestep/)
+
 </t>
-<t tx="felix.20241217201352.1">&lt;&lt; imports &gt;&gt;
+<t tx="felix.20241217201352.1">@language typescript
+&lt;&lt; imports &gt;&gt;
 @others
 
 </t>
@@ -363,11 +402,6 @@ function loop(timestamp: number): void {
 }
 
 </t>
-<t tx="felix.20241217232722.1">Handle canvas resize
-
-See https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
-
-</t>
 <t tx="felix.20241220000920.1">constructor() {
     console.log('Init WebGL2 Game !');
     console.log('initrangex', this.initrangex);
@@ -457,24 +491,6 @@ See https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
     this.started = true;
     // Setup timer in case RAF Skipped when not in foreground or minimized.
     setInterval(() =&gt; { this.checkUpdate(); }, 500);
-
-
-    // this.backBuffer16x9 = new BackBuffer(this.gl, { width: 1280, height: 720 });
-    // this.backBuffer4x3 = new BackBuffer(this.gl, { width: 960, height: 720 });
-    // this.finalBuffer16x9 = new BackBuffer(this.gl, { width: 1280, height: 720 });
-    // this.finalBuffer4x3 = new BackBuffer(this.gl, { width: 960, height: 720 });
-
-    // if (this.optionsAspectRatio === 0) {
-    //     // 4:3
-    //     this.backBuffer = this.backBuffer4x3
-    //     this.finalBuffer = this.finalBuffer4x3;
-    // } else {
-    //     // 16:9
-    //     this.backBuffer = this.backBuffer16x9
-    //     this.finalBuffer = this.finalBuffer16x9
-    // }
-
-    // this.initGameStates();
 
     // TODO START ! 
     // loop(0); 
@@ -784,5 +800,487 @@ export type TEntity = {
     ];
     active: boolean;
 }</t>
+<t tx="felix.20241224183015.1">&lt;&lt; imports &gt;&gt;
+@others
+
+</t>
+<t tx="felix.20241224183525.1">/**
+ * Tries to put browser into fullscreen mode.
+ * @param element The element to put into fullscreen mode.
+ * @returns A promise that resolves when the browser is in fullscreen mode.
+ */
+export function fullScreen(element: Element): Promise&lt;void&gt; {
+    if (document.fullscreenElement !== null) {
+        return Promise.resolve();  // already fullscreen
+    }
+    if (element.requestFullscreen) {
+        const requestFullscreen = element.requestFullscreen || (element as any).webkitRequestFullscreen || (element as any).mozRequestFullScreen || (element as any).msRequestFullscreen;
+        if (requestFullscreen) {
+            return requestFullscreen.call(element).catch((err) =&gt; {
+                console.error(
+                    `Error attempting to enable fullscreen mode: ${err.message} (${err.name})`,
+                );
+            });
+        } else {
+            return Promise.resolve();
+        }
+    } else {
+        return Promise.resolve();
+    }
+}
+
+</t>
+<t tx="felix.20241224183532.1">/**
+ * Creates a WebGL program from vertex and fragment shader source code.
+ * @param gl The WebGL rendering context.
+ * @param vs The source code for the vertex shader.
+ * @param fs The source code for the fragment shader.
+ * @returns The created WebGL program.
+ * @throws Will throw an error if the program or shaders cannot be created, compiled, or linked.
+ */
+export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string): WebGLProgram {
+    const program = gl.createProgram();
+    if (!program) {
+        throw new Error('Unable to create WebGL program.');
+    }
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    if (!vertexShader) {
+        throw new Error('Unable to create vertex shader.');
+    }
+    gl.shaderSource(vertexShader, vs);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        const error = gl.getShaderInfoLog(vertexShader);
+        gl.deleteShader(vertexShader);
+        throw new Error('Vertex shader compilation error: ' + error);
+    }
+    gl.attachShader(program, vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    if (!fragmentShader) {
+        throw new Error('Unable to create fragment shader.');
+    }
+    gl.shaderSource(fragmentShader, fs);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        const error = gl.getShaderInfoLog(fragmentShader);
+        gl.deleteShader(fragmentShader);
+        throw new Error('Fragment shader compilation error: ' + error);
+    }
+    gl.attachShader(program, fragmentShader);
+
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const error = gl.getProgramInfoLog(program);
+        gl.deleteProgram(program);
+        throw new Error('Program linking error: ' + error);
+    }
+
+    return program;
+}
+
+</t>
+<t tx="felix.20241224222932.1">public procGame(): void {
+
+    // procgame processes a game frame, animating each RFA
+    // Note: This is not a game-states tick, at timePerTick intervals.
+
+    if (this.gameaction) {
+
+        switch (this.gameaction) {
+            case this.DEFAULTACTION:
+                this.trydefault()
+                break;
+            case this.RELEASESEL:
+                this.tryselect()
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    this.gameaction = 0 // -------------- no more game actions to do
+
+    // Scroll if not selected    
+    if (!this.selecting) {
+        this.scrollx += this.scrollnowx;
+        this.scrolly += this.scrollnowy;
+        if (this.scrollx &gt; this.maxscrollx) {
+            this.scrollx = this.maxscrollx;
+        }
+        if (this.scrollx &lt; 0) {
+            this.scrollx = 0;
+        }
+        if (this.scrolly &gt; this.maxscrolly) {
+            this.scrolly = this.maxscrolly;
+        }
+        if (this.scrolly &lt; 0) {
+            this.scrolly = 0;
+        }
+    }
+}
+
+</t>
+<t tx="felix.20241224222952.1">tick(): void {
+
+
+    // Advance game states in pool:
+    // meaning, from currentTick count, to the next one.
+
+    // #########################################
+
+    let processed = 0;
+    let entity;
+    for (let i = 0; processed &lt; this.entities.active || i &lt; this.entities.total; i++) {
+        entity = this.entities.pool[i];
+        if (entity.active) {
+            processed += 1;
+            // EXPERIMENT this.ai.process(entity);
+        }
+    }
+
+    this.checkKeys();
+
+    // Update currentTick count
+    this.currentTick += 1;
+}
+
+</t>
+<t tx="felix.20241224223038.1">public animateCursor(): void {
+    // Animate at 15 FPS
+
+    // Cursor
+    if (this.curanim) {
+        this.curanim += 1;
+        if (this.curanim &gt; this.curanimtotal)
+            this.curanim = 0
+    }
+
+}
+
+</t>
+<t tx="felix.20241224223104.1">export function interpolate(min: Point, max: Point, fract: number): Point {
+    return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
+}
+
+</t>
+<t tx="felix.20241224223142.1">import { Point } from "./maths";
+</t>
+<t tx="felix.20241224223235.1">public trydefault(): void {
+    // TODO : Replace with real default action
+    // TEST CURSOR ANIMATION ON DEFAULT ACTION
+    this.curanim = 1;
+    this.curanimx = this.gamecurx - 32;
+    this.curanimy = this.gamecury - 32;
+}
+
+</t>
+<t tx="felix.20241224223239.1">public tryselect(): void {
+    // Called from procGame
+}
+
+</t>
+<t tx="felix.20241224223317.1">checkKeys(): void {
+    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
+        // playerY -= playerSpeed * deltaTime;
+        // EXPERIMENT  this.setCursor("cur-pointer");
+    }
+    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
+        // playerY += playerSpeed * deltaTime;
+        // EXPERIMENT  this.setCursor("cur-target");
+    }
+    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
+        // playerX -= playerSpeed * deltaTime;
+        // EXPERIMENT  this.changeOrientation(false);
+    }
+    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
+        // playerX += playerSpeed * deltaTime;
+        // EXPERIMENT  this.changeOrientation(true);
+    }
+}
+
+</t>
+<t tx="felix.20241227202430.1">&lt;&lt; imports &gt;&gt;
+@others
+
+</t>
+<t tx="felix.20241227202519.1">import * as utils from "./utils";
+import { Point, M3x3 } from "./maths";
+import { TEntity } from "./type";
+
+</t>
+<t tx="felix.20241227213048.1">document.addEventListener('DOMContentLoaded', (event) =&gt; {
+    if (!window.game) {
+        window.game = new Game();
+    } else {
+        console.log('Game instance already started');
+    }
+});
+
+function loop(timestamp: number): void {
+    window.game.update(timestamp);
+    requestAnimationFrame(loop);
+}
+
+</t>
+<t tx="felix.20241227213056.1">export class Game {
+
+    lastDisplayWidth: number = 0;
+    lastDisplayHeight: number = 0;
+    canvas: HTMLCanvasElement;
+    gl: WebGL2RenderingContext;
+    aspectRatio: number = Game.AVAILABLE_RESOLUTIONS[0].width / Game.AVAILABLE_RESOLUTIONS[0].height;
+
+    // Game state
+    started = false;
+
+    // Key press state
+    keysPressed: Record&lt;string, any&gt; = {};
+
+    // Image assets
+    creatures!: HTMLImageElement;
+    tiles!: HTMLImageElement;
+
+    static AVAILABLE_RESOLUTIONS = [
+        {
+            label: "16:9 (1920x1080)",
+            width: 1920, height: 1080
+        },
+        {
+            label: "16:10 (1920x1200)",
+            width: 1920, height: 1200
+        },
+        {
+            label: "4:3 (1440x1080)",
+            width: 1440, height: 1080
+        },
+    ];
+
+    @others
+
+}
+
+</t>
+<t tx="felix.20241227213217.1">resize(entries: ResizeObserverEntry[]): void {
+
+    for (const entry of entries) {
+        let width;
+        let height;
+        let dpr = window.devicePixelRatio;
+        if (entry.devicePixelContentBoxSize) {
+            // NOTE: Only this path gives the correct answer
+            // The other 2 paths are an imperfect fallback
+            // for browsers that don't provide anyway to do this
+            width = entry.devicePixelContentBoxSize[0].inlineSize;
+            height = entry.devicePixelContentBoxSize[0].blockSize;
+            dpr = 1; // it's already in width and height
+        } else if (entry.contentBoxSize) {
+            if (entry.contentBoxSize[0]) {
+                width = entry.contentBoxSize[0].inlineSize;
+                height = entry.contentBoxSize[0].blockSize;
+            } else {
+                // legacy mozilla impl using only contentBox
+                // @ts-expect-error
+                width = entry.contentBoxSize.inlineSize;
+                // @ts-expect-error
+                height = entry.contentBoxSize.blockSize;
+            }
+        } else {
+            // legacy
+            width = entry.contentRect.width;
+            height = entry.contentRect.height;
+        }
+        const displayWidth = Math.round(width * dpr);
+        const displayHeight = Math.round(height * dpr);
+        [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
+    }
+    console.log(this.lastDisplayWidth, this.lastDisplayHeight);
+}
+
+</t>
+<t tx="felix.20241227213236.1">update(timestamp: number, skipRender?: boolean): void {
+    // Before rendering, resize canvas to display size. (in case of changing window size)
+    this.resizeCanvasToDisplaySize(this.canvas);
+
+    // Clear the canvas
+    this.gl.clearColor(0, 0, 0, 1);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    // Render the game
+    // Todo: render game
+}
+
+</t>
+<t tx="felix.20241227213841.1">constructor() {
+    console.log("constructing game");
+
+    this.canvas = document.createElement('canvas');
+    document.body.appendChild(this.canvas);
+    this.gl = this.canvas.getContext('webgl2')!;
+    // Prevent right-click context menu
+    this.canvas.addEventListener('contextmenu', (event) =&gt; {
+        event.preventDefault();
+    });
+
+    const resizeObserver = new ResizeObserver(this.resize);
+    resizeObserver.observe(this.canvas, { box: 'content-box' });
+
+    // Create a 'loading...' text element centered on screen
+    const loadingText = document.createElement('div');
+    loadingText.classList.add("loading-text");
+    loadingText.textContent = 'Loading...';
+
+    document.body.appendChild(loadingText);
+
+    // Using promises, after both image assets have loaded, call mainMenu
+    const creaturesPromise = utils.loadImage('images/alien.png');
+    const tilesPromise = utils.loadImage('images/plancher-vertical.png');
+    Promise.all([creaturesPromise, tilesPromise]).then((images) =&gt; {
+        document.body.removeChild(loadingText);
+        this.creatures = images[0];
+        this.tiles = images[1];
+        this.mainMenu();
+    });
+
+}
+
+</t>
+<t tx="felix.20241228191055.1">resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {
+    // Get the size the browser is displaying the canvas in device pixels.
+    const [displayWidth, displayHeight] = [this.lastDisplayWidth, this.lastDisplayHeight];
+
+    // Check if the canvas is not the same size.
+    const needResize = canvas.width !== displayWidth ||
+        canvas.height !== displayHeight;
+
+    if (needResize) {
+        // Make the canvas the same size
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+    }
+
+    return needResize;
+}
+
+</t>
+<t tx="felix.20241228192145.1">export function loadImage(src: string): Promise&lt;HTMLImageElement&gt; {
+    return new Promise((resolve, reject) =&gt; {
+        const image = new Image();
+        image.onload = () =&gt; resolve(image);
+        image.src = src;
+    });
+}
+
+</t>
+<t tx="felix.20241228193009.1">mainMenu(): void {
+    // The images have loaded, so it's time to show the pre-game menu
+
+    // Create the start button
+    const startButton = document.createElement("button");
+    startButton.textContent = "Start Game";
+    startButton.classList.add("btn-start");
+
+    document.body.appendChild(startButton);
+
+    // Create the dropdown for screen resolution
+    const resolutionSelect = document.createElement("select");
+    resolutionSelect.classList.add("resolution-select");
+
+
+    // Populate the dropdown with options
+    for (const { label, width, height } of Game.AVAILABLE_RESOLUTIONS) {
+        const option = document.createElement("option");
+        option.value = `${width}x${height}`;
+        option.textContent = label;
+        resolutionSelect.appendChild(option);
+    }
+    document.body.appendChild(resolutionSelect);
+
+    // Use resolutionSelect.selectedIndex to get the selected resolution
+
+    startButton.addEventListener("click", () =&gt; {
+
+        this.aspectRatio = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].width / Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].height;
+
+        console.log('Starting the game!', this.aspectRatio);
+
+        startButton.style.display = 'none';
+        resolutionSelect.style.display = 'none';
+        // document.body.style.cursor = 'none'; // ! HIDE NATIVE CURSOR !
+        this.started = true;
+        // Setup timer in case RAF Skipped when not in foreground or minimized.
+        setInterval(() =&gt; { this.checkUpdate(); }, 500);
+        loop(0);
+    });
+
+}
+
+</t>
+<t tx="felix.20241229162002.1">toggleGameMenu(): void {
+    console.log('Toggle Game Menu'); // Todo: Implement Game Menu
+}
+
+</t>
+<t tx="felix.20241229162110.1">mouseMove(event: MouseEvent): void {
+    //
+}
+
+</t>
+<t tx="felix.20241229162200.1">mouseDown(event: MouseEvent): void {
+    //
+}
+
+</t>
+<t tx="felix.20241229162201.1">mouseUp(event: MouseEvent): void {
+    //
+}
+
+</t>
+<t tx="felix.20241229162229.1">checkUpdate(): void {
+    //
+}
+
+</t>
+<t tx="felix.20241229163326.1">addGameEventListeners(): void {
+    document.addEventListener('keydown', (e) =&gt; {
+        this.keysPressed[e.key] = true;
+        if (e.key === 'F10') {
+            e.preventDefault();  // Prevent default F10 behavior
+            this.toggleGameMenu();
+        }
+        // Prevent keyboard zoom.
+        if (e.ctrlKey &amp;&amp; (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+            e.preventDefault();
+        }
+
+    });
+    document.addEventListener('keyup', (e) =&gt; {
+        this.keysPressed[e.key] = false;
+    });
+    window.addEventListener("mousemove", this.mouseMove.bind(this));
+    window.addEventListener("mousedown", this.mouseDown.bind(this));
+    window.addEventListener("mouseup", this.mouseUp.bind(this));
+    window.addEventListener("wheel", this.mouseWheel.bind(this), { passive: false });
+
+}
+
+</t>
+<t tx="felix.20241229180756.1">mouseWheel(event: WheelEvent): void {
+    // Use the event's deltaY property to detect scroll direction
+    if (event.deltaY &lt; 0) {
+        console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
+    } else if (event.deltaY &gt; 0) {
+        console.log("CTRL+Scroll Down");
+    }
+
+    if (event.ctrlKey) {
+        event.preventDefault(); // Prevents the default zoom behavior
+    }
+}
+
+</t>
 </tnodes>
 </leo_file>

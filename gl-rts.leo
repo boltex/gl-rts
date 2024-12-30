@@ -1030,10 +1030,15 @@ import { TEntity } from "./type";
     lastDisplayWidth: number = 0;
     lastDisplayHeight: number = 0;
     canvas: HTMLCanvasElement;
+    canvasRect: DOMRect;
     gl: WebGL2RenderingContext;
     aspectRatio: number = Game.AVAILABLE_RESOLUTIONS[0].width / Game.AVAILABLE_RESOLUTIONS[0].height;
     startButton: HTMLButtonElement = document.createElement("button");
     resolutionSelect: HTMLSelectElement = document.createElement("select");
+    gameScreenW: number = 0;
+    gameScreenH: number = 0;
+    gameWRatio: number;
+    gameHRatio: number;
 
     // Game state
     started = false;
@@ -1120,6 +1125,9 @@ import { TEntity } from "./type";
         const displayWidth = Math.round(width * dpr);
         const displayHeight = Math.round(height * dpr);
         [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
+        this.canvasRect = this.canvas.getBoundingClientRect();
+        this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
+        this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
     }
     console.log(this.lastDisplayWidth, this.lastDisplayHeight);
 }
@@ -1143,13 +1151,18 @@ import { TEntity } from "./type";
 
     this.canvas = document.createElement('canvas');
     document.body.appendChild(this.canvas);
+    this.canvasRect = this.canvas.getBoundingClientRect();
+    this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
+    this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
+
     this.gl = this.canvas.getContext('webgl2')!;
+
     // Prevent right-click context menu
     this.canvas.addEventListener('contextmenu', (event) =&gt; {
         event.preventDefault();
     });
 
-    const resizeObserver = new ResizeObserver(this.resize);
+    const resizeObserver = new ResizeObserver(this.resize.bind(this));
     resizeObserver.observe(this.canvas, { box: 'content-box' });
 
     // Create a 'loading...' text element centered on screen
@@ -1234,12 +1247,14 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241229162110.1">mouseMove(event: MouseEvent): void {
-    //
+    this.curx = event.clientX * (this.gameScreenW / this.canvasRect.width);
+    this.cury = event.clientY * (this.gameScreenH / this.canvasRect.height);
 }
 
 </t>
 <t tx="felix.20241229162200.1">mouseDown(event: MouseEvent): void {
     //
+    console.log(this.curx, this.cury);
 }
 
 </t>
@@ -1304,8 +1319,11 @@ import { TEntity } from "./type";
 <t tx="felix.20241229230016.1">startGame(): void {
     const resolution = Game.AVAILABLE_RESOLUTIONS[this.resolutionSelect.selectedIndex];
     this.aspectRatio = resolution.width / resolution.height;
+    this.gameScreenW = resolution.width;
+    this.gameScreenH = resolution.height;
 
     console.log('Starting the game with aspect ratio', this.aspectRatio);
+    this.addGameEventListeners();
 
     this.startButton.style.display = 'none';
     this.resolutionSelect.style.display = 'none';

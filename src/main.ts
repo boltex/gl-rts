@@ -17,9 +17,29 @@ export class Game {
     canvas: HTMLCanvasElement;
     gl: WebGL2RenderingContext;
     aspectRatio: number = Game.AVAILABLE_RESOLUTIONS[0].width / Game.AVAILABLE_RESOLUTIONS[0].height;
+    startButton: HTMLButtonElement = document.createElement("button");
+    resolutionSelect: HTMLSelectElement = document.createElement("select");
 
     // Game state
     started = false;
+    gamestate = 0   // 0=SPLASH
+    // 1=Lobby (main menu)
+    // 2=game Lobby
+    // 3=play Loop
+    // 4=Game over/stats
+    // 5=EDITION ANIMS
+    // 6=EDITION MAP
+    // 7=OPTIONS
+    gameaction = 0    // 0 = none
+
+    // Current mouse position in window
+    curx = 0
+    cury = 0
+    // Current mouse position in game
+    gamecurx = 0
+    gamecury = 0
+    gameselx = 0
+    gamesely = 0
 
     // Key press state
     keysPressed: Record<string, any> = {};
@@ -27,6 +47,11 @@ export class Game {
     // Image assets
     creatures!: HTMLImageElement;
     tiles!: HTMLImageElement;
+
+    static GAME_ACTIONS = {
+        DEFAULT: 1,
+        RELEASESEL: 2
+    };
 
     static AVAILABLE_RESOLUTIONS = [
         {
@@ -145,15 +170,13 @@ export class Game {
         // The images have loaded, so it's time to show the pre-game menu
 
         // Create the start button
-        const startButton = document.createElement("button");
-        startButton.textContent = "Start Game";
-        startButton.classList.add("btn-start");
+        this.startButton.textContent = "Start Game";
+        this.startButton.classList.add("btn-start");
 
-        document.body.appendChild(startButton);
+        document.body.appendChild(this.startButton);
 
         // Create the dropdown for screen resolution
-        const resolutionSelect = document.createElement("select");
-        resolutionSelect.classList.add("resolution-select");
+        this.resolutionSelect.classList.add("resolution-select");
 
 
         // Populate the dropdown with options
@@ -161,28 +184,28 @@ export class Game {
             const option = document.createElement("option");
             option.value = `${width}x${height}`;
             option.textContent = label;
-            resolutionSelect.appendChild(option);
+            this.resolutionSelect.appendChild(option);
         }
-        document.body.appendChild(resolutionSelect);
+        document.body.appendChild(this.resolutionSelect);
 
         // Use resolutionSelect.selectedIndex to get the selected resolution
 
-        startButton.addEventListener("click", () => {
+        this.startButton.addEventListener("click", this.startGame.bind(this));
 
-            const resolution = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex];
-            this.aspectRatio = resolution.width / resolution.height;
+    }
 
-            console.log('Starting the game with aspect ratio', this.aspectRatio);
+    startGame(): void {
+        const resolution = Game.AVAILABLE_RESOLUTIONS[this.resolutionSelect.selectedIndex];
+        this.aspectRatio = resolution.width / resolution.height;
 
-            startButton.style.display = 'none';
-            resolutionSelect.style.display = 'none';
-            // document.body.style.cursor = 'none'; // ! HIDE NATIVE CURSOR !
-            this.started = true;
-            // Setup timer in case RAF Skipped when not in foreground or minimized.
-            setInterval(() => { this.checkUpdate(); }, 500);
-            this.loop(0);
-        });
+        console.log('Starting the game with aspect ratio', this.aspectRatio);
 
+        this.startButton.style.display = 'none';
+        this.resolutionSelect.style.display = 'none';
+        this.started = true;
+        // Setup timer in case RAF Skipped when minimized or not in foreground.
+        setInterval(() => { this.checkUpdate(); }, 500);
+        this.loop(0);
     }
 
     addGameEventListeners(): void {

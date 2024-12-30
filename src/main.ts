@@ -10,11 +10,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-function loop(timestamp: number): void {
-    window.game.update(timestamp);
-    requestAnimationFrame(loop);
-}
-
 export class Game {
 
     lastDisplayWidth: number = 0;
@@ -143,7 +138,7 @@ export class Game {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         // Render the game
-        // Todo: render game
+        // Todo: render game entities
     }
 
     mainMenu(): void {
@@ -174,9 +169,10 @@ export class Game {
 
         startButton.addEventListener("click", () => {
 
-            this.aspectRatio = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].width / Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].height;
+            const resolution = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex];
+            this.aspectRatio = resolution.width / resolution.height;
 
-            console.log('Starting the game!', this.aspectRatio);
+            console.log('Starting the game with aspect ratio', this.aspectRatio);
 
             startButton.style.display = 'none';
             resolutionSelect.style.display = 'none';
@@ -184,36 +180,38 @@ export class Game {
             this.started = true;
             // Setup timer in case RAF Skipped when not in foreground or minimized.
             setInterval(() => { this.checkUpdate(); }, 500);
-            loop(0);
+            this.loop(0);
         });
 
     }
 
     addGameEventListeners(): void {
-        document.addEventListener('keydown', (e) => {
-            this.keysPressed[e.key] = true;
-            if (e.key === 'F10') {
-                e.preventDefault();  // Prevent default F10 behavior
-                this.toggleGameMenu();
-            }
-            // Prevent keyboard zoom.
-            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
-                e.preventDefault();
-            }
-
-        });
-        document.addEventListener('keyup', (e) => {
-            this.keysPressed[e.key] = false;
-        });
+        window.addEventListener("keydown", this.keyDown.bind(this));
+        window.addEventListener("keyup", this.keyUp.bind(this));
         window.addEventListener("mousemove", this.mouseMove.bind(this));
         window.addEventListener("mousedown", this.mouseDown.bind(this));
         window.addEventListener("mouseup", this.mouseUp.bind(this));
         window.addEventListener("wheel", this.mouseWheel.bind(this), { passive: false });
-
     }
 
     toggleGameMenu(): void {
         console.log('Toggle Game Menu'); // Todo: Implement Game Menu
+    }
+
+    keyDown(e: KeyboardEvent): void {
+        this.keysPressed[e.key] = true;
+        if (e.key === 'F10') {
+            e.preventDefault();  // Prevent default F10 behavior
+            this.toggleGameMenu();
+        }
+        // Prevent keyboard zoom.
+        if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+            e.preventDefault();
+        }
+    }
+
+    keyUp(e: KeyboardEvent): void {
+        this.keysPressed[e.key] = false;
     }
 
     mouseMove(event: MouseEvent): void {
@@ -243,6 +241,11 @@ export class Game {
 
     checkUpdate(): void {
         //
+    }
+
+    loop(timestamp: number): void {
+        this.update(timestamp);
+        requestAnimationFrame(this.loop.bind(this));
     }
 
 

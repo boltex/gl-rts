@@ -49,11 +49,14 @@
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229163326.1"><vh>addGameEventListeners</vh></v>
 <v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
+<v t="felix.20241229190851.1"><vh>keyDown</vh></v>
+<v t="felix.20241229190855.1"><vh>keyUp</vh></v>
 <v t="felix.20241229162110.1"><vh>mouseMove</vh></v>
 <v t="felix.20241229162200.1"><vh>mouseDown</vh></v>
 <v t="felix.20241229162201.1"><vh>mouseUp</vh></v>
 <v t="felix.20241229180756.1"><vh>mouseWheel</vh></v>
 <v t="felix.20241229162229.1"><vh>checkUpdate</vh></v>
+<v t="felix.20241229214656.1"><vh>loop</vh></v>
 </v>
 </v>
 <v t="felix.20241220001515.1"><vh>@clean src/maths.ts</vh>
@@ -1020,11 +1023,6 @@ import { TEntity } from "./type";
     }
 });
 
-function loop(timestamp: number): void {
-    window.game.update(timestamp);
-    requestAnimationFrame(loop);
-}
-
 </t>
 <t tx="felix.20241227213056.1">export class Game {
 
@@ -1110,7 +1108,7 @@ function loop(timestamp: number): void {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Render the game
-    // Todo: render game
+    // Todo: render game entities
 }
 
 </t>
@@ -1203,9 +1201,10 @@ function loop(timestamp: number): void {
 
     startButton.addEventListener("click", () =&gt; {
 
-        this.aspectRatio = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].width / Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex].height;
+        const resolution = Game.AVAILABLE_RESOLUTIONS[resolutionSelect.selectedIndex];
+        this.aspectRatio = resolution.width / resolution.height;
 
-        console.log('Starting the game!', this.aspectRatio);
+        console.log('Starting the game with aspect ratio', this.aspectRatio);
 
         startButton.style.display = 'none';
         resolutionSelect.style.display = 'none';
@@ -1213,7 +1212,7 @@ function loop(timestamp: number): void {
         this.started = true;
         // Setup timer in case RAF Skipped when not in foreground or minimized.
         setInterval(() =&gt; { this.checkUpdate(); }, 500);
-        loop(0);
+        this.loop(0);
     });
 
 }
@@ -1245,26 +1244,12 @@ function loop(timestamp: number): void {
 
 </t>
 <t tx="felix.20241229163326.1">addGameEventListeners(): void {
-    document.addEventListener('keydown', (e) =&gt; {
-        this.keysPressed[e.key] = true;
-        if (e.key === 'F10') {
-            e.preventDefault();  // Prevent default F10 behavior
-            this.toggleGameMenu();
-        }
-        // Prevent keyboard zoom.
-        if (e.ctrlKey &amp;&amp; (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
-            e.preventDefault();
-        }
-
-    });
-    document.addEventListener('keyup', (e) =&gt; {
-        this.keysPressed[e.key] = false;
-    });
+    window.addEventListener("keydown", this.keyDown.bind(this));
+    window.addEventListener("keyup", this.keyUp.bind(this));
     window.addEventListener("mousemove", this.mouseMove.bind(this));
     window.addEventListener("mousedown", this.mouseDown.bind(this));
     window.addEventListener("mouseup", this.mouseUp.bind(this));
     window.addEventListener("wheel", this.mouseWheel.bind(this), { passive: false });
-
 }
 
 </t>
@@ -1279,6 +1264,30 @@ function loop(timestamp: number): void {
     if (event.ctrlKey) {
         event.preventDefault(); // Prevents the default zoom behavior
     }
+}
+
+</t>
+<t tx="felix.20241229190851.1">keyDown(e: KeyboardEvent): void {
+    this.keysPressed[e.key] = true;
+    if (e.key === 'F10') {
+        e.preventDefault();  // Prevent default F10 behavior
+        this.toggleGameMenu();
+    }
+    // Prevent keyboard zoom.
+    if (e.ctrlKey &amp;&amp; (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+        e.preventDefault();
+    }
+}
+
+</t>
+<t tx="felix.20241229190855.1">keyUp(e: KeyboardEvent): void {
+    this.keysPressed[e.key] = false;
+}
+
+</t>
+<t tx="felix.20241229214656.1">loop(timestamp: number): void {
+    this.update(timestamp);
+    requestAnimationFrame(this.loop.bind(this));
 }
 
 </t>

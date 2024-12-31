@@ -52,12 +52,17 @@
 <v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
 <v t="felix.20241229190851.1"><vh>keyDown</vh></v>
 <v t="felix.20241229190855.1"><vh>keyUp</vh></v>
+<v t="felix.20241230214840.1"><vh>checkKeys</vh></v>
 <v t="felix.20241229162110.1"><vh>mouseMove</vh></v>
 <v t="felix.20241229162200.1"><vh>mouseDown</vh></v>
 <v t="felix.20241229162201.1"><vh>mouseUp</vh></v>
 <v t="felix.20241229180756.1"><vh>mouseWheel</vh></v>
+<v t="felix.20241230215224.1"><vh>procGame</vh></v>
 <v t="felix.20241229162229.1"><vh>checkUpdate</vh></v>
+<v t="felix.20241230215229.1"><vh>tick</vh></v>
 <v t="felix.20241229214656.1"><vh>loop</vh></v>
+<v t="felix.20241230215401.1"><vh>trydefault</vh></v>
+<v t="felix.20241230215406.1"><vh>tryselect</vh></v>
 </v>
 </v>
 <v t="felix.20241220001515.1"><vh>@clean src/maths.ts</vh>
@@ -1040,33 +1045,65 @@ import { TEntity } from "./type";
     gameWRatio: number;
     gameHRatio: number;
 
+    tileBmpSize = 1024;  // size of a square bitmap of tiles
+    tileSize = 128;      // size of an individual square TILE 
+    tileRatio = this.tileBmpSize / this.tileSize;
+    initRangeX = (this.gameScreenW / this.tileSize) + 1;
+    initRangeY = (this.gameScreenH / this.tileSize) + 1;
+
+    gameMapWidth = 9; // game map width in TILES 
+    gameMapHeight = 9; // game map height in TILES 
+    maxmapx = (this.gameMapWidth * this.tileSize) - 1;
+    maxmapy = (this.gameMapHeight * this.tileSize) - 1;
+    maxscrollx = 1 + this.maxmapx - this.gameScreenW;
+    maxscrolly = 1 + this.maxmapy - this.gameScreenH;
+
     // Game state
     started = false;
-    gamestate = 0   // 0=SPLASH
-    // 1=Lobby (main menu)
-    // 2=game Lobby
-    // 3=play Loop
-    // 4=Game over/stats
-    // 5=EDITION ANIMS
-    // 6=EDITION MAP
-    // 7=OPTIONS
-    gameaction = 0    // 0 = none
+    gameAction = 0    // 0 = none
 
     // Current mouse position in window
-    curx = 0
-    cury = 0
+    curX = 0
+    curY = 0
     // Current mouse position in game
-    gamecurx = 0
-    gamecury = 0
-    gameselx = 0
-    gamesely = 0
+    gameCurX = 0
+    gameCurY = 0
+    gameSelX = 0
+    gameSelY = 0
+
+    selecting: boolean = false;
+    selX = 0; // Started selection at specific coords
+    selY = 0;
+
+    scrollX = 0; // Current scroll position 
+    scrollY = 0;
+    scrollNowX = 0; // Scroll amount to be applied to scroll when processing
+    scrollNowY = 0;
 
     // Key press state
     keysPressed: Record&lt;string, any&gt; = {};
 
     // Image assets
-    creatures!: HTMLImageElement;
-    tiles!: HTMLImageElement;
+    creaturesImage!: HTMLImageElement;
+    tilesImage!: HTMLImageElement;
+
+    // GAME-STATE TICKS AT 8 FPS
+    tickAccumulator = 0; // What remained in deltaTime after last update 
+    currentTick = 0;
+    timePerTick = 125; // dt in ms (125 is 8 per second)
+    timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick
+
+    // ANIMATIONS AT 15 FPS
+    animAccumulator = 0; // What remained in deltaTime after last update 
+    currentAnim = 0;
+    timePerAnim = 67; // dt in ms (66.66 is 15 per second)
+
+    // FPS counter
+    lastTime = 0;
+    fps = 0;
+    fpsInterval = 1000; // Update FPS every 1 second
+    fpsLastTime = 0;
+
 
     static GAME_ACTIONS = {
         DEFAULT: 1,
@@ -1125,9 +1162,13 @@ import { TEntity } from "./type";
         const displayWidth = Math.round(width * dpr);
         const displayHeight = Math.round(height * dpr);
         [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
+
+        // Todo: This next few lines are repeated in the code! Refactor!
         this.canvasRect = this.canvas.getBoundingClientRect();
         this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
         this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
+        this.maxscrollx = 1 + this.maxmapx - this.gameScreenW;
+        this.maxscrolly = 1 + this.maxmapy - this.gameScreenH;
     }
     console.log(this.lastDisplayWidth, this.lastDisplayHeight);
 }
@@ -1151,9 +1192,13 @@ import { TEntity } from "./type";
 
     this.canvas = document.createElement('canvas');
     document.body.appendChild(this.canvas);
+
+    // Todo: This next few lines are repeated in the code! Refactor!
     this.canvasRect = this.canvas.getBoundingClientRect();
     this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
     this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
+    this.maxscrollx = 1 + this.maxmapx - this.gameScreenW;
+    this.maxscrolly = 1 + this.maxmapy - this.gameScreenH;
 
     this.gl = this.canvas.getContext('webgl2')!;
 
@@ -1177,8 +1222,8 @@ import { TEntity } from "./type";
     const tilesPromise = utils.loadImage('images/plancher-vertical.png');
     Promise.all([creaturesPromise, tilesPromise]).then((images) =&gt; {
         document.body.removeChild(loadingText);
-        this.creatures = images[0];
-        this.tiles = images[1];
+        this.creaturesImage = images[0];
+        this.tilesImage = images[1];
         this.mainMenu();
     });
 
@@ -1247,14 +1292,14 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241229162110.1">mouseMove(event: MouseEvent): void {
-    this.curx = event.clientX * (this.gameScreenW / this.canvasRect.width);
-    this.cury = event.clientY * (this.gameScreenH / this.canvasRect.height);
+    this.curX = event.clientX * (this.gameScreenW / this.canvasRect.width);
+    this.curY = event.clientY * (this.gameScreenH / this.canvasRect.height);
 }
 
 </t>
 <t tx="felix.20241229162200.1">mouseDown(event: MouseEvent): void {
     //
-    console.log(this.curx, this.cury);
+    console.log(this.curX, this.curY);
 }
 
 </t>
@@ -1264,7 +1309,14 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241229162229.1">checkUpdate(): void {
-    //
+    // Checks for needed ticks to be computed if game is minimized
+    const timestamp = performance.now();
+    const deltaTime = timestamp - this.lastTime;
+    if ((this.tickAccumulator + deltaTime) &lt; this.timerTriggerAccum) {
+        return;
+    }
+    // It's been a while, game is minimized: update without rendering.
+    this.update(timestamp, true);
 }
 
 </t>
@@ -1331,6 +1383,107 @@ import { TEntity } from "./type";
     // Setup timer in case RAF Skipped when minimized or not in foreground.
     setInterval(() =&gt; { this.checkUpdate(); }, 500);
     this.loop(0);
+}
+
+</t>
+<t tx="felix.20241230214840.1">checkKeys(): void {
+    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
+        //
+    }
+    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
+        //
+    }
+    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
+        // 
+    }
+    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
+        //
+    }
+}
+
+</t>
+<t tx="felix.20241230215224.1">public procGame(): void {
+
+    // procgame processes a game frame, animating each RFA
+    // Note: This is not a game-states tick, at timePerTick intervals.
+
+    if (this.gameAction) {
+
+        switch (this.gameAction) {
+            case Game.GAME_ACTIONS.DEFAULT:
+                this.trydefault()
+                break;
+            case Game.GAME_ACTIONS.RELEASESEL:
+                this.tryselect()
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    this.gameAction = 0 // -------------- no more game actions to do
+
+    // Scroll if not selected    
+    if (!this.selecting) {
+        this.scrollX += this.scrollNowX;
+        this.scrollY += this.scrollNowY;
+        if (this.scrollX &gt; this.maxscrollx) {
+            this.scrollX = this.maxscrollx;
+        }
+        if (this.scrollX &lt; 0) {
+            this.scrollX = 0;
+        }
+        if (this.scrollY &gt; this.maxscrolly) {
+            this.scrollY = this.maxscrolly;
+        }
+        if (this.scrollY &lt; 0) {
+            this.scrollY = 0;
+        }
+    }
+}
+
+</t>
+<t tx="felix.20241230215229.1">tick(): void {
+
+    // Advance game states in pool:
+    // meaning, from currentTick count, to the next one.
+
+    // #########################################
+
+    /*
+    let processed = 0;
+    let entity;
+    for (let i = 0; processed &lt; this.entities.active || i &lt; this.entities.total; i++) {
+        entity = this.entities.pool[i];
+        if (entity.active) {
+            processed += 1;
+            this.ai.process(entity);
+        }
+    }
+    */
+
+    this.checkKeys();
+
+    // Update currentTick count
+    this.currentTick += 1;
+}
+
+</t>
+<t tx="felix.20241230215401.1">public trydefault(): void {
+
+    // TODO : Replace with test cursor animation with the real default action
+    // TEST CURSOR ANIMATION ON DEFAULT ACTION
+    // this.curanim = 1;
+    // this.curanimx = this.gamecurx - 32;
+    // this.curanimy = this.gamecury - 32;
+
+}
+
+</t>
+<t tx="felix.20241230215406.1">public tryselect(): void {
+    // Called from procGame
 }
 
 </t>

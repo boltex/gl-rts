@@ -51,6 +51,13 @@ export class Game {
     gameSelX = 0
     gameSelY = 0
 
+    // Cursor animation variables
+    curAnim = 0
+    curAnimTotal = 6
+    curAnimX = 0
+    curAnimY = 0
+
+    // Cursor selection state
     selecting: boolean = false;
     selX = 0; // Started selection at specific coords
     selY = 0;
@@ -208,15 +215,72 @@ export class Game {
     }
 
     update(timestamp: number, skipRender?: boolean): void {
+        const deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
+
+        this.tickAccumulator += deltaTime;
+        this.animAccumulator += deltaTime;
+
+        this.procGame();
+
+        while (this.animAccumulator >= this.timePerAnim) {
+            this.animateCursor();
+            this.animAccumulator -= this.timePerAnim;
+        }
+
+        while (this.tickAccumulator >= this.timePerTick) {
+            this.tick();
+            this.tickAccumulator -= this.timePerTick;
+        }
+
+        if (!skipRender) {
+            // Gather render data and interpolate
+            this.render(this.tickAccumulator / this.timePerTick);
+        }
+
+        // Calculate FPS
+        if (timestamp - this.fpsLastTime > this.fpsInterval) {
+            this.fps = Math.round(1000 / deltaTime);
+            this.fpsLastTime = timestamp;
+            // console.log('RFA FPS ', this.fps); // 30
+        }
+
+    }
+
+    public animateCursor(): void {
+        // Animate at 15 FPS
+
+        // Cursor
+        if (this.curAnim) {
+            this.curAnim += 1;
+            if (this.curAnim > this.curAnimTotal)
+                this.curAnim = 0
+        }
+
+    }
+
+    interpolate(min: Point, max: Point, fract: number): Point {
+        return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
+    }
+
+    render(interpolation: number): void {
+
         // Before rendering, resize canvas to display size. (in case of changing window size)
         this.resizeCanvasToDisplaySize(this.canvas);
 
         // Clear the canvas
-        this.gl.clearColor(0, 0, 0, 1);
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
+        this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
+
         // Render the game
-        // Todo: render game entities
+
+        // TODO: Render the game map
+        // TODO: Render the game entities
+
+        // Finished
+        this.gl.flush();
     }
 
     mainMenu(): void {

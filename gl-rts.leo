@@ -46,6 +46,9 @@
 <v t="felix.20241227213217.1"><vh>resize</vh></v>
 <v t="felix.20241228191055.1"><vh>resizeCanvasToDisplaySize</vh></v>
 <v t="felix.20241227213236.1"><vh>update</vh></v>
+<v t="felix.20241231225835.1"><vh>animateCursor</vh></v>
+<v t="felix.20241231222558.1"><vh>interpolate</vh></v>
+<v t="felix.20241231221007.1"><vh>render</vh></v>
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229230016.1"><vh>startGame</vh></v>
 <v t="felix.20241229163326.1"><vh>addGameEventListeners</vh></v>
@@ -1071,6 +1074,13 @@ import { TEntity } from "./type";
     gameSelX = 0
     gameSelY = 0
 
+    // Cursor animation variables
+    curAnim = 0
+    curAnimTotal = 6
+    curAnimX = 0
+    curAnimY = 0
+
+    // Cursor selection state
     selecting: boolean = false;
     selX = 0; // Started selection at specific coords
     selY = 0;
@@ -1175,15 +1185,36 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241227213236.1">update(timestamp: number, skipRender?: boolean): void {
-    // Before rendering, resize canvas to display size. (in case of changing window size)
-    this.resizeCanvasToDisplaySize(this.canvas);
+    const deltaTime = timestamp - this.lastTime;
+    this.lastTime = timestamp;
 
-    // Clear the canvas
-    this.gl.clearColor(0, 0, 0, 1);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.tickAccumulator += deltaTime;
+    this.animAccumulator += deltaTime;
 
-    // Render the game
-    // Todo: render game entities
+    this.procGame();
+
+    while (this.animAccumulator &gt;= this.timePerAnim) {
+        this.animateCursor();
+        this.animAccumulator -= this.timePerAnim;
+    }
+
+    while (this.tickAccumulator &gt;= this.timePerTick) {
+        this.tick();
+        this.tickAccumulator -= this.timePerTick;
+    }
+
+    if (!skipRender) {
+        // Gather render data and interpolate
+        this.render(this.tickAccumulator / this.timePerTick);
+    }
+
+    // Calculate FPS
+    if (timestamp - this.fpsLastTime &gt; this.fpsInterval) {
+        this.fps = Math.round(1000 / deltaTime);
+        this.fpsLastTime = timestamp;
+        // console.log('RFA FPS ', this.fps); // 30
+    }
+
 }
 
 </t>
@@ -1484,6 +1515,45 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241230215406.1">public tryselect(): void {
     // Called from procGame
+}
+
+</t>
+<t tx="felix.20241231221007.1">render(interpolation: number): void {
+
+    // Before rendering, resize canvas to display size. (in case of changing window size)
+    this.resizeCanvasToDisplaySize(this.canvas);
+
+    // Clear the canvas
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
+
+    // Render the game
+
+    // TODO: Render the game map
+    // TODO: Render the game entities
+
+    // Finished
+    this.gl.flush();
+}
+
+</t>
+<t tx="felix.20241231222558.1">interpolate(min: Point, max: Point, fract: number): Point {
+    return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
+}
+
+</t>
+<t tx="felix.20241231225835.1">public animateCursor(): void {
+    // Animate at 15 FPS
+
+    // Cursor
+    if (this.curAnim) {
+        this.curAnim += 1;
+        if (this.curAnim &gt; this.curAnimTotal)
+            this.curAnim = 0
+    }
+
 }
 
 </t>

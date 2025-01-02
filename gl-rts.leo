@@ -44,6 +44,7 @@
 <v t="felix.20241227213056.1"><vh>class Game</vh>
 <v t="felix.20241227213841.1"><vh>constructor</vh></v>
 <v t="felix.20241227213217.1"><vh>resize</vh></v>
+<v t="felix.20250101222813.1"><vh>setDimensionsVars</vh></v>
 <v t="felix.20241228191055.1"><vh>resizeCanvasToDisplaySize</vh></v>
 <v t="felix.20241227213236.1"><vh>update</vh></v>
 <v t="felix.20250101211507.1"><vh>setCursor</vh></v>
@@ -61,6 +62,7 @@
 <v t="felix.20241229162200.1"><vh>mouseDown</vh></v>
 <v t="felix.20241229162201.1"><vh>mouseUp</vh></v>
 <v t="felix.20241229180756.1"><vh>mouseWheel</vh></v>
+<v t="felix.20250101212200.1"><vh>setCursorPos</vh></v>
 <v t="felix.20241230215224.1"><vh>procGame</vh></v>
 <v t="felix.20241229162229.1"><vh>checkUpdate</vh></v>
 <v t="felix.20241230215229.1"><vh>tick</vh></v>
@@ -1044,26 +1046,33 @@ import { TEntity } from "./type";
     canvas: HTMLCanvasElement;
     canvasRect: DOMRect;
     gl: WebGL2RenderingContext;
-    aspectRatio: number = Game.AVAILABLE_RESOLUTIONS[0].width / Game.AVAILABLE_RESOLUTIONS[0].height;
     startButton: HTMLButtonElement = document.createElement("button");
     resolutionSelect: HTMLSelectElement = document.createElement("select");
-    gameScreenW: number = 0;
+
+    aspectRatio: number = 1; // set in startGame, this is display aspect ratio
+
+    gameScreenW: number = 0; // set in startGame, this is game screen size
     gameScreenH: number = 0;
-    gameWRatio: number;
-    gameHRatio: number;
+
+    gameWRatio: number = 0; // set in startGame, this is game screen ratio to the canvas size
+    gameHRatio: number = 0;
+
+    xscr_e = 0; // set in startGame, constants for finding trigger zone
+    yscr_e = 0;
 
     tileBmpSize = 1024;  // size of a square bitmap of tiles
     tileSize = 128;      // size of an individual square TILE 
     tileRatio = this.tileBmpSize / this.tileSize;
-    initRangeX = (this.gameScreenW / this.tileSize) + 1;
+
+    initRangeX = (this.gameScreenW / this.tileSize) + 1; // set in startGame
     initRangeY = (this.gameScreenH / this.tileSize) + 1;
 
     gameMapWidth = 9; // game map width in TILES 
     gameMapHeight = 9; // game map height in TILES 
-    maxmapx = (this.gameMapWidth * this.tileSize) - 1;
-    maxmapy = (this.gameMapHeight * this.tileSize) - 1;
-    maxscrollx = 1 + this.maxmapx - this.gameScreenW;
-    maxscrolly = 1 + this.maxmapy - this.gameScreenH;
+    maxMapX = (this.gameMapWidth * this.tileSize) - 1;
+    maxMapY = (this.gameMapHeight * this.tileSize) - 1;
+    maxScrollX = 1 + this.maxMapX - this.gameScreenW;
+    maxScrollY = 1 + this.maxMapY - this.gameScreenH;
 
     // Game state
     started = false;
@@ -1118,6 +1127,8 @@ import { TEntity } from "./type";
     fpsInterval = 1000; // Update FPS every 1 second
     fpsLastTime = 0;
 
+    static SCROLLSPEED = 50;   // speed in pixels for scrolling
+    static SCROLLBORDER = 10; // 5;   // pixels from screen to trigger scrolling
 
     static GAME_ACTIONS = {
         DEFAULT: 1,
@@ -1177,12 +1188,7 @@ import { TEntity } from "./type";
         const displayHeight = Math.round(height * dpr);
         [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
 
-        // Todo: This next few lines are repeated in the code! Refactor!
-        this.canvasRect = this.canvas.getBoundingClientRect();
-        this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
-        this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
-        this.maxscrollx = 1 + this.maxmapx - this.gameScreenW;
-        this.maxscrolly = 1 + this.maxmapy - this.gameScreenH;
+        this.setDimensionsVars();
     }
     console.log(this.lastDisplayWidth, this.lastDisplayHeight);
 }
@@ -1230,12 +1236,8 @@ import { TEntity } from "./type";
     this.canvas = document.createElement('canvas');
     document.body.appendChild(this.canvas);
 
-    // Todo: This next few lines are repeated in the code! Refactor!
     this.canvasRect = this.canvas.getBoundingClientRect();
-    this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
-    this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
-    this.maxscrollx = 1 + this.maxmapx - this.gameScreenW;
-    this.maxscrolly = 1 + this.maxmapy - this.gameScreenH;
+    this.setDimensionsVars();
 
     this.gl = this.canvas.getContext('webgl2')!;
 
@@ -1329,19 +1331,54 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241229162110.1">mouseMove(event: MouseEvent): void {
-    this.curX = event.clientX * (this.gameScreenW / this.canvasRect.width);
-    this.curY = event.clientY * (this.gameScreenH / this.canvasRect.height);
+    this.setCursorPos(event);
+    this.scrollNowX = 0;
+    this.scrollNowY = 0;
+    if (this.curX &gt; this.xscr_e) {
+        this.scrollNowX = Game.SCROLLSPEED;
+    }
+    if (this.curY &gt; this.yscr_e) {
+        this.scrollNowY = Game.SCROLLSPEED;
+    }
+    if (this.curX &lt; Game.SCROLLBORDER) {
+        this.scrollNowX = -Game.SCROLLSPEED;
+    }
+    if (this.curY &lt; Game.SCROLLBORDER) {
+        this.scrollNowY = -Game.SCROLLSPEED;
+    }
 }
 
 </t>
 <t tx="felix.20241229162200.1">mouseDown(event: MouseEvent): void {
-    //
-    console.log(this.curX, this.curY);
+    this.setCursorPos(event);
+    this.gameCurX = this.curX + this.scrollX;
+    this.gameCurY = this.curY + this.scrollY;
+    if (!this.selecting) {
+        if (event.button == 0) {
+            this.selecting = true;
+            this.setCursor("cur-target");
+            this.selX = this.curX;
+            this.selY = this.curY;
+        }
+        if (event.button == 2) {
+            this.gameAction = Game.GAME_ACTIONS.DEFAULT;
+        }
+    }
 }
 
 </t>
 <t tx="felix.20241229162201.1">mouseUp(event: MouseEvent): void {
-    //
+    this.setCursorPos(event);
+    this.gameSelX = this.selX + this.scrollX;
+    this.gameSelY = this.selY + this.scrollY;
+    this.gameCurX = this.curX + this.scrollX;
+    this.gameCurY = this.curY + this.scrollY;
+    if (event.button == 0) {
+        this.selecting = false;
+        this.setCursor("cur-pointer");
+        this.gameAction = Game.GAME_ACTIONS.RELEASESEL;
+    }
+
 }
 
 </t>
@@ -1368,15 +1405,17 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241229180756.1">mouseWheel(event: WheelEvent): void {
-    // Use the event's deltaY property to detect scroll direction
     if (event.deltaY &lt; 0) {
+        // Todo: Zoom in
         console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
     } else if (event.deltaY &gt; 0) {
+        // Todo: Zoom out
         console.log("CTRL+Scroll Down");
     }
 
+    // Prevents the default zoom behavior
     if (event.ctrlKey) {
-        event.preventDefault(); // Prevents the default zoom behavior
+        event.preventDefault();
     }
 }
 
@@ -1410,11 +1449,19 @@ import { TEntity } from "./type";
     this.aspectRatio = resolution.width / resolution.height;
     this.gameScreenW = resolution.width;
     this.gameScreenH = resolution.height;
+    this.xscr_e = this.gameScreenW - Game.SCROLLBORDER; // constants for finding trigger zone
+    this.yscr_e = this.gameScreenH - Game.SCROLLBORDER;
+
+    // Re-set 
+    this.initRangeX = (this.gameScreenW / this.tileSize) + 1;
+    this.initRangeY = (this.gameScreenH / this.tileSize) + 1;
+    this.maxScrollX = 1 + this.maxMapX - this.gameScreenW;
+    this.maxScrollY = 1 + this.maxMapY - this.gameScreenH;
 
     console.log('Starting the game with aspect ratio', this.aspectRatio);
 
     this.setCursor("cur-pointer");
-    
+
     this.addGameEventListeners();
 
     this.startButton.style.display = 'none';
@@ -1469,14 +1516,14 @@ import { TEntity } from "./type";
     if (!this.selecting) {
         this.scrollX += this.scrollNowX;
         this.scrollY += this.scrollNowY;
-        if (this.scrollX &gt; this.maxscrollx) {
-            this.scrollX = this.maxscrollx;
+        if (this.scrollX &gt; this.maxScrollX) {
+            this.scrollX = this.maxScrollX;
         }
         if (this.scrollX &lt; 0) {
             this.scrollX = 0;
         }
-        if (this.scrollY &gt; this.maxscrolly) {
-            this.scrollY = this.maxscrolly;
+        if (this.scrollY &gt; this.maxScrollY) {
+            this.scrollY = this.maxScrollY;
         }
         if (this.scrollY &lt; 0) {
             this.scrollY = 0;
@@ -1515,9 +1562,9 @@ import { TEntity } from "./type";
 
     // TODO : Replace with test cursor animation with the real default action
     // TEST CURSOR ANIMATION ON DEFAULT ACTION
-    // this.curanim = 1;
-    // this.curanimx = this.gamecurx - 32;
-    // this.curanimy = this.gamecury - 32;
+    this.curAnim = 1;
+    this.curAnimX = this.gameCurX - 32;
+    this.curAnimY = this.gameCurY - 32;
 
 }
 
@@ -1574,6 +1621,22 @@ import { TEntity } from "./type";
         this.htmlClassList.add(newClass); // Add to html
         this.curClass = newClass; // Update the tracked cursor class
     }
+}
+
+</t>
+<t tx="felix.20250101212200.1">setCursorPos(event: MouseEvent): void {
+    this.curX = event.clientX * (this.gameScreenW / this.canvasRect.width);
+    this.curY = event.clientY * (this.gameScreenH / this.canvasRect.height);
+}
+
+</t>
+<t tx="felix.20250101222813.1">setDimensionsVars(): DOMRect {
+    this.canvasRect = this.canvas.getBoundingClientRect();
+    this.gameWRatio = (this.gameScreenW / this.canvasRect.width);
+    this.gameHRatio = (this.gameScreenH / this.canvasRect.height)
+    this.maxScrollX = 1 + this.maxMapX - this.gameScreenW;
+    this.maxScrollY = 1 + this.maxMapY - this.gameScreenH;
+    return this.canvasRect;
 }
 
 </t>

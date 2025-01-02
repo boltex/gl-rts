@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 export class Game {
 
+    htmlClassList: DOMTokenList;
+    curClass = ""; //"cur-pointer", "cur-target", "cur-select" ...
+
     lastDisplayWidth: number = 0;
     lastDisplayHeight: number = 0;
     canvas: HTMLCanvasElement;
@@ -114,6 +117,8 @@ export class Game {
 
     constructor() {
         console.log("constructing game");
+
+        this.htmlClassList = document.documentElement.classList;
 
         this.canvas = document.createElement('canvas');
         document.body.appendChild(this.canvas);
@@ -247,6 +252,16 @@ export class Game {
 
     }
 
+    setCursor(newClass: string) {
+        if (this.curClass !== newClass) {
+            if (this.curClass) {
+                this.htmlClassList.remove(this.curClass); // Remove from html
+            }
+            this.htmlClassList.add(newClass); // Add to html
+            this.curClass = newClass; // Update the tracked cursor class
+        }
+    }
+
     public animateCursor(): void {
         // Animate at 15 FPS
 
@@ -318,6 +333,9 @@ export class Game {
         this.gameScreenH = resolution.height;
 
         console.log('Starting the game with aspect ratio', this.aspectRatio);
+
+        this.setCursor("cur-pointer");
+        
         this.addGameEventListeners();
 
         this.startButton.style.display = 'none';

@@ -46,6 +46,7 @@
 <v t="felix.20241227213217.1"><vh>resize</vh></v>
 <v t="felix.20241228191055.1"><vh>resizeCanvasToDisplaySize</vh></v>
 <v t="felix.20241227213236.1"><vh>update</vh></v>
+<v t="felix.20250101211507.1"><vh>setCursor</vh></v>
 <v t="felix.20241231225835.1"><vh>animateCursor</vh></v>
 <v t="felix.20241231222558.1"><vh>interpolate</vh></v>
 <v t="felix.20241231221007.1"><vh>render</vh></v>
@@ -1035,6 +1036,9 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241227213056.1">export class Game {
 
+    htmlClassList: DOMTokenList;
+    curClass = ""; //"cur-pointer", "cur-target", "cur-select" ...
+
     lastDisplayWidth: number = 0;
     lastDisplayHeight: number = 0;
     canvas: HTMLCanvasElement;
@@ -1221,6 +1225,8 @@ import { TEntity } from "./type";
 <t tx="felix.20241227213841.1">constructor() {
     console.log("constructing game");
 
+    this.htmlClassList = document.documentElement.classList;
+
     this.canvas = document.createElement('canvas');
     document.body.appendChild(this.canvas);
 
@@ -1406,6 +1412,9 @@ import { TEntity } from "./type";
     this.gameScreenH = resolution.height;
 
     console.log('Starting the game with aspect ratio', this.aspectRatio);
+
+    this.setCursor("cur-pointer");
+    
     this.addGameEventListeners();
 
     this.startButton.style.display = 'none';
@@ -1554,6 +1563,17 @@ import { TEntity } from "./type";
             this.curAnim = 0
     }
 
+}
+
+</t>
+<t tx="felix.20250101211507.1">setCursor(newClass: string) {
+    if (this.curClass !== newClass) {
+        if (this.curClass) {
+            this.htmlClassList.remove(this.curClass); // Remove from html
+        }
+        this.htmlClassList.add(newClass); // Add to html
+        this.curClass = newClass; // Update the tracked cursor class
+    }
 }
 
 </t>

@@ -1058,7 +1058,7 @@ import { TEntity } from "./type";
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
     scrollEdgeY = 0;
 
-    // Map tile Properties
+    // Map Tle Properties
     tileBmpSize = 1024;  // size of a square bitmap of tiles
     tileSize = 128;      // size of an individual square TILE 
     tileRatio = this.tileBmpSize / this.tileSize;
@@ -1076,16 +1076,14 @@ import { TEntity } from "./type";
     gameAction = 0    // 0 = none
 
     // Mouse Properties
-    mouseX: number = 0; // Current mouse position in window
+    mouseX: number = 0; // Current mouse position in screen
     mouseY: number = 0;
     gameMouseX: number = 0; // Current mouse position in game
     gameMouseY: number = 0;
-    gameSelectionX: number = 0;
-    gameSelectionY: number = 0;
 
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
-    currentCursorClass = ""; //"cur-pointer", "cur-target", "cur-select" ...
+    currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
 
     // Command Acknowledged Widget Animation Properties
     widgetAnim = 0
@@ -1093,10 +1091,14 @@ import { TEntity } from "./type";
     widgetAnimX = 0
     widgetAnimY = 0
 
-    // Cursor Selection State
+    // Cursor Selection States
     selecting: boolean = false;
-    selX = 0; // Started selection at specific coords
+    selX = 0; // Started selection at specific screen coords (end is current mouse pos)
     selY = 0;
+    gameSelStartX: number = 0; // Started selection at specific game coords
+    gameSelStartY: number = 0;
+    gameSelEndX: number = 0; // Ended selection at specific game coords
+    gameSelEndY: number = 0;
 
     // Scroll Properties
     scrollX = 0; // Current scroll position 
@@ -1104,20 +1106,20 @@ import { TEntity } from "./type";
     scrollNowX = 0; // Scroll amount to be applied to scroll when processing
     scrollNowY = 0;
 
-    // Key press state
+    // Key Press States
     keysPressed: Record&lt;string, any&gt; = {};
 
-    // Image assets
+    // Image Assets
     creaturesImage!: HTMLImageElement;
     tilesImage!: HTMLImageElement;
 
-    // GAME-STATE TICKS AT 8 FPS
+    // Game-State Ticks (at 8 fps)
     tickAccumulator = 0; // What remained in deltaTime after last update 
     currentTick = 0;
     timePerTick = 125; // dt in ms (125 is 8 per second)
     timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick
 
-    // ANIMATIONS AT 15 FPS
+    // Graphic Animations (at 15 fps)
     animAccumulator = 0; // What remained in deltaTime after last update 
     currentAnim = 0;
     timePerAnim = 67; // dt in ms (66.66 is 15 per second)
@@ -1355,14 +1357,15 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241229162200.1">handleMouseDown(event: MouseEvent): void {
     this.setCursorPos(event);
-    this.gameMouseX = this.mouseX + this.scrollX;
-    this.gameMouseY = this.mouseY + this.scrollY;
+
     if (!this.selecting) {
         if (event.button == 0) {
             this.selecting = true;
             this.setCursor("cur-target");
-            this.selX = this.mouseX;
+            this.selX = this.mouseX; // Start selection at mouse coords
             this.selY = this.mouseY;
+            this.gameSelStartX = this.selX + this.scrollX;
+            this.gameSelStartY = this.selY + this.scrollY;
         }
         if (event.button == 2) {
             this.gameAction = Game.GAME_ACTIONS.DEFAULT;
@@ -1373,11 +1376,10 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241229162201.1">handleMouseUp(event: MouseEvent): void {
     this.setCursorPos(event);
-    this.gameSelectionX = this.selX + this.scrollX;
-    this.gameSelectionY = this.selY + this.scrollY;
-    this.gameMouseX = this.mouseX + this.scrollX;
-    this.gameMouseY = this.mouseY + this.scrollY;
+
     if (event.button == 0) {
+        this.gameSelEndX = this.mouseX + this.scrollX;
+        this.gameSelEndY = this.mouseY + this.scrollY;
         this.selecting = false;
         this.setCursor("cur-pointer");
         this.gameAction = Game.GAME_ACTIONS.RELEASESEL;
@@ -1517,7 +1519,7 @@ import { TEntity } from "./type";
 
     this.gameAction = 0 // -------------- no more game actions to do
 
-    // Scroll if not selected    
+    // Scroll if not currently dragging a selection.
     if (!this.selecting) {
         this.scrollX += this.scrollNowX;
         this.scrollY += this.scrollNowY;
@@ -1576,6 +1578,7 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241230215406.1">tryselect(): void {
     // Called from procGame
+    console.log('select');
 }
 
 </t>
@@ -1632,6 +1635,8 @@ import { TEntity } from "./type";
 <t tx="felix.20250101212200.1">setCursorPos(event: MouseEvent): void {
     this.mouseX = event.clientX * (this.gameScreenWidth / this.canvasBoundingRect.width);
     this.mouseY = event.clientY * (this.gameScreenHeight / this.canvasBoundingRect.height);
+    this.gameMouseX = this.mouseX + this.scrollX;
+    this.gameMouseY = this.mouseY + this.scrollY;
 }
 
 </t>

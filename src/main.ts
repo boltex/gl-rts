@@ -569,7 +569,7 @@ export class Game {
     }
 
     trydefault(): void {
-
+        console.log('default', this.gameMouseX, this.gameMouseY);
         // TODO : Replace with test cursor animation with the real default action
         // TEST START WIDGET ANIMATION ON DEFAULT ACTION
         this.widgetAnim = 1;

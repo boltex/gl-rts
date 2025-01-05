@@ -1566,7 +1566,7 @@ import { TEntity } from "./type";
 
 </t>
 <t tx="felix.20241230215401.1">trydefault(): void {
-
+    console.log('default', this.gameMouseX, this.gameMouseY);
     // TODO : Replace with test cursor animation with the real default action
     // TEST START WIDGET ANIMATION ON DEFAULT ACTION
     this.widgetAnim = 1;
@@ -1578,7 +1578,7 @@ import { TEntity } from "./type";
 </t>
 <t tx="felix.20241230215406.1">tryselect(): void {
     // Called from procGame
-    console.log('select');
+    console.log('select', this.gameSelStartX, this.gameSelStartY, this.gameSelEndX, this.gameSelEndY);
 }
 
 </t>

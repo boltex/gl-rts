@@ -53,6 +53,7 @@
 <v t="felix.20241231221007.1"><vh>render</vh></v>
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229230016.1"><vh>startGame</vh></v>
+<v t="felix.20250105213621.1"><vh>initGameStates</vh></v>
 <v t="felix.20241229163326.1"><vh>addGameEventListeners</vh></v>
 <v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
 <v t="felix.20241229190851.1"><vh>handleKeyDown</vh></v>
@@ -69,6 +70,16 @@
 <v t="felix.20241229214656.1"><vh>loop</vh></v>
 <v t="felix.20241230215401.1"><vh>trydefault</vh></v>
 <v t="felix.20241230215406.1"><vh>tryselect</vh></v>
+</v>
+<v t="felix.20250105212000.1"><vh>class Entities</vh>
+<v t="felix.20250105212000.2"><vh>constructor</vh></v>
+<v t="felix.20250105212000.3"><vh>spawn</vh></v>
+<v t="felix.20250105212000.4"><vh>remove</vh></v>
+</v>
+<v t="felix.20250105212047.1"><vh>class EntityBehavior</vh>
+<v t="felix.20250105212047.2"><vh>constructor</vh></v>
+<v t="felix.20250105212047.3"><vh>process</vh></v>
+<v t="felix.20250105212047.4"><vh>alien</vh></v>
 </v>
 </v>
 <v t="felix.20241220001515.1"><vh>@clean src/maths.ts</vh>
@@ -1058,7 +1069,7 @@ import { TEntity } from "./type";
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
     scrollEdgeY = 0;
 
-    // Map Tle Properties
+    // Map Tile Properties
     tileBmpSize = 1024;  // size of a square bitmap of tiles
     tileSize = 128;      // size of an individual square TILE 
     tileRatio = this.tileBmpSize / this.tileSize;
@@ -1072,8 +1083,11 @@ import { TEntity } from "./type";
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
     // Game state Properties
+    gamemap: number[] = [];
     started = false;
     gameAction = 0    // 0 = none
+    entities!: Entities;
+    entityBehaviors!: EntityBehavior;
 
     // Mouse Properties
     mouseX: number = 0; // Current mouse position in screen
@@ -1647,6 +1661,143 @@ import { TEntity } from "./type";
     this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
     return this.canvasBoundingRect;
+}
+
+</t>
+<t tx="felix.20250105212000.1">
+
+/**
+ * Singleton Entities Object Pool
+ */
+export class Entities {
+
+    public total: number;
+    public active: number = 0;
+    public pool: Array&lt;TEntity&gt; = [];
+    private lastId = 0;
+
+    @others
+
+}
+</t>
+<t tx="felix.20250105212000.2">constructor(initialPoolSize: number) {
+    this.total = initialPoolSize;
+    for (let i = 0; i &lt; initialPoolSize; i++) {
+        this.pool.push({
+            id: 0,
+            type: 0,
+            hitPoints: 0,
+            state: 0,
+            x: 0,
+            y: 0,
+            orderQty: 0,
+            orderIndex: 0,
+            orderPool: [
+                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+            ],
+            orientation: 0,
+            frameIndex: 0,
+            active: false,
+        });
+    }
+
+}
+
+</t>
+<t tx="felix.20250105212000.3">spawn(): TEntity {
+    if (this.active === this.total) {
+        throw new Error("Pool Full");
+    }
+    const entity = this.pool.find(e =&gt; !e.active);
+    if (entity) {
+        entity.active = true;
+        entity.id = ++this.lastId;
+        this.active++;
+        return entity;
+    } else {
+        throw new Error("Pool Full");
+    }
+}
+
+</t>
+<t tx="felix.20250105212000.4">remove(entity: TEntity): void {
+    this.active--;
+    entity.active = false;
+}
+
+</t>
+<t tx="felix.20250105212047.1">export class EntityBehavior {
+
+    public game: Game;
+
+    @others
+
+}
+</t>
+<t tx="felix.20250105212047.2">constructor(game: Game) {
+    this.game = game;
+}
+
+</t>
+<t tx="felix.20250105212047.3">public process(entity: TEntity): void {
+    switch (entity.type) {
+        case 1:
+            this.alien(entity)
+            break;
+
+        default:
+            break;
+    }
+}
+
+</t>
+<t tx="felix.20250105212047.4">private alien(entity: TEntity): void {
+    // test by just incrementing forward in animations
+    // 249 is the number of frames in the sprite sheet
+    entity.frameIndex = (entity.frameIndex + 1) % 249;
+    // TODO : Add real behaviors!
+}
+
+</t>
+<t tx="felix.20250105213621.1">initGameStates(): void {
+    // Build entities pool
+    this.entities = new Entities(100);
+    this.entityBehaviors = new EntityBehavior(this);
+
+    // Fill Entities pool
+    // EXPERIMENTAL TEST: Create 3 test Aliens
+    const alien1 = this.entities.spawn();
+    alien1.type = 1;
+    alien1.hitPoints = 100;
+    alien1.x = 515;
+    alien1.y = 100;
+    const alien2 = this.entities.spawn();
+    alien2.type = 1;
+    alien2.hitPoints = 100;
+    alien2.x = 0;
+    alien2.y = 0;
+    const alien3 = this.entities.spawn();
+    alien3.type = 1;
+    alien3.hitPoints = 100;
+    alien3.x = 64;
+    alien3.y = 64;
+
+    // Build Map (Will later be bigger maps loaded from file)
+    // EXPERIMENTAL TEST: temp map 9 by 9 tiles 
+    for (let temp1 = 0; temp1 &lt; 8; temp1++) { // start with 8 ROWS 
+        this.gamemap.push(temp1 * 8); // added row total 1 width COLUMN
+        for (let temp2 = 0; temp2 &lt; 8; temp2++) {  // + 8 COLUMNS
+            this.gamemap.push(temp2 + temp1 * 8); // here add for total of 9 width COLUMNS
+        }
+    }
+    this.gamemap[21] = 3; // Proof CHANGE THOSE GAMEMAPS TO PROVE THEY ARE TILES
+    for (let temp = 0; temp &lt; 9; temp++) { // add last row for total of 9 ROWS
+        this.gamemap.push(temp + 56);
+    }
 }
 
 </t>

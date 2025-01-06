@@ -32,7 +32,7 @@ export class Game {
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
     scrollEdgeY = 0;
 
-    // Map Tle Properties
+    // Map Tile Properties
     tileBmpSize = 1024;  // size of a square bitmap of tiles
     tileSize = 128;      // size of an individual square TILE 
     tileRatio = this.tileBmpSize / this.tileSize;
@@ -46,8 +46,11 @@ export class Game {
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
     // Game state Properties
+    gamemap: number[] = [];
     started = false;
     gameAction = 0    // 0 = none
+    entities!: Entities;
+    entityBehaviors!: EntityBehavior;
 
     // Mouse Properties
     mouseX: number = 0; // Current mouse position in screen
@@ -367,6 +370,43 @@ export class Game {
         this.loop(0);
     }
 
+    initGameStates(): void {
+        // Build entities pool
+        this.entities = new Entities(100);
+        this.entityBehaviors = new EntityBehavior(this);
+
+        // Fill Entities pool
+        // EXPERIMENTAL TEST: Create 3 test Aliens
+        const alien1 = this.entities.spawn();
+        alien1.type = 1;
+        alien1.hitPoints = 100;
+        alien1.x = 515;
+        alien1.y = 100;
+        const alien2 = this.entities.spawn();
+        alien2.type = 1;
+        alien2.hitPoints = 100;
+        alien2.x = 0;
+        alien2.y = 0;
+        const alien3 = this.entities.spawn();
+        alien3.type = 1;
+        alien3.hitPoints = 100;
+        alien3.x = 64;
+        alien3.y = 64;
+
+        // Build Map (Will later be bigger maps loaded from file)
+        // EXPERIMENTAL TEST: temp map 9 by 9 tiles 
+        for (let temp1 = 0; temp1 < 8; temp1++) { // start with 8 ROWS 
+            this.gamemap.push(temp1 * 8); // added row total 1 width COLUMN
+            for (let temp2 = 0; temp2 < 8; temp2++) {  // + 8 COLUMNS
+                this.gamemap.push(temp2 + temp1 * 8); // here add for total of 9 width COLUMNS
+            }
+        }
+        this.gamemap[21] = 3; // Proof CHANGE THOSE GAMEMAPS TO PROVE THEY ARE TILES
+        for (let temp = 0; temp < 9; temp++) { // add last row for total of 9 ROWS
+            this.gamemap.push(temp + 56);
+        }
+    }
+
     addGameEventListeners(): void {
         window.addEventListener("keydown", this.handleKeyDown.bind(this));
         window.addEventListener("keyup", this.handleKeyUp.bind(this));
@@ -586,4 +626,93 @@ export class Game {
 
 }
 
+
+
+/**
+ * Singleton Entities Object Pool
+ */
+export class Entities {
+
+    public total: number;
+    public active: number = 0;
+    public pool: Array<TEntity> = [];
+    private lastId = 0;
+
+    constructor(initialPoolSize: number) {
+        this.total = initialPoolSize;
+        for (let i = 0; i < initialPoolSize; i++) {
+            this.pool.push({
+                id: 0,
+                type: 0,
+                hitPoints: 0,
+                state: 0,
+                x: 0,
+                y: 0,
+                orderQty: 0,
+                orderIndex: 0,
+                orderPool: [
+                    { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                    { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                    { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                    { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                    { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },
+                ],
+                orientation: 0,
+                frameIndex: 0,
+                active: false,
+            });
+        }
+
+    }
+
+    spawn(): TEntity {
+        if (this.active === this.total) {
+            throw new Error("Pool Full");
+        }
+        const entity = this.pool.find(e => !e.active);
+        if (entity) {
+            entity.active = true;
+            entity.id = ++this.lastId;
+            this.active++;
+            return entity;
+        } else {
+            throw new Error("Pool Full");
+        }
+    }
+
+    remove(entity: TEntity): void {
+        this.active--;
+        entity.active = false;
+    }
+
+
+}
+export class EntityBehavior {
+
+    public game: Game;
+
+    constructor(game: Game) {
+        this.game = game;
+    }
+
+    public process(entity: TEntity): void {
+        switch (entity.type) {
+            case 1:
+                this.alien(entity)
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private alien(entity: TEntity): void {
+        // test by just incrementing forward in animations
+        // 249 is the number of frames in the sprite sheet
+        entity.frameIndex = (entity.frameIndex + 1) % 249;
+        // TODO : Add real behaviors!
+    }
+
+
+}
 

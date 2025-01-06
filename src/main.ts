@@ -626,8 +626,6 @@ export class Game {
 
 }
 
-
-
 /**
  * Singleton Entities Object Pool
  */
@@ -687,6 +685,7 @@ export class Entities {
 
 
 }
+
 export class EntityBehavior {
 
     public game: Game;

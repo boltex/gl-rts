@@ -1031,7 +1031,6 @@ export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string)
 </t>
 <t tx="felix.20241227202430.1">&lt;&lt; imports &gt;&gt;
 @others
-
 </t>
 <t tx="felix.20241227202519.1">import * as utils from "./utils";
 import { Point, M3x3 } from "./maths";
@@ -1664,9 +1663,7 @@ import { TEntity } from "./type";
 }
 
 </t>
-<t tx="felix.20250105212000.1">
-
-/**
+<t tx="felix.20250105212000.1">/**
  * Singleton Entities Object Pool
  */
 export class Entities {
@@ -1679,6 +1676,7 @@ export class Entities {
     @others
 
 }
+
 </t>
 <t tx="felix.20250105212000.2">constructor(initialPoolSize: number) {
     this.total = initialPoolSize;
@@ -1737,6 +1735,7 @@ export class Entities {
     @others
 
 }
+
 </t>
 <t tx="felix.20250105212047.2">constructor(game: Game) {
     this.game = game;

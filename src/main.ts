@@ -1,6 +1,7 @@
 import * as utils from "./utils";
 import { Point, M3x3 } from "./maths";
 import { TEntity, TParameters } from "./type";
+import { CONFIG } from './config';
 
 // TILE MAP VERTEX SHADER
 const tileMapVertexShaderSource = /*glsl*/ `#version 300 es
@@ -94,32 +95,28 @@ export class Game {
     resolutionSelectElement: HTMLSelectElement = document.createElement("select");
 
     // Canvas Properties
-    lastDisplayWidth: number = 0;
-    lastDisplayHeight: number = 0;
+    lastDisplayWidth = 0;
+    lastDisplayHeight = 0;
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
     glContext: WebGL2RenderingContext;
 
     // Game Screen Properties
     worldSpaceMatrix: M3x3;
-    aspectRatio: number = 1; // set in startGame, this is display aspect ratio
-    gameScreenWidth: number = 0; // set in startGame, this is game screen size
-    gameScreenHeight: number = 0;
-    gameWidthRatio: number = 0; // set in startGame, this is game screen ratio to the canvas size
-    gameHeightRatio: number = 0;
+    aspectRatio = 1; // set in startGame, this is display aspect ratio
+    gameScreenWidth = 0; // set in startGame, this is game screen size
+    gameScreenHeight = 0;
+    gameWidthRatio = 0; // set in startGame, this is game screen ratio to the canvas size
+    gameHeightRatio = 0;
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
     scrollEdgeY = 0;
 
     // Map Tile Properties
-    tileBmpSize = 1024;  // size of a square bitmap of tiles
-    tileSize = 128;      // size of an individual square TILE 
-    tileRatio = this.tileBmpSize / this.tileSize;
-    initRangeX = (this.gameScreenWidth / this.tileSize) + 1; // set in startGame
-    initRangeY = (this.gameScreenHeight / this.tileSize) + 1;
-    gameMapWidth = 9; // game map width in TILES 
-    gameMapHeight = 9; // game map height in TILES 
-    maxMapX = (this.gameMapWidth * this.tileSize) - 1;
-    maxMapY = (this.gameMapHeight * this.tileSize) - 1;
+    tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE;
+    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1; // set in startGame
+    initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
+    maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
+    maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
@@ -131,10 +128,10 @@ export class Game {
     entityBehaviors!: EntityBehavior;
 
     // Mouse Properties
-    mouseX: number = 0; // Current mouse position in screen
-    mouseY: number = 0;
-    gameMouseX: number = 0; // Current mouse position in game
-    gameMouseY: number = 0;
+    mouseX = 0; // Current mouse position in screen
+    mouseY = 0;
+    gameMouseX = 0; // Current mouse position in game
+    gameMouseY = 0;
 
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
@@ -150,10 +147,10 @@ export class Game {
     selecting: boolean = false;
     selX = 0; // Started selection at specific screen coords (end is current mouse pos)
     selY = 0;
-    gameSelStartX: number = 0; // Started selection at specific game coords
-    gameSelStartY: number = 0;
-    gameSelEndX: number = 0; // Ended selection at specific game coords
-    gameSelEndY: number = 0;
+    gameSelStartX = 0; // Started selection at specific game coords
+    gameSelStartY = 0;
+    gameSelEndX = 0; // Ended selection at specific game coords
+    gameSelEndY = 0;
 
     // Scroll Properties
     scrollX = 0; // Current scroll position 
@@ -171,42 +168,19 @@ export class Game {
     // Game-State Ticks (at 8 fps)
     tickAccumulator = 0; // What remained in deltaTime after last update 
     currentTick = 0;
-    timePerTick = 125; // dt in ms (125 is 8 per second)
+    timePerTick = 1000 / CONFIG.GAME.TIMING.TICK_RATE; // dt in ms (125 is 8 per second)
     timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick
 
     // Graphic Animations (at 15 fps)
     animAccumulator = 0; // What remained in deltaTime after last update 
     currentAnim = 0;
-    timePerAnim = 67; // dt in ms (66.66 is 15 per second)
+    timePerAnim = 1000 / CONFIG.GAME.TIMING.ANIM_RATE; // dt in ms (66.66 is 15 per second)
 
     // FPS counter
     lastTime = 0;
     fps = 0;
-    fpsInterval = 1000; // Update FPS every 1 second
+    fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL; // Update FPS every 1 second
     fpsLastTime = 0;
-
-    static SCROLLSPEED = 50;   // speed in pixels for scrolling
-    static SCROLLBORDER = 10;  // pixels from screen to trigger scrolling
-
-    static GAME_ACTIONS = {
-        DEFAULT: 1,
-        RELEASESEL: 2
-    };
-
-    static AVAILABLE_RESOLUTIONS = [
-        {
-            label: "16:9 (1920x1080)",
-            width: 1920, height: 1080
-        },
-        {
-            label: "16:10 (1920x1200)",
-            width: 1920, height: 1200
-        },
-        {
-            label: "4:3 (1440x1080)",
-            width: 1440, height: 1080
-        },
-    ];
 
     constructor() {
         console.log("constructing game");
@@ -412,7 +386,7 @@ export class Game {
 
 
         // Populate the dropdown with options
-        for (const { label, width, height } of Game.AVAILABLE_RESOLUTIONS) {
+        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
             const option = document.createElement("option");
             option.value = `${width}x${height}`;
             option.textContent = label;
@@ -427,16 +401,16 @@ export class Game {
     }
 
     startGame(): void {
-        const resolution = Game.AVAILABLE_RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
+        const resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
         this.aspectRatio = resolution.width / resolution.height;
         this.gameScreenWidth = resolution.width;
         this.gameScreenHeight = resolution.height;
-        this.scrollEdgeX = this.gameScreenWidth - Game.SCROLLBORDER; // constants for finding trigger zone
-        this.scrollEdgeY = this.gameScreenHeight - Game.SCROLLBORDER;
+        this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
+        this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
 
         // Re-set 
-        this.initRangeX = (this.gameScreenWidth / this.tileSize) + 1;
-        this.initRangeY = (this.gameScreenHeight / this.tileSize) + 1;
+        this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
+        this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
@@ -540,19 +514,20 @@ export class Game {
         this.setCursorPos(event);
         this.scrollNowX = 0;
         this.scrollNowY = 0;
+        const scrolSpeed = CONFIG.DISPLAY.SCROLL.SPEED;
 
         // Scroll if cursor is near the edge of the screen
         if (this.mouseX > this.scrollEdgeX) {
-            this.scrollNowX = Game.SCROLLSPEED;
+            this.scrollNowX = scrolSpeed;
         }
         if (this.mouseY > this.scrollEdgeY) {
-            this.scrollNowY = Game.SCROLLSPEED;
+            this.scrollNowY = scrolSpeed;
         }
-        if (this.mouseX < Game.SCROLLBORDER) {
-            this.scrollNowX = -Game.SCROLLSPEED;
+        if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
+            this.scrollNowX = -scrolSpeed;
         }
-        if (this.mouseY < Game.SCROLLBORDER) {
-            this.scrollNowY = -Game.SCROLLSPEED;
+        if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
+            this.scrollNowY = -scrolSpeed;
         }
     }
 
@@ -569,7 +544,7 @@ export class Game {
                 this.gameSelStartY = this.selY + this.scrollY;
             }
             if (event.button == 2) {
-                this.gameAction = Game.GAME_ACTIONS.DEFAULT;
+                this.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
             }
         }
     }
@@ -582,7 +557,7 @@ export class Game {
             this.gameSelEndY = this.mouseY + this.scrollY;
             this.selecting = false;
             this.setCursor("cur-pointer");
-            this.gameAction = Game.GAME_ACTIONS.RELEASESEL;
+            this.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
         }
 
     }
@@ -617,10 +592,10 @@ export class Game {
         if (this.gameAction) {
 
             switch (this.gameAction) {
-                case Game.GAME_ACTIONS.DEFAULT:
+                case CONFIG.GAME.ACTIONS.DEFAULT:
                     this.trydefault()
                     break;
-                case Game.GAME_ACTIONS.RELEASESEL:
+                case CONFIG.GAME.ACTIONS.RELEASESEL:
                     this.tryselect()
                     break;
 

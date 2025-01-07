@@ -115,6 +115,7 @@
 <v t="felix.20241224223104.1"><vh>interpolate</vh></v>
 <v t="felix.20241228192145.1"><vh>loadImage</vh></v>
 </v>
+<v t="felix.20250107011547.1"><vh>@clean src/config.ts</vh></v>
 </vnodes>
 <tnodes>
 <t tx="felix.20241217200720.1">Basic WebGL RTS game engine
@@ -1058,6 +1059,7 @@ export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string)
 <t tx="felix.20241227202519.1">import * as utils from "./utils";
 import { Point, M3x3 } from "./maths";
 import { TEntity, TParameters } from "./type";
+import { CONFIG } from './config';
 
 </t>
 <t tx="felix.20241227213048.1">document.addEventListener('DOMContentLoaded', (event) =&gt; {
@@ -1076,32 +1078,28 @@ import { TEntity, TParameters } from "./type";
     resolutionSelectElement: HTMLSelectElement = document.createElement("select");
 
     // Canvas Properties
-    lastDisplayWidth: number = 0;
-    lastDisplayHeight: number = 0;
+    lastDisplayWidth = 0;
+    lastDisplayHeight = 0;
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
     glContext: WebGL2RenderingContext;
 
     // Game Screen Properties
     worldSpaceMatrix: M3x3;
-    aspectRatio: number = 1; // set in startGame, this is display aspect ratio
-    gameScreenWidth: number = 0; // set in startGame, this is game screen size
-    gameScreenHeight: number = 0;
-    gameWidthRatio: number = 0; // set in startGame, this is game screen ratio to the canvas size
-    gameHeightRatio: number = 0;
+    aspectRatio = 1; // set in startGame, this is display aspect ratio
+    gameScreenWidth = 0; // set in startGame, this is game screen size
+    gameScreenHeight = 0;
+    gameWidthRatio = 0; // set in startGame, this is game screen ratio to the canvas size
+    gameHeightRatio = 0;
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
     scrollEdgeY = 0;
 
     // Map Tile Properties
-    tileBmpSize = 1024;  // size of a square bitmap of tiles
-    tileSize = 128;      // size of an individual square TILE 
-    tileRatio = this.tileBmpSize / this.tileSize;
-    initRangeX = (this.gameScreenWidth / this.tileSize) + 1; // set in startGame
-    initRangeY = (this.gameScreenHeight / this.tileSize) + 1;
-    gameMapWidth = 9; // game map width in TILES 
-    gameMapHeight = 9; // game map height in TILES 
-    maxMapX = (this.gameMapWidth * this.tileSize) - 1;
-    maxMapY = (this.gameMapHeight * this.tileSize) - 1;
+    tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE;
+    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1; // set in startGame
+    initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
+    maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
+    maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
@@ -1113,10 +1111,10 @@ import { TEntity, TParameters } from "./type";
     entityBehaviors!: EntityBehavior;
 
     // Mouse Properties
-    mouseX: number = 0; // Current mouse position in screen
-    mouseY: number = 0;
-    gameMouseX: number = 0; // Current mouse position in game
-    gameMouseY: number = 0;
+    mouseX = 0; // Current mouse position in screen
+    mouseY = 0;
+    gameMouseX = 0; // Current mouse position in game
+    gameMouseY = 0;
 
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
@@ -1132,10 +1130,10 @@ import { TEntity, TParameters } from "./type";
     selecting: boolean = false;
     selX = 0; // Started selection at specific screen coords (end is current mouse pos)
     selY = 0;
-    gameSelStartX: number = 0; // Started selection at specific game coords
-    gameSelStartY: number = 0;
-    gameSelEndX: number = 0; // Ended selection at specific game coords
-    gameSelEndY: number = 0;
+    gameSelStartX = 0; // Started selection at specific game coords
+    gameSelStartY = 0;
+    gameSelEndX = 0; // Ended selection at specific game coords
+    gameSelEndY = 0;
 
     // Scroll Properties
     scrollX = 0; // Current scroll position 
@@ -1153,42 +1151,19 @@ import { TEntity, TParameters } from "./type";
     // Game-State Ticks (at 8 fps)
     tickAccumulator = 0; // What remained in deltaTime after last update 
     currentTick = 0;
-    timePerTick = 125; // dt in ms (125 is 8 per second)
+    timePerTick = 1000 / CONFIG.GAME.TIMING.TICK_RATE; // dt in ms (125 is 8 per second)
     timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick
 
     // Graphic Animations (at 15 fps)
     animAccumulator = 0; // What remained in deltaTime after last update 
     currentAnim = 0;
-    timePerAnim = 67; // dt in ms (66.66 is 15 per second)
+    timePerAnim = 1000 / CONFIG.GAME.TIMING.ANIM_RATE; // dt in ms (66.66 is 15 per second)
 
     // FPS counter
     lastTime = 0;
     fps = 0;
-    fpsInterval = 1000; // Update FPS every 1 second
+    fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL; // Update FPS every 1 second
     fpsLastTime = 0;
-
-    static SCROLLSPEED = 50;   // speed in pixels for scrolling
-    static SCROLLBORDER = 10;  // pixels from screen to trigger scrolling
-
-    static GAME_ACTIONS = {
-        DEFAULT: 1,
-        RELEASESEL: 2
-    };
-
-    static AVAILABLE_RESOLUTIONS = [
-        {
-            label: "16:9 (1920x1080)",
-            width: 1920, height: 1080
-        },
-        {
-            label: "16:10 (1920x1200)",
-            width: 1920, height: 1200
-        },
-        {
-            label: "4:3 (1440x1080)",
-            width: 1440, height: 1080
-        },
-    ];
 
     @others
 
@@ -1353,7 +1328,7 @@ import { TEntity, TParameters } from "./type";
 
 
     // Populate the dropdown with options
-    for (const { label, width, height } of Game.AVAILABLE_RESOLUTIONS) {
+    for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
         const option = document.createElement("option");
         option.value = `${width}x${height}`;
         option.textContent = label;
@@ -1377,19 +1352,20 @@ import { TEntity, TParameters } from "./type";
     this.setCursorPos(event);
     this.scrollNowX = 0;
     this.scrollNowY = 0;
+    const scrolSpeed = CONFIG.DISPLAY.SCROLL.SPEED;
 
     // Scroll if cursor is near the edge of the screen
     if (this.mouseX &gt; this.scrollEdgeX) {
-        this.scrollNowX = Game.SCROLLSPEED;
+        this.scrollNowX = scrolSpeed;
     }
     if (this.mouseY &gt; this.scrollEdgeY) {
-        this.scrollNowY = Game.SCROLLSPEED;
+        this.scrollNowY = scrolSpeed;
     }
-    if (this.mouseX &lt; Game.SCROLLBORDER) {
-        this.scrollNowX = -Game.SCROLLSPEED;
+    if (this.mouseX &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
+        this.scrollNowX = -scrolSpeed;
     }
-    if (this.mouseY &lt; Game.SCROLLBORDER) {
-        this.scrollNowY = -Game.SCROLLSPEED;
+    if (this.mouseY &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
+        this.scrollNowY = -scrolSpeed;
     }
 }
 
@@ -1407,7 +1383,7 @@ import { TEntity, TParameters } from "./type";
             this.gameSelStartY = this.selY + this.scrollY;
         }
         if (event.button == 2) {
-            this.gameAction = Game.GAME_ACTIONS.DEFAULT;
+            this.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
         }
     }
 }
@@ -1421,7 +1397,7 @@ import { TEntity, TParameters } from "./type";
         this.gameSelEndY = this.mouseY + this.scrollY;
         this.selecting = false;
         this.setCursor("cur-pointer");
-        this.gameAction = Game.GAME_ACTIONS.RELEASESEL;
+        this.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
     }
 
 }
@@ -1491,16 +1467,16 @@ import { TEntity, TParameters } from "./type";
 
 </t>
 <t tx="felix.20241229230016.1">startGame(): void {
-    const resolution = Game.AVAILABLE_RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
+    const resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
     this.aspectRatio = resolution.width / resolution.height;
     this.gameScreenWidth = resolution.width;
     this.gameScreenHeight = resolution.height;
-    this.scrollEdgeX = this.gameScreenWidth - Game.SCROLLBORDER; // constants for finding trigger zone
-    this.scrollEdgeY = this.gameScreenHeight - Game.SCROLLBORDER;
+    this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
+    this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
 
     // Re-set 
-    this.initRangeX = (this.gameScreenWidth / this.tileSize) + 1;
-    this.initRangeY = (this.gameScreenHeight / this.tileSize) + 1;
+    this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
+    this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
     this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
@@ -1543,10 +1519,10 @@ import { TEntity, TParameters } from "./type";
     if (this.gameAction) {
 
         switch (this.gameAction) {
-            case Game.GAME_ACTIONS.DEFAULT:
+            case CONFIG.GAME.ACTIONS.DEFAULT:
                 this.trydefault()
                 break;
-            case Game.GAME_ACTIONS.RELEASESEL:
+            case CONFIG.GAME.ACTIONS.RELEASESEL:
                 this.tryselect()
                 break;
 
@@ -2073,6 +2049,59 @@ void main()
             console.warn(`Unsupported attribute type: ${param.type}`);
     }
 }
+</t>
+<t tx="felix.20250107011547.1">const DISPLAY = {
+    RESOLUTIONS: [
+        {
+            label: "16:9 (1920x1080)",
+            width: 1920,
+            height: 1080
+        },
+        {
+            label: "16:10 (1920x1200)",
+            width: 1920,
+            height: 1200
+        },
+        {
+            label: "4:3 (1440x1080)",
+            width: 1440,
+            height: 1080
+        },
+    ],
+    SCROLL: {
+        SPEED: 50, // speed in pixels for scrolling
+        BORDER: 10 // pixels from screen to trigger scrolling
+    }
+} as const;
+
+const GAME = {
+    ACTIONS: {
+        DEFAULT: 1,
+        RELEASESEL: 2
+    },
+    TILE: {
+        BITMAP_SIZE: 1024, // size of a square bitmap of tiles
+        SIZE: 128 // size of an individual square TILE 
+    },
+    MAP: {
+        WIDTH: 9, // game map width in TILES 
+        HEIGHT: 9 // game map height in TILES 
+    },
+    TIMING: {
+        TICK_RATE: 8, // 8 fps for game logic
+        ANIM_RATE: 15, // 15 fps for animations
+        FPS_UPDATE_INTERVAL: 1000 // Update FPS display every second
+    },
+    ENTITY: {
+        INITIAL_POOL_SIZE: 100
+    }
+} as const;
+
+// Export all configs from a single point
+export const CONFIG = {
+    DISPLAY,
+    GAME
+} as const;
 </t>
 </tnodes>
 </leo_file>

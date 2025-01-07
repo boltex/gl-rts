@@ -25,3 +25,15 @@ export type TEntity = {
     ];
     active: boolean;
 }
+
+export type TParameters =
+    | {
+        uniform: true;
+        location: WebGLUniformLocation;
+        type: number;
+    }
+    | {
+        uniform: false;
+        location: number;
+        type: number;
+    };

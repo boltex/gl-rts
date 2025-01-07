@@ -1,6 +1,83 @@
 import * as utils from "./utils";
 import { Point, M3x3 } from "./maths";
-import { TEntity } from "./type";
+import { TEntity, TParameters } from "./type";
+
+// TILE MAP VERTEX SHADER
+const tileMapVertexShaderSource = /*glsl*/ `#version 300 es
+
+layout(location=0) in vec4 aPosition;
+layout(location=1) in vec3 aOffset;
+layout(location=2) in float aScale;
+layout(location=3) in vec4 aColor;
+layout(location=4) in vec2 aTexCoord;
+layout(location=5) in float aDepth;
+
+out vec4 vColor;
+out vec2 vTexCoord;
+out float vDepth;
+
+void main()
+{
+    vColor = aColor;
+    vTexCoord = aTexCoord;
+    vDepth = aDepth;
+    gl_Position = vec4(aPosition.xyz * aScale + aOffset, 1.0);
+}`;
+
+// TILE MAP FRAGMENT SHADER
+const tileMapFragmentShaderSource = /*glsl*/ `#version 300 es
+
+precision mediump float;
+
+uniform mediump sampler2DArray uSampler;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+in float vDepth;
+
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = texture(uSampler, vec3(vTexCoord, vDepth));
+}`;
+
+// ENTITIES VERTEX SHADER
+const entityVertexShaderSource = /*glsl*/ `#version 300 es
+
+layout(location=0) in vec4 aPosition;
+layout(location=1) in vec2 aTexCoord;
+layout(location=2) in vec3 aOffset;
+layout(location=3) in float aScale;
+layout(location=4) in vec2 aUV;
+layout(location=5) in vec4 aColor;
+
+out vec2 vTexCoord;
+out vec4 vColor;
+
+void main()
+{
+    vColor = aColor;
+    vTexCoord = vec2(aTexCoord * 0.015625) + aUV;
+    gl_Position = vec4(aPosition.xyz * aScale + aOffset, 1.0);
+}`;
+
+// ENTITIES FRAGMENT SHADER
+const entityFragmentShaderSource = /*glsl*/ `#version 300 es
+
+precision mediump float;
+
+uniform mediump sampler2D uSampler;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = texture(uSampler, vTexCoord);
+}`;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     if (!window.game) {
@@ -24,6 +101,7 @@ export class Game {
     glContext: WebGL2RenderingContext;
 
     // Game Screen Properties
+    worldSpaceMatrix: M3x3;
     aspectRatio: number = 1; // set in startGame, this is display aspect ratio
     gameScreenWidth: number = 0; // set in startGame, this is game screen size
     gameScreenHeight: number = 0;
@@ -143,6 +221,8 @@ export class Game {
 
         this.glContext = this.canvasElement.getContext('webgl2')!;
 
+        this.worldSpaceMatrix = new M3x3();
+
         // Prevent right-click context menu
         this.canvasElement.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -215,6 +295,10 @@ export class Game {
         this.gameHeightRatio = (this.gameScreenHeight / this.canvasBoundingRect.height)
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
+
+        const wRatio = this.lastDisplayWidth / (this.lastDisplayHeight / this.gameScreenHeight);
+        this.worldSpaceMatrix = new M3x3().translation(-1, 1).scale(2 / wRatio, -2 / this.gameScreenHeight);
+
         return this.canvasBoundingRect;
     }
 
@@ -712,6 +796,164 @@ export class EntityBehavior {
         // TODO : Add real behaviors!
     }
 
+
+}
+
+export class ShaderProgram {
+
+    public gl!: WebGL2RenderingContext;
+    public program!: WebGLProgram;
+    public parameters: Record<string, TParameters> = {};
+
+    constructor(gl: WebGL2RenderingContext, vs: string, fs: string) {
+        this.gl = gl;
+
+        const vsShader = this.getShader(vs, gl.VERTEX_SHADER);
+        const fsShader = this.getShader(fs, gl.FRAGMENT_SHADER);
+
+        if (vsShader && fsShader) {
+            this.program = gl.createProgram()!;
+            gl.attachShader(this.program, vsShader);
+            gl.attachShader(this.program, fsShader);
+            gl.linkProgram(this.program);
+            if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+                console.error("Cannot load shader \n" + gl.getProgramInfoLog(this.program));
+            }
+
+            this.gatherParameters();
+
+            gl.detachShader(this.program, vsShader);
+            gl.detachShader(this.program, fsShader);
+            gl.deleteShader(vsShader);
+            gl.deleteShader(fsShader);
+
+            gl.useProgram(null);
+        }
+    }
+
+    getShader(script: string, type: number): WebGLShader | null {
+        const gl = this.gl;
+        const output = gl.createShader(type);
+        if (output) {
+            gl.shaderSource(output, script);
+            gl.compileShader(output);
+            if (!gl.getShaderParameter(output, gl.COMPILE_STATUS)) {
+                console.error("Shader Error: \n" + gl.getShaderInfoLog(output));
+                return null;
+            }
+        }
+        return output;
+    }
+
+    gatherParameters(): void {
+        const gl = this.gl;
+        let isUniform = 0;
+
+        this.parameters = {};
+        while (isUniform < 2) {
+            let paramType = isUniform ? gl.ACTIVE_UNIFORMS : gl.ACTIVE_ATTRIBUTES;
+            let count = gl.getProgramParameter(this.program, paramType);
+
+            for (let i = 0; i < count; i++) {
+                let details;
+                let location;
+                if (isUniform) {
+                    details = gl.getActiveUniform(this.program, i);
+                    location = gl.getUniformLocation(this.program, details!.name);
+                    this.parameters[details!.name] = {
+                        location: location as WebGLUniformLocation,
+                        uniform: true,
+                        type: details!.type
+                    };
+                } else {
+                    details = gl.getActiveAttrib(this.program, i);
+                    location = gl.getAttribLocation(this.program, details!.name);
+                    this.parameters[details!.name] = {
+                        location: location as number,
+                        uniform: false,
+                        type: details!.type
+                    };
+                }
+
+            }
+            isUniform++;
+        }
+
+    }
+
+    setParam(w_name: string, a?: any, b?: any, c?: any, d?: any) {
+
+        if (!(w_name in this.parameters)) {
+            return;
+        }
+
+        const gl = this.gl;
+        const param = this.parameters[w_name];
+
+        if (param.uniform) {
+            this.setUniform(param, a, b, c, d);
+        } else {
+            this.setAttribute(param, a, b, c, d);
+        }
+
+    }
+
+    private setUniform(param: TParameters & { uniform: true }, a?: any, b?: any, c?: any, d?: any) {
+        const gl = this.gl;
+
+        switch (param.type) {
+            case gl.FLOAT:
+                gl.uniform1f(param.location, a);
+                break;
+            case gl.FLOAT_VEC2:
+                gl.uniform2f(param.location, a, b);
+                break;
+            case gl.FLOAT_VEC3:
+                gl.uniform3f(param.location, a, b, c);
+                break;
+            case gl.FLOAT_VEC4:
+                gl.uniform4f(param.location, a, b, c, d);
+                break;
+            case gl.FLOAT_MAT3:
+                gl.uniformMatrix3fv(param.location, false, a);
+                break;
+            case gl.FLOAT_MAT4:
+                gl.uniformMatrix4fv(param.location, false, a);
+                break;
+            case gl.SAMPLER_2D:
+                gl.uniform1i(param.location, a);
+                break;
+            default:
+                console.warn(`Unsupported uniform type: ${param.type}`);
+        }
+    }
+
+    private setAttribute(param: TParameters & { uniform: false }, a?: any, b?: any, c?: any, d?: any) {
+        const gl = this.gl;
+
+        gl.enableVertexAttribArray(param.location);
+        const type = a ?? gl.FLOAT;
+        const normalized = b ?? false;
+        const stride = c ?? 0;
+        const offset = d ?? 0;
+
+        switch (param.type) {
+            case gl.FLOAT:
+                gl.vertexAttribPointer(param.location, 1, type, normalized, stride, offset);
+                break;
+            case gl.FLOAT_VEC2:
+                gl.vertexAttribPointer(param.location, 2, type, normalized, stride, offset);
+                break;
+            case gl.FLOAT_VEC3:
+                gl.vertexAttribPointer(param.location, 3, type, normalized, stride, offset);
+                break;
+            case gl.FLOAT_VEC4:
+                gl.vertexAttribPointer(param.location, 4, type, normalized, stride, offset);
+                break;
+            default:
+                console.warn(`Unsupported attribute type: ${param.type}`);
+        }
+    }
 
 }
 

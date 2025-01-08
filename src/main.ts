@@ -90,6 +90,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 export class Game {
 
+    inputManager: InputManager;
+
     // HTML Elements
     startButtonElement: HTMLButtonElement = document.createElement("button");
     resolutionSelectElement: HTMLSelectElement = document.createElement("select");
@@ -127,12 +129,6 @@ export class Game {
     entities!: Entities;
     entityBehaviors!: EntityBehavior;
 
-    // Mouse Properties
-    mouseX = 0; // Current mouse position in screen
-    mouseY = 0;
-    gameMouseX = 0; // Current mouse position in game
-    gameMouseY = 0;
-
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
@@ -143,23 +139,11 @@ export class Game {
     widgetAnimX = 0
     widgetAnimY = 0
 
-    // Cursor Selection States
-    selecting: boolean = false;
-    selX = 0; // Started selection at specific screen coords (end is current mouse pos)
-    selY = 0;
-    gameSelStartX = 0; // Started selection at specific game coords
-    gameSelStartY = 0;
-    gameSelEndX = 0; // Ended selection at specific game coords
-    gameSelEndY = 0;
-
     // Scroll Properties
     scrollX = 0; // Current scroll position 
     scrollY = 0;
     scrollNowX = 0; // Scroll amount to be applied to scroll when processing
     scrollNowY = 0;
-
-    // Key Press States
-    keysPressed: Record<string, any> = {};
 
     // Image Assets
     creaturesImage!: HTMLImageElement;
@@ -222,6 +206,8 @@ export class Game {
             this.tilesImage = images[1];
             this.mainMenu();
         });
+
+        this.inputManager = new InputManager(this);
 
     }
 
@@ -418,7 +404,7 @@ export class Game {
 
         this.setCursor("cur-pointer");
 
-        this.addGameEventListeners();
+        this.inputManager.init();
 
         this.startButtonElement.style.display = 'none';
         this.resolutionSelectElement.style.display = 'none';
@@ -465,128 +451,13 @@ export class Game {
         }
     }
 
-    addGameEventListeners(): void {
-        window.addEventListener("keydown", this.handleKeyDown.bind(this));
-        window.addEventListener("keyup", this.handleKeyUp.bind(this));
-        window.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        window.addEventListener("mousedown", this.handleMouseDown.bind(this));
-        window.addEventListener("mouseup", this.handleMouseUp.bind(this));
-        window.addEventListener("wheel", this.handleMouseWheel.bind(this), { passive: false });
-    }
-
     toggleGameMenu(): void {
         console.log('Toggle Game Menu'); // Todo: Implement Game Menu
     }
 
-    handleKeyDown(e: KeyboardEvent): void {
-        this.keysPressed[e.key] = true;
-        if (e.key === 'F10') {
-            e.preventDefault();  // Prevent default F10 behavior
-            this.toggleGameMenu();
-        }
-        // Prevent keyboard zoom.
-        if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
-            e.preventDefault();
-        }
-    }
-
-
-    handleKeyUp(e: KeyboardEvent): void {
-        this.keysPressed[e.key] = false;
-    }
-
-    processKeyInputs(): void {
-        if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-            //
-        }
-        if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-            //
-        }
-        if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-            // 
-        }
-        if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-            //
-        }
-    }
-
-    handleMouseMove(event: MouseEvent): void {
-        this.setCursorPos(event);
-        this.scrollNowX = 0;
-        this.scrollNowY = 0;
-        const scrolSpeed = CONFIG.DISPLAY.SCROLL.SPEED;
-
-        // Scroll if cursor is near the edge of the screen
-        if (this.mouseX > this.scrollEdgeX) {
-            this.scrollNowX = scrolSpeed;
-        }
-        if (this.mouseY > this.scrollEdgeY) {
-            this.scrollNowY = scrolSpeed;
-        }
-        if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
-            this.scrollNowX = -scrolSpeed;
-        }
-        if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
-            this.scrollNowY = -scrolSpeed;
-        }
-    }
-
-    handleMouseDown(event: MouseEvent): void {
-        this.setCursorPos(event);
-
-        if (!this.selecting) {
-            if (event.button == 0) {
-                this.selecting = true;
-                this.setCursor("cur-target");
-                this.selX = this.mouseX; // Start selection at mouse coords
-                this.selY = this.mouseY;
-                this.gameSelStartX = this.selX + this.scrollX;
-                this.gameSelStartY = this.selY + this.scrollY;
-            }
-            if (event.button == 2) {
-                this.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
-            }
-        }
-    }
-
-    handleMouseUp(event: MouseEvent): void {
-        this.setCursorPos(event);
-
-        if (event.button == 0) {
-            this.gameSelEndX = this.mouseX + this.scrollX;
-            this.gameSelEndY = this.mouseY + this.scrollY;
-            this.selecting = false;
-            this.setCursor("cur-pointer");
-            this.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
-        }
-
-    }
-
-    handleMouseWheel(event: WheelEvent): void {
-        if (event.deltaY < 0) {
-            // Todo: Zoom in
-            console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
-        } else if (event.deltaY > 0) {
-            // Todo: Zoom out
-            console.log("CTRL+Scroll Down");
-        }
-
-        // Prevents the default zoom behavior
-        if (event.ctrlKey) {
-            event.preventDefault();
-        }
-    }
-
-    setCursorPos(event: MouseEvent): void {
-        this.mouseX = event.clientX * (this.gameScreenWidth / this.canvasBoundingRect.width);
-        this.mouseY = event.clientY * (this.gameScreenHeight / this.canvasBoundingRect.height);
-        this.gameMouseX = this.mouseX + this.scrollX;
-        this.gameMouseY = this.mouseY + this.scrollY;
-    }
-
     procGame(): void {
 
-        // procgame processes a game frame, animating each RFA
+        // procgame processes a game frame, animating each RFA.
         // Note: This is not a game-states tick, at timePerTick intervals.
 
         if (this.gameAction) {
@@ -608,7 +479,7 @@ export class Game {
         this.gameAction = 0 // -------------- no more game actions to do
 
         // Scroll if not currently dragging a selection.
-        if (!this.selecting) {
+        if (!this.inputManager.isSelecting) {
             this.scrollX += this.scrollNowX;
             this.scrollY += this.scrollNowY;
             if (this.scrollX > this.maxScrollX) {
@@ -656,7 +527,7 @@ export class Game {
         }
         */
 
-        this.processKeyInputs();
+        this.inputManager.processInputs();
 
         // Update currentTick count
         this.currentTick += 1;
@@ -668,18 +539,186 @@ export class Game {
     }
 
     trydefault(): void {
-        console.log('default', this.gameMouseX, this.gameMouseY);
+        const gamePosition = this.inputManager.gamePosition;
+        console.log('default', gamePosition.x, gamePosition.y);
         // TODO : Replace with test cursor animation with the real default action
         // TEST START WIDGET ANIMATION ON DEFAULT ACTION
         this.widgetAnim = 1;
-        this.widgetAnimX = this.gameMouseX - 32;
-        this.widgetAnimY = this.gameMouseY - 32;
+        this.widgetAnimX = gamePosition.x - 32;
+        this.widgetAnimY = gamePosition.y - 32;
 
     }
 
     tryselect(): void {
         // Called from procGame
-        console.log('select', this.gameSelStartX, this.gameSelStartY, this.gameSelEndX, this.gameSelEndY);
+        const selectionStart = this.inputManager.selectionStart;
+        const selectionEnd = this.inputManager.selectionEnd;
+        console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
+    }
+
+
+}
+
+class InputManager {
+    private game: Game;
+    private keysPressed: Record<string, boolean> = {};
+    private selecting: boolean = false;
+    private mouseX = 0;
+    private mouseY = 0;
+    private gameMouseX = 0;
+    private gameMouseY = 0;
+    private selX = 0;
+    private selY = 0;
+    private gameSelStartX = 0;
+    private gameSelStartY = 0;
+    private gameSelEndX = 0;
+    private gameSelEndY = 0;
+    private scrollNowX = 0;
+    private scrollNowY = 0;
+
+    constructor(game: Game) {
+        this.game = game;
+    }
+
+    public get mousePosition(): { x: number, y: number } {
+        return { x: this.mouseX, y: this.mouseY };
+    }
+
+    public get gamePosition(): { x: number, y: number } {
+        return { x: this.gameMouseX, y: this.gameMouseY };
+    }
+
+    public get selectionStart(): { x: number, y: number } {
+        return { x: this.gameSelStartX, y: this.gameSelStartY };
+    }
+
+    public get selectionEnd(): { x: number, y: number } {
+        return { x: this.gameSelEndX, y: this.gameSelEndY };
+    }
+
+    public get scrollVelocity(): { x: number, y: number } {
+        return { x: this.scrollNowX, y: this.scrollNowY };
+    }
+
+
+    public init(): void {
+        window.addEventListener("keydown", this.handleKeyDown.bind(this));
+        window.addEventListener("keyup", this.handleKeyUp.bind(this));
+        window.addEventListener("mousemove", this.handleMouseMove.bind(this));
+        window.addEventListener("mousedown", this.handleMouseDown.bind(this));
+        window.addEventListener("mouseup", this.handleMouseUp.bind(this));
+        window.addEventListener("wheel", this.handleMouseWheel.bind(this), { passive: false });
+    }
+    private handleKeyDown(e: KeyboardEvent): void {
+        this.keysPressed[e.key] = true;
+        if (e.key === 'F10') {
+            e.preventDefault();
+            this.game.toggleGameMenu();
+        }
+        if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+            e.preventDefault();
+        }
+    }
+
+    private handleKeyUp(e: KeyboardEvent): void {
+        this.keysPressed[e.key] = false;
+    }
+
+    private handleMouseMove(event: MouseEvent): void {
+        this.setCursorPos(event);
+        this.scrollNowX = 0;
+        this.scrollNowY = 0;
+
+        if (this.mouseX > this.game.scrollEdgeX) {
+            this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+        }
+        if (this.mouseY > this.game.scrollEdgeY) {
+            this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+        }
+        if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
+            this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+        }
+        if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
+            this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+        }
+    }
+
+    private handleMouseDown(event: MouseEvent): void {
+        this.setCursorPos(event);
+        if (!this.selecting) {
+            if (event.button === 0) {
+                this.selecting = true;
+                this.game.setCursor('cur-target');
+                this.selX = this.mouseX;
+                this.selY = this.mouseY;
+                this.gameSelStartX = this.selX + this.game.scrollX;
+                this.gameSelStartY = this.selY + this.game.scrollY;
+            }
+            if (event.button === 2) {
+                this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
+            }
+        }
+    }
+
+    private handleMouseUp(event: MouseEvent): void {
+        this.setCursorPos(event);
+        if (event.button === 0) {
+            this.gameSelEndX = this.mouseX + this.game.scrollX;
+            this.gameSelEndY = this.mouseY + this.game.scrollY;
+            this.selecting = false;
+            this.game.setCursor('cur-pointer');
+            this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
+        }
+    }
+    private handleMouseWheel(event: WheelEvent): void {
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+        if (event.deltaY < 0) {
+            // Todo: Zoom in
+            console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
+        } else if (event.deltaY > 0) {
+            // Todo: Zoom out
+            console.log("CTRL+Scroll Down");
+        }
+    }
+
+    private setCursorPos(event: MouseEvent): void {
+        this.mouseX = event.clientX * (this.game.gameScreenWidth / this.game.canvasBoundingRect.width);
+        this.mouseY = event.clientY * (this.game.gameScreenHeight / this.game.canvasBoundingRect.height);
+        this.gameMouseX = this.mouseX + this.game.scrollX;
+        this.gameMouseY = this.mouseY + this.game.scrollY;
+    }
+
+    public processInputs(): void {
+        if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
+            //
+        }
+        if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
+            //
+        }
+        if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
+            // 
+        }
+        if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
+            //
+        }
+        if (!this.selecting) {
+            this.updateScroll();
+        }
+    }
+
+    private updateScroll(): void {
+        this.game.scrollX += this.scrollNowX;
+        this.game.scrollY += this.scrollNowY;
+
+        // Clamp scroll values
+        this.game.scrollX = Math.max(0, Math.min(this.game.scrollX, this.game.maxScrollX));
+        this.game.scrollY = Math.max(0, Math.min(this.game.scrollY, this.game.maxScrollY));
+    }
+
+    public get isSelecting(): boolean {
+        return this.selecting;
     }
 
 

@@ -55,22 +55,28 @@
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229230016.1"><vh>startGame</vh></v>
 <v t="felix.20250105213621.1"><vh>initGameStates</vh></v>
-<v t="felix.20241229163326.1"><vh>addGameEventListeners</vh></v>
 <v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
-<v t="felix.20241229190851.1"><vh>handleKeyDown</vh></v>
-<v t="felix.20241229190855.1"><vh>handleKeyUp</vh></v>
-<v t="felix.20241230214840.1"><vh>processKeyInputs</vh></v>
-<v t="felix.20241229162110.1"><vh>handleMouseMove</vh></v>
-<v t="felix.20241229162200.1"><vh>handleMouseDown</vh></v>
-<v t="felix.20241229162201.1"><vh>handleMouseUp</vh></v>
-<v t="felix.20241229180756.1"><vh>handleMouseWheel</vh></v>
-<v t="felix.20250101212200.1"><vh>setCursorPos</vh></v>
 <v t="felix.20241230215224.1"><vh>procGame</vh></v>
 <v t="felix.20241229162229.1"><vh>checkUpdate</vh></v>
 <v t="felix.20241230215229.1"><vh>tick</vh></v>
 <v t="felix.20241229214656.1"><vh>loop</vh></v>
 <v t="felix.20241230215401.1"><vh>trydefault</vh></v>
 <v t="felix.20241230215406.1"><vh>tryselect</vh></v>
+</v>
+<v t="felix.20250107221804.1"><vh>class InputManager</vh>
+<v t="felix.20250107221855.1"><vh>constructor</vh></v>
+<v t="felix.20250107232140.1"><vh>getters</vh></v>
+<v t="felix.20250107230733.1"><vh>init</vh></v>
+<v t="felix.20250107230755.1"><vh>handleKeyDown</vh></v>
+<v t="felix.20250107230802.1"><vh>handleKeyUp</vh></v>
+<v t="felix.20250107230806.1"><vh>handleMouseMove</vh></v>
+<v t="felix.20250107230811.1"><vh>handleMouseDown</vh></v>
+<v t="felix.20250107230817.1"><vh>handleMouseUp</vh></v>
+<v t="felix.20250107230822.1"><vh>handleMouseWheel</vh></v>
+<v t="felix.20250107230828.1"><vh>setCursorPos</vh></v>
+<v t="felix.20250107230906.1"><vh>processInputs</vh></v>
+<v t="felix.20250107230918.1"><vh>updateScroll</vh></v>
+<v t="felix.20250107230936.1"><vh>isSelecting</vh></v>
 </v>
 <v t="felix.20250105212000.1"><vh>class Entities</vh>
 <v t="felix.20250105212000.2"><vh>constructor</vh></v>
@@ -535,9 +541,7 @@ function loop(timestamp: number): void {
 }
 
 </t>
-<t tx="felix.20241220001453.1">
-
-/**
+<t tx="felix.20241220001453.1">/**
  * Singleton Entities Object Pool
  */
 export class Entities {
@@ -1073,6 +1077,8 @@ import { CONFIG } from './config';
 </t>
 <t tx="felix.20241227213056.1">export class Game {
 
+    inputManager: InputManager;
+
     // HTML Elements
     startButtonElement: HTMLButtonElement = document.createElement("button");
     resolutionSelectElement: HTMLSelectElement = document.createElement("select");
@@ -1110,12 +1116,6 @@ import { CONFIG } from './config';
     entities!: Entities;
     entityBehaviors!: EntityBehavior;
 
-    // Mouse Properties
-    mouseX = 0; // Current mouse position in screen
-    mouseY = 0;
-    gameMouseX = 0; // Current mouse position in game
-    gameMouseY = 0;
-
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
@@ -1126,23 +1126,11 @@ import { CONFIG } from './config';
     widgetAnimX = 0
     widgetAnimY = 0
 
-    // Cursor Selection States
-    selecting: boolean = false;
-    selX = 0; // Started selection at specific screen coords (end is current mouse pos)
-    selY = 0;
-    gameSelStartX = 0; // Started selection at specific game coords
-    gameSelStartY = 0;
-    gameSelEndX = 0; // Ended selection at specific game coords
-    gameSelEndY = 0;
-
     // Scroll Properties
     scrollX = 0; // Current scroll position 
     scrollY = 0;
     scrollNowX = 0; // Scroll amount to be applied to scroll when processing
     scrollNowY = 0;
-
-    // Key Press States
-    keysPressed: Record&lt;string, any&gt; = {};
 
     // Image Assets
     creaturesImage!: HTMLImageElement;
@@ -1284,6 +1272,8 @@ import { CONFIG } from './config';
         this.mainMenu();
     });
 
+    this.inputManager = new InputManager(this);
+
 }
 
 </t>
@@ -1348,61 +1338,6 @@ import { CONFIG } from './config';
 }
 
 </t>
-<t tx="felix.20241229162110.1">handleMouseMove(event: MouseEvent): void {
-    this.setCursorPos(event);
-    this.scrollNowX = 0;
-    this.scrollNowY = 0;
-    const scrolSpeed = CONFIG.DISPLAY.SCROLL.SPEED;
-
-    // Scroll if cursor is near the edge of the screen
-    if (this.mouseX &gt; this.scrollEdgeX) {
-        this.scrollNowX = scrolSpeed;
-    }
-    if (this.mouseY &gt; this.scrollEdgeY) {
-        this.scrollNowY = scrolSpeed;
-    }
-    if (this.mouseX &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
-        this.scrollNowX = -scrolSpeed;
-    }
-    if (this.mouseY &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
-        this.scrollNowY = -scrolSpeed;
-    }
-}
-
-</t>
-<t tx="felix.20241229162200.1">handleMouseDown(event: MouseEvent): void {
-    this.setCursorPos(event);
-
-    if (!this.selecting) {
-        if (event.button == 0) {
-            this.selecting = true;
-            this.setCursor("cur-target");
-            this.selX = this.mouseX; // Start selection at mouse coords
-            this.selY = this.mouseY;
-            this.gameSelStartX = this.selX + this.scrollX;
-            this.gameSelStartY = this.selY + this.scrollY;
-        }
-        if (event.button == 2) {
-            this.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
-        }
-    }
-}
-
-</t>
-<t tx="felix.20241229162201.1">handleMouseUp(event: MouseEvent): void {
-    this.setCursorPos(event);
-
-    if (event.button == 0) {
-        this.gameSelEndX = this.mouseX + this.scrollX;
-        this.gameSelEndY = this.mouseY + this.scrollY;
-        this.selecting = false;
-        this.setCursor("cur-pointer");
-        this.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
-    }
-
-}
-
-</t>
 <t tx="felix.20241229162229.1">checkUpdate(): void {
     // Checks for needed ticks to be computed if game is minimized
     const timestamp = performance.now();
@@ -1412,51 +1347,6 @@ import { CONFIG } from './config';
     }
     // It's been a while, game is minimized: update without rendering.
     this.update(timestamp, true);
-}
-
-</t>
-<t tx="felix.20241229163326.1">addGameEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
-    window.addEventListener("keyup", this.handleKeyUp.bind(this));
-    window.addEventListener("mousemove", this.handleMouseMove.bind(this));
-    window.addEventListener("mousedown", this.handleMouseDown.bind(this));
-    window.addEventListener("mouseup", this.handleMouseUp.bind(this));
-    window.addEventListener("wheel", this.handleMouseWheel.bind(this), { passive: false });
-}
-
-</t>
-<t tx="felix.20241229180756.1">handleMouseWheel(event: WheelEvent): void {
-    if (event.deltaY &lt; 0) {
-        // Todo: Zoom in
-        console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
-    } else if (event.deltaY &gt; 0) {
-        // Todo: Zoom out
-        console.log("CTRL+Scroll Down");
-    }
-
-    // Prevents the default zoom behavior
-    if (event.ctrlKey) {
-        event.preventDefault();
-    }
-}
-
-</t>
-<t tx="felix.20241229190851.1">handleKeyDown(e: KeyboardEvent): void {
-    this.keysPressed[e.key] = true;
-    if (e.key === 'F10') {
-        e.preventDefault();  // Prevent default F10 behavior
-        this.toggleGameMenu();
-    }
-    // Prevent keyboard zoom.
-    if (e.ctrlKey &amp;&amp; (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
-        e.preventDefault();
-    }
-}
-
-
-</t>
-<t tx="felix.20241229190855.1">handleKeyUp(e: KeyboardEvent): void {
-    this.keysPressed[e.key] = false;
 }
 
 </t>
@@ -1484,7 +1374,7 @@ import { CONFIG } from './config';
 
     this.setCursor("cur-pointer");
 
-    this.addGameEventListeners();
+    this.inputManager.init();
 
     this.startButtonElement.style.display = 'none';
     this.resolutionSelectElement.style.display = 'none';
@@ -1495,25 +1385,9 @@ import { CONFIG } from './config';
 }
 
 </t>
-<t tx="felix.20241230214840.1">processKeyInputs(): void {
-    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-        //
-    }
-    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-        //
-    }
-    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-        // 
-    }
-    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-        //
-    }
-}
-
-</t>
 <t tx="felix.20241230215224.1">procGame(): void {
 
-    // procgame processes a game frame, animating each RFA
+    // procgame processes a game frame, animating each RFA.
     // Note: This is not a game-states tick, at timePerTick intervals.
 
     if (this.gameAction) {
@@ -1535,7 +1409,7 @@ import { CONFIG } from './config';
     this.gameAction = 0 // -------------- no more game actions to do
 
     // Scroll if not currently dragging a selection.
-    if (!this.selecting) {
+    if (!this.inputManager.isSelecting) {
         this.scrollX += this.scrollNowX;
         this.scrollY += this.scrollNowY;
         if (this.scrollX &gt; this.maxScrollX) {
@@ -1573,7 +1447,7 @@ import { CONFIG } from './config';
     }
     */
 
-    this.processKeyInputs();
+    this.inputManager.processInputs();
 
     // Update currentTick count
     this.currentTick += 1;
@@ -1581,19 +1455,22 @@ import { CONFIG } from './config';
 
 </t>
 <t tx="felix.20241230215401.1">trydefault(): void {
-    console.log('default', this.gameMouseX, this.gameMouseY);
+    const gamePosition = this.inputManager.gamePosition;
+    console.log('default', gamePosition.x, gamePosition.y);
     // TODO : Replace with test cursor animation with the real default action
     // TEST START WIDGET ANIMATION ON DEFAULT ACTION
     this.widgetAnim = 1;
-    this.widgetAnimX = this.gameMouseX - 32;
-    this.widgetAnimY = this.gameMouseY - 32;
+    this.widgetAnimX = gamePosition.x - 32;
+    this.widgetAnimY = gamePosition.y - 32;
 
 }
 
 </t>
 <t tx="felix.20241230215406.1">tryselect(): void {
     // Called from procGame
-    console.log('select', this.gameSelStartX, this.gameSelStartY, this.gameSelEndX, this.gameSelEndY);
+    const selectionStart = this.inputManager.selectionStart;
+    const selectionEnd = this.inputManager.selectionEnd;
+    console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
 }
 
 </t>
@@ -1644,14 +1521,6 @@ import { CONFIG } from './config';
         this.documentElementClassList.add(newClass); // Add to html
         this.currentCursorClass = newClass; // Update the tracked cursor class
     }
-}
-
-</t>
-<t tx="felix.20250101212200.1">setCursorPos(event: MouseEvent): void {
-    this.mouseX = event.clientX * (this.gameScreenWidth / this.canvasBoundingRect.width);
-    this.mouseY = event.clientY * (this.gameScreenHeight / this.canvasBoundingRect.height);
-    this.gameMouseX = this.mouseX + this.scrollX;
-    this.gameMouseY = this.mouseY + this.scrollY;
 }
 
 </t>
@@ -2102,6 +1971,186 @@ export const CONFIG = {
     DISPLAY,
     GAME
 } as const;
+</t>
+<t tx="felix.20250107221804.1">class InputManager {
+    private game: Game;
+    private keysPressed: Record&lt;string, boolean&gt; = {};
+    private selecting: boolean = false;
+    private mouseX = 0;
+    private mouseY = 0;
+    private gameMouseX = 0;
+    private gameMouseY = 0;
+    private selX = 0;
+    private selY = 0;
+    private gameSelStartX = 0;
+    private gameSelStartY = 0;
+    private gameSelEndX = 0;
+    private gameSelEndY = 0;
+    private scrollNowX = 0;
+    private scrollNowY = 0;
+
+    @others
+
+}
+
+</t>
+<t tx="felix.20250107221855.1">constructor(game: Game) {
+    this.game = game;
+}
+
+</t>
+<t tx="felix.20250107230733.1">public init(): void {
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
+    window.addEventListener("keyup", this.handleKeyUp.bind(this));
+    window.addEventListener("mousemove", this.handleMouseMove.bind(this));
+    window.addEventListener("mousedown", this.handleMouseDown.bind(this));
+    window.addEventListener("mouseup", this.handleMouseUp.bind(this));
+    window.addEventListener("wheel", this.handleMouseWheel.bind(this), { passive: false });
+}
+</t>
+<t tx="felix.20250107230755.1">private handleKeyDown(e: KeyboardEvent): void {
+    this.keysPressed[e.key] = true;
+    if (e.key === 'F10') {
+        e.preventDefault();
+        this.game.toggleGameMenu();
+    }
+    if (e.ctrlKey &amp;&amp; (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+        e.preventDefault();
+    }
+}
+
+</t>
+<t tx="felix.20250107230802.1">private handleKeyUp(e: KeyboardEvent): void {
+    this.keysPressed[e.key] = false;
+}
+
+</t>
+<t tx="felix.20250107230806.1">private handleMouseMove(event: MouseEvent): void {
+    this.setCursorPos(event);
+    this.scrollNowX = 0;
+    this.scrollNowY = 0;
+
+    if (this.mouseX &gt; this.game.scrollEdgeX) {
+        this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+    }
+    if (this.mouseY &gt; this.game.scrollEdgeY) {
+        this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+    }
+    if (this.mouseX &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
+        this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+    }
+    if (this.mouseY &lt; CONFIG.DISPLAY.SCROLL.BORDER) {
+        this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+    }
+}
+
+</t>
+<t tx="felix.20250107230811.1">private handleMouseDown(event: MouseEvent): void {
+    this.setCursorPos(event);
+    if (!this.selecting) {
+        if (event.button === 0) {
+            this.selecting = true;
+            this.game.setCursor('cur-target');
+            this.selX = this.mouseX;
+            this.selY = this.mouseY;
+            this.gameSelStartX = this.selX + this.game.scrollX;
+            this.gameSelStartY = this.selY + this.game.scrollY;
+        }
+        if (event.button === 2) {
+            this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
+        }
+    }
+}
+
+</t>
+<t tx="felix.20250107230817.1">private handleMouseUp(event: MouseEvent): void {
+    this.setCursorPos(event);
+    if (event.button === 0) {
+        this.gameSelEndX = this.mouseX + this.game.scrollX;
+        this.gameSelEndY = this.mouseY + this.game.scrollY;
+        this.selecting = false;
+        this.game.setCursor('cur-pointer');
+        this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
+    }
+}
+</t>
+<t tx="felix.20250107230822.1">private handleMouseWheel(event: WheelEvent): void {
+    if (event.ctrlKey) {
+        event.preventDefault();
+    }
+    if (event.deltaY &lt; 0) {
+        // Todo: Zoom in
+        console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
+    } else if (event.deltaY &gt; 0) {
+        // Todo: Zoom out
+        console.log("CTRL+Scroll Down");
+    }
+}
+
+</t>
+<t tx="felix.20250107230828.1">private setCursorPos(event: MouseEvent): void {
+    this.mouseX = event.clientX * (this.game.gameScreenWidth / this.game.canvasBoundingRect.width);
+    this.mouseY = event.clientY * (this.game.gameScreenHeight / this.game.canvasBoundingRect.height);
+    this.gameMouseX = this.mouseX + this.game.scrollX;
+    this.gameMouseY = this.mouseY + this.game.scrollY;
+}
+
+</t>
+<t tx="felix.20250107230906.1">public processInputs(): void {
+    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
+        //
+    }
+    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
+        //
+    }
+    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
+        // 
+    }
+    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
+        //
+    }
+    if (!this.selecting) {
+        this.updateScroll();
+    }
+}
+
+</t>
+<t tx="felix.20250107230918.1">private updateScroll(): void {
+    this.game.scrollX += this.scrollNowX;
+    this.game.scrollY += this.scrollNowY;
+
+    // Clamp scroll values
+    this.game.scrollX = Math.max(0, Math.min(this.game.scrollX, this.game.maxScrollX));
+    this.game.scrollY = Math.max(0, Math.min(this.game.scrollY, this.game.maxScrollY));
+}
+
+</t>
+<t tx="felix.20250107230936.1">public get isSelecting(): boolean {
+    return this.selecting;
+}
+
+</t>
+<t tx="felix.20250107232140.1">public get mousePosition(): { x: number, y: number } {
+    return { x: this.mouseX, y: this.mouseY };
+}
+
+public get gamePosition(): { x: number, y: number } {
+    return { x: this.gameMouseX, y: this.gameMouseY };
+}
+
+public get selectionStart(): { x: number, y: number } {
+    return { x: this.gameSelStartX, y: this.gameSelStartY };
+}
+
+public get selectionEnd(): { x: number, y: number } {
+    return { x: this.gameSelEndX, y: this.gameSelEndY };
+}
+
+public get scrollVelocity(): { x: number, y: number } {
+    return { x: this.scrollNowX, y: this.scrollNowY };
+}
+
+
 </t>
 </tnodes>
 </leo_file>

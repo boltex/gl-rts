@@ -1129,8 +1129,6 @@ import { CONFIG } from './config';
     // Scroll Properties
     scrollX = 0; // Current scroll position 
     scrollY = 0;
-    scrollNowX = 0; // Scroll amount to be applied to scroll when processing
-    scrollNowY = 0;
 
     // Image Assets
     creaturesImage!: HTMLImageElement;
@@ -1410,8 +1408,9 @@ import { CONFIG } from './config';
 
     // Scroll if not currently dragging a selection.
     if (!this.inputManager.isSelecting) {
-        this.scrollX += this.scrollNowX;
-        this.scrollY += this.scrollNowY;
+        const scrollVelocity = this.inputManager.scrollVelocity;
+        this.scrollX += scrollVelocity.x;
+        this.scrollY += scrollVelocity.y;
         if (this.scrollX &gt; this.maxScrollX) {
             this.scrollX = this.maxScrollX;
         }

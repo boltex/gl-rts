@@ -1,4 +1,5 @@
-import { Point } from "./maths";
+import { Vec2 } from "./type";
+
 /**
  * Creates a WebGL program from vertex and fragment shader source code.
  * @param gl The WebGL rendering context.
@@ -74,8 +75,8 @@ export function fullScreen(element: Element): Promise<void> {
     }
 }
 
-export function interpolate(min: Point, max: Point, fract: number): Point {
-    return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
+export function interpolate(min: Vec2, max: Vec2, fract: number): Vec2 {
+    return { x: max.x + (min.x - max.x) * fract, y: max.y + (min.y - max.y) * fract };
 }
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
@@ -85,5 +86,4 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
         image.src = src;
     });
 }
-
 

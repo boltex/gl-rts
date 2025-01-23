@@ -1,6 +1,5 @@
 import * as utils from "./utils";
-import { Point, M3x3 } from "./maths";
-import { TEntity, TParameters } from "./type";
+import { Vec2, TEntity, TParameters } from "./type";
 import { CONFIG } from './config';
 
 // TILE MAP VERTEX SHADER
@@ -101,13 +100,12 @@ export class Game {
     lastDisplayHeight = 0;
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
-    glContext: WebGL2RenderingContext;
+    gl: WebGL2RenderingContext;
 
     // Game Screen Properties
-    worldSpaceMatrix: M3x3;
     aspectRatio = 1; // set in startGame, this is display aspect ratio
-    gameScreenWidth = 0; // set in startGame, this is game screen size
-    gameScreenHeight = 0;
+    gameScreenWidth = 0; // set in startGame, this is game screen size, used as uWorldX.
+    gameScreenHeight = 0; // Used as uWorldY.
     gameWidthRatio = 0; // set in startGame, this is game screen ratio to the canvas size
     gameHeightRatio = 0;
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
@@ -175,9 +173,7 @@ export class Game {
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
         this.setDimensionsVars();
 
-        this.glContext = this.canvasElement.getContext('webgl2')!;
-
-        this.worldSpaceMatrix = new M3x3();
+        this.gl = this.canvasElement.getContext('webgl2')!;
 
         // Prevent right-click context menu
         this.canvasElement.addEventListener('contextmenu', (event) => {
@@ -254,9 +250,6 @@ export class Game {
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
-        const wRatio = this.lastDisplayWidth / (this.lastDisplayHeight / this.gameScreenHeight);
-        this.worldSpaceMatrix = new M3x3().translation(-1, 1).scale(2 / wRatio, -2 / this.gameScreenHeight);
-
         return this.canvasBoundingRect;
     }
 
@@ -332,20 +325,16 @@ export class Game {
 
     }
 
-    interpolate(min: Point, max: Point, fract: number): Point {
-        return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
-    }
-
     render(interpolation: number): void {
 
         // Before rendering, resize canvas to display size. (in case of changing window size)
         this.resizeCanvasToDisplaySize(this.canvasElement);
 
         // Clear the canvas
-        this.glContext.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
-        this.glContext.clear(this.glContext.COLOR_BUFFER_BIT);
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        this.glContext.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
+        this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
 
         // Render the game
 
@@ -353,7 +342,7 @@ export class Game {
         // TODO: Render the game entities
 
         // Finished
-        this.glContext.flush();
+        this.gl.flush();
     }
 
     mainMenu(): void {
@@ -558,7 +547,7 @@ export class Game {
 
 }
 
-class InputManager {
+export class InputManager {
     private game: Game;
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
@@ -669,6 +658,7 @@ class InputManager {
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
         }
     }
+
     private handleMouseWheel(event: WheelEvent): void {
         if (event.ctrlKey) {
             event.preventDefault();
@@ -809,164 +799,6 @@ export class EntityBehavior {
         // TODO : Add real behaviors!
     }
 
-
-}
-
-export class ShaderProgram {
-
-    public gl!: WebGL2RenderingContext;
-    public program!: WebGLProgram;
-    public parameters: Record<string, TParameters> = {};
-
-    constructor(gl: WebGL2RenderingContext, vs: string, fs: string) {
-        this.gl = gl;
-
-        const vsShader = this.getShader(vs, gl.VERTEX_SHADER);
-        const fsShader = this.getShader(fs, gl.FRAGMENT_SHADER);
-
-        if (vsShader && fsShader) {
-            this.program = gl.createProgram()!;
-            gl.attachShader(this.program, vsShader);
-            gl.attachShader(this.program, fsShader);
-            gl.linkProgram(this.program);
-            if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-                console.error("Cannot load shader \n" + gl.getProgramInfoLog(this.program));
-            }
-
-            this.gatherParameters();
-
-            gl.detachShader(this.program, vsShader);
-            gl.detachShader(this.program, fsShader);
-            gl.deleteShader(vsShader);
-            gl.deleteShader(fsShader);
-
-            gl.useProgram(null);
-        }
-    }
-
-    getShader(script: string, type: number): WebGLShader | null {
-        const gl = this.gl;
-        const output = gl.createShader(type);
-        if (output) {
-            gl.shaderSource(output, script);
-            gl.compileShader(output);
-            if (!gl.getShaderParameter(output, gl.COMPILE_STATUS)) {
-                console.error("Shader Error: \n" + gl.getShaderInfoLog(output));
-                return null;
-            }
-        }
-        return output;
-    }
-
-    gatherParameters(): void {
-        const gl = this.gl;
-        let isUniform = 0;
-
-        this.parameters = {};
-        while (isUniform < 2) {
-            let paramType = isUniform ? gl.ACTIVE_UNIFORMS : gl.ACTIVE_ATTRIBUTES;
-            let count = gl.getProgramParameter(this.program, paramType);
-
-            for (let i = 0; i < count; i++) {
-                let details;
-                let location;
-                if (isUniform) {
-                    details = gl.getActiveUniform(this.program, i);
-                    location = gl.getUniformLocation(this.program, details!.name);
-                    this.parameters[details!.name] = {
-                        location: location as WebGLUniformLocation,
-                        uniform: true,
-                        type: details!.type
-                    };
-                } else {
-                    details = gl.getActiveAttrib(this.program, i);
-                    location = gl.getAttribLocation(this.program, details!.name);
-                    this.parameters[details!.name] = {
-                        location: location as number,
-                        uniform: false,
-                        type: details!.type
-                    };
-                }
-
-            }
-            isUniform++;
-        }
-
-    }
-
-    setParam(w_name: string, a?: any, b?: any, c?: any, d?: any) {
-
-        if (!(w_name in this.parameters)) {
-            return;
-        }
-
-        const gl = this.gl;
-        const param = this.parameters[w_name];
-
-        if (param.uniform) {
-            this.setUniform(param, a, b, c, d);
-        } else {
-            this.setAttribute(param, a, b, c, d);
-        }
-
-    }
-
-    private setUniform(param: TParameters & { uniform: true }, a?: any, b?: any, c?: any, d?: any) {
-        const gl = this.gl;
-
-        switch (param.type) {
-            case gl.FLOAT:
-                gl.uniform1f(param.location, a);
-                break;
-            case gl.FLOAT_VEC2:
-                gl.uniform2f(param.location, a, b);
-                break;
-            case gl.FLOAT_VEC3:
-                gl.uniform3f(param.location, a, b, c);
-                break;
-            case gl.FLOAT_VEC4:
-                gl.uniform4f(param.location, a, b, c, d);
-                break;
-            case gl.FLOAT_MAT3:
-                gl.uniformMatrix3fv(param.location, false, a);
-                break;
-            case gl.FLOAT_MAT4:
-                gl.uniformMatrix4fv(param.location, false, a);
-                break;
-            case gl.SAMPLER_2D:
-                gl.uniform1i(param.location, a);
-                break;
-            default:
-                console.warn(`Unsupported uniform type: ${param.type}`);
-        }
-    }
-
-    private setAttribute(param: TParameters & { uniform: false }, a?: any, b?: any, c?: any, d?: any) {
-        const gl = this.gl;
-
-        gl.enableVertexAttribArray(param.location);
-        const type = a ?? gl.FLOAT;
-        const normalized = b ?? false;
-        const stride = c ?? 0;
-        const offset = d ?? 0;
-
-        switch (param.type) {
-            case gl.FLOAT:
-                gl.vertexAttribPointer(param.location, 1, type, normalized, stride, offset);
-                break;
-            case gl.FLOAT_VEC2:
-                gl.vertexAttribPointer(param.location, 2, type, normalized, stride, offset);
-                break;
-            case gl.FLOAT_VEC3:
-                gl.vertexAttribPointer(param.location, 3, type, normalized, stride, offset);
-                break;
-            case gl.FLOAT_VEC4:
-                gl.vertexAttribPointer(param.location, 4, type, normalized, stride, offset);
-                break;
-            default:
-                console.warn(`Unsupported attribute type: ${param.type}`);
-        }
-    }
 
 }
 

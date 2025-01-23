@@ -1,4 +1,5 @@
-import { Point } from "./maths";
+export type Vec2 = { x: number, y: number };
+
 export type TCommand = {
     order: number;
     x: number;

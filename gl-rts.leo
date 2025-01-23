@@ -50,7 +50,6 @@
 <v t="felix.20241227213236.1"><vh>update</vh></v>
 <v t="felix.20250101211507.1"><vh>setCursor</vh></v>
 <v t="felix.20241231225835.1"><vh>animateCursor</vh></v>
-<v t="felix.20241231222558.1"><vh>interpolate</vh></v>
 <v t="felix.20241231221007.1"><vh>render</vh></v>
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229230016.1"><vh>startGame</vh></v>
@@ -88,7 +87,8 @@
 <v t="felix.20250105212047.3"><vh>process</vh></v>
 <v t="felix.20250105212047.4"><vh>alien</vh></v>
 </v>
-<v t="felix.20250106224739.1"><vh>class ShaderProgram</vh>
+</v>
+<v t="felix.20250106224739.1"><vh>MAYBE class ShaderProgram</vh>
 <v t="felix.20250106224739.2"><vh>constructor</vh></v>
 <v t="felix.20250106224739.3"><vh>getShader</vh></v>
 <v t="felix.20250106224739.4"><vh>gatherParameters</vh></v>
@@ -97,28 +97,28 @@
 <v t="felix.20250106224739.7"><vh>setAttribute</vh></v>
 </v>
 </v>
-</v>
-<v t="felix.20241220001515.1"><vh>@clean src/maths.ts</vh>
-<v t="felix.20241220001515.2"><vh>class Point</vh>
-<v t="felix.20241220001515.3"><vh>constructor</vh></v>
-</v>
-<v t="felix.20241220001515.4"><vh>class M3x3</vh>
-<v t="felix.20241220001515.5"><vh>constructor</vh></v>
-<v t="felix.20241220001515.6"><vh>multiply</vh></v>
-<v t="felix.20241220001515.7"><vh>translation</vh></v>
-<v t="felix.20241220001515.8"><vh>scale</vh></v>
-<v t="felix.20241220001515.9"><vh>getFloatArray</vh></v>
-</v>
+<v t="felix.20250108220449.1"><vh>MAYBE class GLContext</vh>
+<v t="felix.20250108220555.1"><vh>constructor</vh></v>
+<v t="felix.20250108220630.1"><vh>setupGL</vh></v>
+<v t="felix.20250108220609.1"><vh>createBuffer</vh></v>
+<v t="felix.20250108220643.1"><vh>createTexture</vh></v>
+<v t="felix.20250108220648.1"><vh>useProgram</vh></v>
+<v t="felix.20250108220655.1"><vh>clear</vh></v>
+<v t="felix.20250108220715.1"><vh>setViewport</vh></v>
+<v t="felix.20250108220720.1"><vh>bindVAO</vh></v>
+<v t="felix.20250108221254.1"><vh>setAttribute</vh></v>
+<v t="felix.20250108221302.1"><vh>draw</vh></v>
+<v t="felix.20250108221307.1"><vh>drawElements</vh></v>
+<v t="felix.20250108221318.1"><vh>checkError</vh></v>
 </v>
 <v t="felix.20241220002054.1"><vh>@clean src/type.ts</vh>
-<v t="felix.20241220002054.2"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241220002054.3"><vh>types</vh></v>
 </v>
 <v t="felix.20241224183015.1"><vh>@clean src/utils.ts</vh>
-<v t="felix.20241224223142.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+<v t="felix.20250122233854.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241224183532.1"><vh>createProgram</vh></v>
 <v t="felix.20241224183525.1"><vh>fullScreen</vh></v>
-<v t="felix.20241224223104.1"><vh>interpolate</vh></v>
+<v t="felix.20250120234029.1"><vh>interpolate</vh></v>
 <v t="felix.20241228192145.1"><vh>loadImage</vh></v>
 </v>
 <v t="felix.20250107011547.1"><vh>@clean src/config.ts</vh></v>
@@ -605,115 +605,6 @@ export class Entities {
 }
 
 </t>
-<t tx="felix.20241220001515.1">@others
-</t>
-<t tx="felix.20241220001515.2">export class Point {
-
-    public x: number;
-    public y: number;
-
-    @others
-}
-</t>
-<t tx="felix.20241220001515.3">constructor(x = 0.0, y = 0.0) {
-    this.x = x;
-    this.y = y;
-}
-
-</t>
-<t tx="felix.20241220001515.4">export class M3x3 {
-
-    public static M00 = 0;
-    public static M01 = 1;
-    public static M02 = 2;
-    public static M10 = 3;
-    public static M11 = 4;
-    public static M12 = 5;
-    public static M20 = 6;
-    public static M21 = 7;
-    public static M22 = 8;
-
-    public matrix: [
-        number, number, number,
-        number, number, number,
-        number, number, number,
-    ];
-
-    @others
-
-}
-
-</t>
-<t tx="felix.20241220001515.5">constructor() {
-    this.matrix = [
-        1, 0, 0,
-        0, 1, 0,
-        0, 0, 1
-    ];
-}
-
-</t>
-<t tx="felix.20241220001515.6">multiply(m: M3x3): M3x3 {
-    const output = new M3x3();
-    output.matrix = [
-        this.matrix[M3x3.M00] * m.matrix[M3x3.M00] + this.matrix[M3x3.M10] * m.matrix[M3x3.M01] + this.matrix[M3x3.M20] * m.matrix[M3x3.M02],
-        this.matrix[M3x3.M01] * m.matrix[M3x3.M00] + this.matrix[M3x3.M11] * m.matrix[M3x3.M01] + this.matrix[M3x3.M21] * m.matrix[M3x3.M02],
-        this.matrix[M3x3.M02] * m.matrix[M3x3.M00] + this.matrix[M3x3.M12] * m.matrix[M3x3.M01] + this.matrix[M3x3.M22] * m.matrix[M3x3.M02],
-
-        this.matrix[M3x3.M00] * m.matrix[M3x3.M10] + this.matrix[M3x3.M10] * m.matrix[M3x3.M11] + this.matrix[M3x3.M20] * m.matrix[M3x3.M12],
-        this.matrix[M3x3.M01] * m.matrix[M3x3.M10] + this.matrix[M3x3.M11] * m.matrix[M3x3.M11] + this.matrix[M3x3.M21] * m.matrix[M3x3.M12],
-        this.matrix[M3x3.M02] * m.matrix[M3x3.M10] + this.matrix[M3x3.M12] * m.matrix[M3x3.M11] + this.matrix[M3x3.M22] * m.matrix[M3x3.M12],
-
-        this.matrix[M3x3.M00] * m.matrix[M3x3.M20] + this.matrix[M3x3.M10] * m.matrix[M3x3.M21] + this.matrix[M3x3.M20] * m.matrix[M3x3.M22],
-        this.matrix[M3x3.M01] * m.matrix[M3x3.M20] + this.matrix[M3x3.M11] * m.matrix[M3x3.M21] + this.matrix[M3x3.M21] * m.matrix[M3x3.M22],
-        this.matrix[M3x3.M02] * m.matrix[M3x3.M20] + this.matrix[M3x3.M12] * m.matrix[M3x3.M21] + this.matrix[M3x3.M22] * m.matrix[M3x3.M22]
-    ];
-    return output;
-}
-
-</t>
-<t tx="felix.20241220001515.7">translation(x: number, y: number): M3x3 {
-    const output = new M3x3();
-    output.matrix = [
-        this.matrix[M3x3.M00],
-        this.matrix[M3x3.M01],
-        this.matrix[M3x3.M02],
-        this.matrix[M3x3.M10],
-        this.matrix[M3x3.M11],
-        this.matrix[M3x3.M12],
-
-        x * this.matrix[M3x3.M00] + y * this.matrix[M3x3.M10] + this.matrix[M3x3.M20],
-        x * this.matrix[M3x3.M01] + y * this.matrix[M3x3.M11] + this.matrix[M3x3.M21],
-        x * this.matrix[M3x3.M02] + y * this.matrix[M3x3.M12] + this.matrix[M3x3.M22]
-    ];
-    return output;
-}
-
-</t>
-<t tx="felix.20241220001515.8">scale(x: number, y: number): M3x3 {
-    const output = new M3x3();
-    output.matrix = [
-        this.matrix[M3x3.M00] * x,
-        this.matrix[M3x3.M01] * x,
-        this.matrix[M3x3.M02] * x,
-
-        this.matrix[M3x3.M10] * y,
-        this.matrix[M3x3.M11] * y,
-        this.matrix[M3x3.M12] * y,
-
-        this.matrix[M3x3.M20],
-        this.matrix[M3x3.M21],
-        this.matrix[M3x3.M22]
-    ];
-    return output;
-}
-
-</t>
-<t tx="felix.20241220001515.9">getFloatArray(): Float32Array {
-    return new Float32Array(this.matrix);
-}
-
-</t>
 <t tx="felix.20241220001536.1">// import * as Constants from "./constants";
 // import * as utils from "./utils";
 import { Point, M3x3 } from "./maths";
@@ -811,11 +702,11 @@ import { TEntity, } from "./type";
 }
 
 </t>
-<t tx="felix.20241220002054.1">&lt;&lt; imports &gt;&gt;
-@others</t>
-<t tx="felix.20241220002054.2">import { Point } from "./maths";
+<t tx="felix.20241220002054.1">@others
 </t>
-<t tx="felix.20241220002054.3">export type TCommand = {
+<t tx="felix.20241220002054.3">export type Vec2 = { x: number, y: number };
+
+export type TCommand = {
     order: number;
     x: number;
     y: number;
@@ -856,7 +747,6 @@ export type TParameters =
 </t>
 <t tx="felix.20241224183015.1">&lt;&lt; imports &gt;&gt;
 @others
-
 </t>
 <t tx="felix.20241224183525.1">/**
  * Tries to put browser into fullscreen mode.
@@ -1016,13 +906,6 @@ export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string)
 }
 
 </t>
-<t tx="felix.20241224223104.1">export function interpolate(min: Point, max: Point, fract: number): Point {
-    return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
-}
-
-</t>
-<t tx="felix.20241224223142.1">import { Point } from "./maths";
-</t>
 <t tx="felix.20241224223235.1">public trydefault(): void {
     // TODO : Replace with real default action
     // TEST CURSOR ANIMATION ON DEFAULT ACTION
@@ -1061,8 +944,7 @@ export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string)
 @others
 </t>
 <t tx="felix.20241227202519.1">import * as utils from "./utils";
-import { Point, M3x3 } from "./maths";
-import { TEntity, TParameters } from "./type";
+import { Vec2, TEntity, TParameters } from "./type";
 import { CONFIG } from './config';
 
 </t>
@@ -1088,13 +970,12 @@ import { CONFIG } from './config';
     lastDisplayHeight = 0;
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
-    glContext: WebGL2RenderingContext;
+    gl: WebGL2RenderingContext;
 
     // Game Screen Properties
-    worldSpaceMatrix: M3x3;
     aspectRatio = 1; // set in startGame, this is display aspect ratio
-    gameScreenWidth = 0; // set in startGame, this is game screen size
-    gameScreenHeight = 0;
+    gameScreenWidth = 0; // set in startGame, this is game screen size, used as uWorldX.
+    gameScreenHeight = 0; // Used as uWorldY.
     gameWidthRatio = 0; // set in startGame, this is game screen ratio to the canvas size
     gameHeightRatio = 0;
     scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
@@ -1240,9 +1121,7 @@ import { CONFIG } from './config';
     this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
     this.setDimensionsVars();
 
-    this.glContext = this.canvasElement.getContext('webgl2')!;
-
-    this.worldSpaceMatrix = new M3x3();
+    this.gl = this.canvasElement.getContext('webgl2')!;
 
     // Prevent right-click context menu
     this.canvasElement.addEventListener('contextmenu', (event) =&gt; {
@@ -1479,10 +1358,10 @@ import { CONFIG } from './config';
     this.resizeCanvasToDisplaySize(this.canvasElement);
 
     // Clear the canvas
-    this.glContext.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
-    this.glContext.clear(this.glContext.COLOR_BUFFER_BIT);
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    this.glContext.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
+    this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
 
     // Render the game
 
@@ -1490,12 +1369,7 @@ import { CONFIG } from './config';
     // TODO: Render the game entities
 
     // Finished
-    this.glContext.flush();
-}
-
-</t>
-<t tx="felix.20241231222558.1">interpolate(min: Point, max: Point, fract: number): Point {
-    return new Point(max.x + (min.x - max.x) * fract, max.y + (min.y - max.y) * fract);
+    this.gl.flush();
 }
 
 </t>
@@ -1529,9 +1403,6 @@ import { CONFIG } from './config';
     this.gameHeightRatio = (this.gameScreenHeight / this.canvasBoundingRect.height)
     this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-
-    const wRatio = this.lastDisplayWidth / (this.lastDisplayHeight / this.gameScreenHeight);
-    this.worldSpaceMatrix = new M3x3().translation(-1, 1).scale(2 / wRatio, -2 / this.gameScreenHeight);
 
     return this.canvasBoundingRect;
 }
@@ -1971,7 +1842,7 @@ export const CONFIG = {
     GAME
 } as const;
 </t>
-<t tx="felix.20250107221804.1">class InputManager {
+<t tx="felix.20250107221804.1">export class InputManager {
     private game: Game;
     private keysPressed: Record&lt;string, boolean&gt; = {};
     private selecting: boolean = false;
@@ -2072,6 +1943,7 @@ export const CONFIG = {
         this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
     }
 }
+
 </t>
 <t tx="felix.20250107230822.1">private handleMouseWheel(event: WheelEvent): void {
     if (event.ctrlKey) {
@@ -2149,6 +2021,121 @@ public get scrollVelocity(): { x: number, y: number } {
     return { x: this.scrollNowX, y: this.scrollNowY };
 }
 
+
+</t>
+<t tx="felix.20250108220449.1">export class GLContext {
+    private gl: WebGL2RenderingContext;
+    private boundBuffers: Map&lt;string, WebGLBuffer&gt; = new Map();
+    private boundTextures: Map&lt;string, WebGLTexture&gt; = new Map();
+    private activeShader: WebGLProgram | null = null;
+
+    @others
+
+}
+
+</t>
+<t tx="felix.20250108220555.1">constructor(canvas: HTMLCanvasElement) {
+    const gl = canvas.getContext('webgl2');
+    if (!gl) {
+        throw new Error('WebGL 2 not supported');
+    }
+    this.gl = gl;
+    this.setupGL();
+}
+</t>
+<t tx="felix.20250108220609.1">public createBuffer(data: Float32Array | Uint16Array, target: number = this.gl.ARRAY_BUFFER): WebGLBuffer {
+    const buffer = this.gl.createBuffer();
+    if (!buffer) throw new Error('Failed to create buffer');
+
+    this.gl.bindBuffer(target, buffer);
+    this.gl.bufferData(target, data, this.gl.STATIC_DRAW);
+    return buffer;
+}
+
+</t>
+<t tx="felix.20250108220630.1">private setupGL(): void {
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.depthFunc(this.gl.LEQUAL);
+}
+
+</t>
+<t tx="felix.20250108220643.1">public createTexture(image: HTMLImageElement, options = {
+    wrap: this.gl.CLAMP_TO_EDGE,
+    filter: this.gl.NEAREST
+}): WebGLTexture {
+    const texture = this.gl.createTexture();
+    if (!texture) throw new Error('Failed to create texture');
+
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+        this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, options.wrap);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, options.wrap);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, options.filter);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, options.filter);
+
+    return texture;
+}
+
+</t>
+<t tx="felix.20250108220648.1">public useProgram(program: WebGLProgram): void {
+    if (this.activeShader !== program) {
+        this.gl.useProgram(program);
+        this.activeShader = program;
+    }
+}
+
+</t>
+<t tx="felix.20250108220655.1">public clear(r: number = 0, g: number = 0, b: number = 0, a: number = 1): void {
+    this.gl.clearColor(r, g, b, a);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+}
+
+</t>
+<t tx="felix.20250108220715.1">public setViewport(width: number, height: number): void {
+    this.gl.viewport(0, 0, width, height);
+}
+
+</t>
+<t tx="felix.20250108220720.1">public bindVAO(vao: WebGLVertexArrayObject | null): void {
+    this.gl.bindVertexArray(vao);
+}
+
+</t>
+<t tx="felix.20250108221254.1">public setAttribute(location: number, size: number, type: number,
+    normalized: boolean, stride: number, offset: number): void {
+    this.gl.vertexAttribPointer(location, size, type, normalized, stride, offset);
+    this.gl.enableVertexAttribArray(location);
+}
+
+</t>
+<t tx="felix.20250108221302.1">public draw(mode: number, count: number, offset: number = 0): void {
+    this.gl.drawArrays(mode, offset, count);
+}
+
+</t>
+<t tx="felix.20250108221307.1">public drawElements(mode: number, count: number, type: number, offset: number = 0): void {
+    this.gl.drawElements(mode, count, type, offset);
+}
+
+</t>
+<t tx="felix.20250108221318.1">public checkError(operation: string): void {
+    const error = this.gl.getError();
+    if (error !== this.gl.NO_ERROR) {
+        throw new Error(`WebGL Error after ${operation}: ${error}`);
+    }
+}
+
+</t>
+<t tx="felix.20250120234029.1">export function interpolate(min: Vec2, max: Vec2, fract: number): Vec2 {
+    return { x: max.x + (min.x - max.x) * fract, y: max.y + (min.y - max.y) * fract };
+}
+
+</t>
+<t tx="felix.20250122233854.1">import { Vec2 } from "./type";
 
 </t>
 </tnodes>

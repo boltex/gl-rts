@@ -1,17 +1,17 @@
-import { Point } from './maths';
 import { Game } from './main';
+import { Vec2 } from './type';
 
 export class InputManager {
     private game: Game;
     public keysPressed: Record<string, boolean> = {};
     public mouseX: number = 0;
-    public mouseY: number = 0; 
+    public mouseY: number = 0;
     public gameMouseX: number = 0;
     public gameMouseY: number = 0;
     public selecting: boolean = false;
-    public selectionStart: Point = new Point(0,0);
-    public selectionEnd: Point = new Point(0,0);
-    public scrollVector: Point = new Point(0,0);
+    public selectionStart: Vec2 = { x: 0, y: 0 }
+    public selectionEnd: Vec2 = { x: 0, y: 0 }
+    public scrollVector: Vec2 = { x: 0, y: 0 }
 
     constructor(game: Game) {
         this.game = game;
@@ -29,7 +29,7 @@ export class InputManager {
 
     public handleKeyDown(event: KeyboardEvent): void {
         this.keysPressed[event.key] = true;
-        
+
         if (event.key === 'F10') {
             event.preventDefault();
             this.game.toggleGameMenu();
@@ -109,11 +109,11 @@ export class InputManager {
     private startSelection(): void {
         this.selecting = true;
         this.game.setCursor("cur-target");
-        this.selectionStart = new Point(this.gameMouseX, this.gameMouseY);
+        this.selectionStart = { x: this.gameMouseX, y: this.gameMouseY };
     }
 
     private endSelection(): void {
-        this.selectionEnd = new Point(this.gameMouseX, this.gameMouseY);
+        this.selectionEnd = { x: this.gameMouseX, y: this.gameMouseY };
         this.selecting = false;
         this.game.setCursor("cur-pointer");
         this.game.gameAction = 2; // RELEASE_SELECTION action

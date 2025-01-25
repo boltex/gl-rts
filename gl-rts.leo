@@ -7,6 +7,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="felix.20241217200720.1"><vh>introduction</vh></v>
+<v t="felix.20250125002444.1"><vh>deprecated</vh>
 <v t="felix.20241217201352.1"><vh>@@clean src/main.ts</vh>
 <v t="felix.20241220001536.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241217225754.1"><vh>shaders</vh></v>
@@ -38,9 +39,32 @@
 <v t="felix.20241220001453.4"><vh>remove</vh></v>
 </v>
 </v>
+<v t="felix.20250106224739.1"><vh>MAYBE class ShaderProgram</vh>
+<v t="felix.20250106224739.2"><vh>constructor</vh></v>
+<v t="felix.20250106224739.3"><vh>getShader</vh></v>
+<v t="felix.20250106224739.4"><vh>gatherParameters</vh></v>
+<v t="felix.20250106224739.5"><vh>setParam &amp; helpers</vh>
+<v t="felix.20250106224739.6"><vh>setUniform</vh></v>
+<v t="felix.20250106224739.7"><vh>setAttribute</vh></v>
+</v>
+</v>
+<v t="felix.20250108220449.1"><vh>MAYBE class GLContext</vh>
+<v t="felix.20250108220555.1"><vh>constructor</vh></v>
+<v t="felix.20250108220630.1"><vh>setupGL</vh></v>
+<v t="felix.20250108220609.1"><vh>createBuffer</vh></v>
+<v t="felix.20250108220643.1"><vh>createTexture</vh></v>
+<v t="felix.20250108220648.1"><vh>useProgram</vh></v>
+<v t="felix.20250108220655.1"><vh>clear</vh></v>
+<v t="felix.20250108220715.1"><vh>setViewport</vh></v>
+<v t="felix.20250108220720.1"><vh>bindVAO</vh></v>
+<v t="felix.20250108221254.1"><vh>setAttribute</vh></v>
+<v t="felix.20250108221302.1"><vh>draw</vh></v>
+<v t="felix.20250108221307.1"><vh>drawElements</vh></v>
+<v t="felix.20250108221318.1"><vh>checkError</vh></v>
+</v>
+</v>
 <v t="felix.20241227202430.1"><vh>@clean src/main.ts</vh>
 <v t="felix.20241227202519.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
-<v t="felix.20250106220218.1"><vh>shaders</vh></v>
 <v t="felix.20241227213048.1"><vh>Create Game</vh></v>
 <v t="felix.20241227213056.1"><vh>class Game</vh>
 <v t="felix.20241227213841.1"><vh>constructor</vh></v>
@@ -88,40 +112,17 @@
 <v t="felix.20250105212047.4"><vh>alien</vh></v>
 </v>
 </v>
-<v t="felix.20250106224739.1"><vh>MAYBE class ShaderProgram</vh>
-<v t="felix.20250106224739.2"><vh>constructor</vh></v>
-<v t="felix.20250106224739.3"><vh>getShader</vh></v>
-<v t="felix.20250106224739.4"><vh>gatherParameters</vh></v>
-<v t="felix.20250106224739.5"><vh>setParam &amp; helpers</vh>
-<v t="felix.20250106224739.6"><vh>setUniform</vh></v>
-<v t="felix.20250106224739.7"><vh>setAttribute</vh></v>
-</v>
-</v>
-<v t="felix.20250108220449.1"><vh>MAYBE class GLContext</vh>
-<v t="felix.20250108220555.1"><vh>constructor</vh></v>
-<v t="felix.20250108220630.1"><vh>setupGL</vh></v>
-<v t="felix.20250108220609.1"><vh>createBuffer</vh></v>
-<v t="felix.20250108220643.1"><vh>createTexture</vh></v>
-<v t="felix.20250108220648.1"><vh>useProgram</vh></v>
-<v t="felix.20250108220655.1"><vh>clear</vh></v>
-<v t="felix.20250108220715.1"><vh>setViewport</vh></v>
-<v t="felix.20250108220720.1"><vh>bindVAO</vh></v>
-<v t="felix.20250108221254.1"><vh>setAttribute</vh></v>
-<v t="felix.20250108221302.1"><vh>draw</vh></v>
-<v t="felix.20250108221307.1"><vh>drawElements</vh></v>
-<v t="felix.20250108221318.1"><vh>checkError</vh></v>
-</v>
 <v t="felix.20241220002054.1"><vh>@clean src/type.ts</vh>
 <v t="felix.20241220002054.3"><vh>types</vh></v>
 </v>
 <v t="felix.20241224183015.1"><vh>@clean src/utils.ts</vh>
 <v t="felix.20250122233854.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
-<v t="felix.20241224183532.1"><vh>createProgram</vh></v>
 <v t="felix.20241224183525.1"><vh>fullScreen</vh></v>
 <v t="felix.20250120234029.1"><vh>interpolate</vh></v>
 <v t="felix.20241228192145.1"><vh>loadImage</vh></v>
 </v>
 <v t="felix.20250107011547.1"><vh>@clean src/config.ts</vh></v>
+<v t="felix.20250125002553.1"><vh>@clean shaders.ts</vh></v>
 </vnodes>
 <tnodes>
 <t tx="felix.20241217200720.1">Basic WebGL RTS game engine
@@ -771,57 +772,6 @@ export function fullScreen(element: Element): Promise&lt;void&gt; {
     } else {
         return Promise.resolve();
     }
-}
-
-</t>
-<t tx="felix.20241224183532.1">/**
- * Creates a WebGL program from vertex and fragment shader source code.
- * @param gl The WebGL rendering context.
- * @param vs The source code for the vertex shader.
- * @param fs The source code for the fragment shader.
- * @returns The created WebGL program.
- * @throws Will throw an error if the program or shaders cannot be created, compiled, or linked.
- */
-export function createProgram(gl: WebGLRenderingContext, vs: string, fs: string): WebGLProgram {
-    const program = gl.createProgram();
-    if (!program) {
-        throw new Error('Unable to create WebGL program.');
-    }
-
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    if (!vertexShader) {
-        throw new Error('Unable to create vertex shader.');
-    }
-    gl.shaderSource(vertexShader, vs);
-    gl.compileShader(vertexShader);
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-        const error = gl.getShaderInfoLog(vertexShader);
-        gl.deleteShader(vertexShader);
-        throw new Error('Vertex shader compilation error: ' + error);
-    }
-    gl.attachShader(program, vertexShader);
-
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    if (!fragmentShader) {
-        throw new Error('Unable to create fragment shader.');
-    }
-    gl.shaderSource(fragmentShader, fs);
-    gl.compileShader(fragmentShader);
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-        const error = gl.getShaderInfoLog(fragmentShader);
-        gl.deleteShader(fragmentShader);
-        throw new Error('Fragment shader compilation error: ' + error);
-    }
-    gl.attachShader(program, fragmentShader);
-
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        const error = gl.getProgramInfoLog(program);
-        gl.deleteProgram(program);
-        throw new Error('Program linking error: ' + error);
-    }
-
-    return program;
 }
 
 </t>
@@ -1545,84 +1495,6 @@ export class Entities {
 }
 
 </t>
-<t tx="felix.20250106220218.1">// TILE MAP VERTEX SHADER
-const tileMapVertexShaderSource = /*glsl*/ `#version 300 es
-
-layout(location=0) in vec4 aPosition;
-layout(location=1) in vec3 aOffset;
-layout(location=2) in float aScale;
-layout(location=3) in vec4 aColor;
-layout(location=4) in vec2 aTexCoord;
-layout(location=5) in float aDepth;
-
-out vec4 vColor;
-out vec2 vTexCoord;
-out float vDepth;
-
-void main()
-{
-    vColor = aColor;
-    vTexCoord = aTexCoord;
-    vDepth = aDepth;
-    gl_Position = vec4(aPosition.xyz * aScale + aOffset, 1.0);
-}`;
-
-// TILE MAP FRAGMENT SHADER
-const tileMapFragmentShaderSource = /*glsl*/ `#version 300 es
-
-precision mediump float;
-
-uniform mediump sampler2DArray uSampler;
-
-in vec4 vColor;
-in vec2 vTexCoord;
-in float vDepth;
-
-out vec4 fragColor;
-
-void main()
-{
-    fragColor = texture(uSampler, vec3(vTexCoord, vDepth));
-}`;
-
-// ENTITIES VERTEX SHADER
-const entityVertexShaderSource = /*glsl*/ `#version 300 es
-
-layout(location=0) in vec4 aPosition;
-layout(location=1) in vec2 aTexCoord;
-layout(location=2) in vec3 aOffset;
-layout(location=3) in float aScale;
-layout(location=4) in vec2 aUV;
-layout(location=5) in vec4 aColor;
-
-out vec2 vTexCoord;
-out vec4 vColor;
-
-void main()
-{
-    vColor = aColor;
-    vTexCoord = vec2(aTexCoord * 0.015625) + aUV;
-    gl_Position = vec4(aPosition.xyz * aScale + aOffset, 1.0);
-}`;
-
-// ENTITIES FRAGMENT SHADER
-const entityFragmentShaderSource = /*glsl*/ `#version 300 es
-
-precision mediump float;
-
-uniform mediump sampler2D uSampler;
-
-in vec4 vColor;
-in vec2 vTexCoord;
-
-out vec4 fragColor;
-
-void main()
-{
-    fragColor = texture(uSampler, vTexCoord);
-}`;
-
-</t>
 <t tx="felix.20250106224739.1">export class ShaderProgram {
 
     public gl!: WebGL2RenderingContext;
@@ -2137,6 +2009,160 @@ public get scrollVelocity(): { x: number, y: number } {
 </t>
 <t tx="felix.20250122233854.1">import { Vec2 } from "./type";
 
+</t>
+<t tx="felix.20250125002444.1">Archives of old stuff/unused stuff
+</t>
+<t tx="felix.20250125002553.1">
+// BACKGROUND MAP VERTEX SHADER
+const TILE_VERTEX_SHADER = /*glsl*/ `#version 300 es
+
+// The next two are the repeated geometry and UV for each instance of the model
+layout(location=0) in vec4 aPosition;
+layout(location=1) in vec2 aTexCoord;
+
+// Those next four use vertexAttribDivisor and are updated every instance
+layout(location=2) in vec3 aOffset;
+layout(location=3) in float aScale;
+layout(location=4) in vec4 aColor;
+layout(location=5) in float aDepth;
+
+layout(std140) uniform World {
+    float uWorldX;
+    float uWorldY;
+};
+
+out vec4 vColor;
+out vec2 vTexCoord;
+out float vDepth;
+
+void main()
+{
+    vColor = aColor;
+    vTexCoord = aTexCoord;
+    vDepth = aDepth;
+    vec3 pos = aPosition.xyz * aScale + aOffset;
+    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
+
+}`;
+
+// BACKGROUND MAP FRAGMENT SHADER
+const TILE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es
+
+precision mediump float;
+
+uniform mediump sampler2DArray uSampler;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+in float vDepth;
+out vec4 fragColor;
+
+void main()
+{
+    fragColor =  vColor * texture(uSampler, vec3(vTexCoord, vDepth));
+}`;
+
+// ALIEN CREATURE SPRITE VERTEX SHADER
+const SPRITE_VERTEX_SHADER = /*glsl*/ `#version 300 es
+
+// The next two are the repeated geometry and UV for each instance of the model
+layout(location=0) in vec4 aPosition;
+layout(location=1) in vec2 aTexCoord;
+
+// Those next four use vertexAttribDivisor and are updated every instance
+layout(location=2) in vec3 aOffset;
+layout(location=3) in float aScale;
+layout(location=4) in vec4 aColor;
+layout(location=5) in vec2 aUV;
+
+layout(std140) uniform World {
+    float uWorldX;
+    float uWorldY;
+};
+
+out vec4 vColor;
+out vec2 vTexCoord;
+
+void main()
+{
+    vColor = aColor;
+    vTexCoord = vec2(aTexCoord * 0.015625) + aUV;
+
+    vec3 pos = aPosition.xyz * aScale + aOffset;
+
+    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
+
+}`;
+
+// ALIEN CREATURE SPRITE FRAGMENT SHADER
+const SPRITE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es
+
+precision mediump float;
+
+uniform mediump sampler2D uSampler;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = vColor * texture(uSampler, vTexCoord);
+}`;
+
+// SELECTION LINE VERTEX SHADER
+const RECTANGLE_VERTEX_SHADER = /*glsl*/ `#version 300 es
+
+// The next two are the repeated geometry and UV for each instance of the model
+layout(location=0) in vec4 aPosition;
+
+// Those next four use vertexAttribDivisor and are updated every instance
+layout(location=1) in vec3 aOffset;
+layout(location=2) in float aScaleX;
+layout(location=3) in float aScaleY;
+layout(location=4) in vec4 aColor;
+
+layout(std140) uniform World {
+    float uWorldX;
+    float uWorldY;
+};
+
+out vec4 vColor;
+
+void main()
+{
+    vColor = aColor;
+    vec3 pos = aPosition.xyz * vec3(aScaleX, aScaleY, 1.0) + aOffset;
+    
+    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
+
+}`;
+
+// SELECTION LINE SPRITE FRAGMENT SHADER
+const RECTANGLE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es
+
+precision mediump float;
+
+in vec4 vColor;
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = vColor;
+}`;
+
+// Export all configs from a single point
+export const SHADERS = {
+    TILE_VERTEX_SHADER,
+    TILE_FRAGMENT_SHADER,
+    SPRITE_VERTEX_SHADER,
+    SPRITE_FRAGMENT_SHADER,
+    RECTANGLE_VERTEX_SHADER,
+    RECTANGLE_FRAGMENT_SHADER,
+} as const;
 </t>
 </tnodes>
 </leo_file>

@@ -122,7 +122,7 @@
 <v t="felix.20241228192145.1"><vh>loadImage</vh></v>
 </v>
 <v t="felix.20250107011547.1"><vh>@clean src/config.ts</vh></v>
-<v t="felix.20250125002553.1"><vh>@clean shaders.ts</vh></v>
+<v t="felix.20250125002553.1"><vh>@clean src/shaders.ts</vh></v>
 </vnodes>
 <tnodes>
 <t tx="felix.20241217200720.1">Basic WebGL RTS game engine
@@ -896,6 +896,7 @@ export function fullScreen(element: Element): Promise&lt;void&gt; {
 <t tx="felix.20241227202519.1">import * as utils from "./utils";
 import { Vec2, TEntity, TParameters } from "./type";
 import { CONFIG } from './config';
+import { SHADERS } from './shaders';
 
 </t>
 <t tx="felix.20241227213048.1">document.addEventListener('DOMContentLoaded', (event) =&gt; {

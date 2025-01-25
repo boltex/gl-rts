@@ -1,6 +1,7 @@
 import * as utils from "./utils";
 import { Vec2, TEntity, TParameters } from "./type";
 import { CONFIG } from './config';
+import { SHADERS } from './shaders';
 
 document.addEventListener('DOMContentLoaded', (event) => {
     if (!window.game) {

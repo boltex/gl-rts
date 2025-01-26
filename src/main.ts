@@ -47,7 +47,7 @@ export class Game {
     // Game state Properties
     gamemap: number[] = [];
     started = false;
-    gameAction = 0    // 0 = none
+    gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: EntityBehavior;
 
@@ -56,10 +56,10 @@ export class Game {
     currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
 
     // Command Acknowledged Widget Animation Properties
-    widgetAnim = 0
-    widgetAnimTotal = 6
-    widgetAnimX = 0
-    widgetAnimY = 0
+    widgetAnim = 0;
+    widgetAnimTotal = 6;
+    widgetAnimX = 0;
+    widgetAnimY = 0;
 
     // Scroll Properties
     scrollX = 0; // Current scroll position 
@@ -244,7 +244,7 @@ export class Game {
         if (this.widgetAnim) {
             this.widgetAnim += 1;
             if (this.widgetAnim > this.widgetAnimTotal)
-                this.widgetAnim = 0
+                this.widgetAnim = 0;
         }
 
     }
@@ -262,8 +262,9 @@ export class Game {
 
         // Render the game
 
-        // TODO: Render the game map
-        // TODO: Render the game entities
+        // TODO: 1 Render the game map. Map states are in this.gamemap.
+        // TODO: 2 Render the game entities. Entity states are in this.entities.pool.
+        // TODO: 3 Render Selection lines, if user is selecting.
 
         // Finished
         this.gl.flush();
@@ -319,7 +320,11 @@ export class Game {
 
         this.startButtonElement.style.display = 'none';
         this.resolutionSelectElement.style.display = 'none';
+
+        // Start the game
+        this.initGameStates();
         this.started = true;
+
         // Setup timer in case RAF Skipped when minimized or not in foreground.
         setInterval(() => { this.checkUpdate(); }, 500);
         this.loop(0);
@@ -375,10 +380,10 @@ export class Game {
 
             switch (this.gameAction) {
                 case CONFIG.GAME.ACTIONS.DEFAULT:
-                    this.trydefault()
+                    this.trydefault();
                     break;
                 case CONFIG.GAME.ACTIONS.RELEASESEL:
-                    this.tryselect()
+                    this.tryselect();
                     break;
 
                 default:
@@ -387,7 +392,7 @@ export class Game {
 
         }
 
-        this.gameAction = 0 // -------------- no more game actions to do
+        this.gameAction = 0; // -------------- no more game actions to do
 
         // Scroll if not currently dragging a selection.
         if (!this.inputManager.isSelecting) {
@@ -708,7 +713,7 @@ export class EntityBehavior {
     public process(entity: TEntity): void {
         switch (entity.type) {
             case 1:
-                this.alien(entity)
+                this.alien(entity);
                 break;
 
             default:

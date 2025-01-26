@@ -777,7 +777,7 @@ export function fullScreen(element: Element): Promise&lt;void&gt; {
 </t>
 <t tx="felix.20241224222932.1">public procGame(): void {
 
-    // procgame processes a game frame, animating each RFA
+    // procgame processes a game frame, animating each RAF.
     // Note: This is not a game-states tick, at timePerTick intervals.
 
     if (this.gameaction) {
@@ -1055,7 +1055,7 @@ import { SHADERS } from './shaders';
     if (timestamp - this.fpsLastTime &gt; this.fpsInterval) {
         this.fps = Math.round(1000 / deltaTime);
         this.fpsLastTime = timestamp;
-        // console.log('RFA FPS ', this.fps); // 30
+        // console.log('RAF FPS ', this.fps); // 30
     }
 
 }
@@ -1219,7 +1219,7 @@ import { SHADERS } from './shaders';
 </t>
 <t tx="felix.20241230215224.1">procGame(): void {
 
-    // procgame processes a game frame, animating each RFA.
+    // procgame processes a game frame, animating each RAF.
     // Note: This is not a game-states tick, at timePerTick intervals.
 
     if (this.gameAction) {
@@ -1261,24 +1261,21 @@ import { SHADERS } from './shaders';
 }
 
 </t>
-<t tx="felix.20241230215229.1">tick(): void {
+<t tx="felix.20241230215229.1">/**
+ * Advance game states in pool from currentTick count, to the next one.
+ */
+tick(): void {
 
-    // Advance game states in pool:
-    // meaning, from currentTick count, to the next one.
-
-    // #########################################
-
-    /*
+    // Process Entities
     let processed = 0;
     let entity;
     for (let i = 0; processed &lt; this.entities.active || i &lt; this.entities.total; i++) {
         entity = this.entities.pool[i];
         if (entity.active) {
             processed += 1;
-            this.ai.process(entity);
+            this.entityBehaviors.process(entity);
         }
     }
-    */
 
     this.inputManager.processInputs();
 

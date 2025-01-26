@@ -222,7 +222,7 @@ export class Game {
         if (timestamp - this.fpsLastTime > this.fpsInterval) {
             this.fps = Math.round(1000 / deltaTime);
             this.fpsLastTime = timestamp;
-            // console.log('RFA FPS ', this.fps); // 30
+            // console.log('RAF FPS ', this.fps); // 30
         }
 
     }
@@ -373,7 +373,7 @@ export class Game {
 
     procGame(): void {
 
-        // procgame processes a game frame, animating each RFA.
+        // procgame processes a game frame, animating each RAF.
         // Note: This is not a game-states tick, at timePerTick intervals.
 
         if (this.gameAction) {
@@ -425,24 +425,21 @@ export class Game {
         this.update(timestamp, true);
     }
 
+    /**
+     * Advance game states in pool from currentTick count, to the next one.
+     */
     tick(): void {
 
-        // Advance game states in pool:
-        // meaning, from currentTick count, to the next one.
-
-        // #########################################
-
-        /*
+        // Process Entities
         let processed = 0;
         let entity;
         for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
             entity = this.entities.pool[i];
             if (entity.active) {
                 processed += 1;
-                this.ai.process(entity);
+                this.entityBehaviors.process(entity);
             }
         }
-        */
 
         this.inputManager.processInputs();
 

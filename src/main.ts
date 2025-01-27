@@ -1,5 +1,5 @@
 import * as utils from "./utils";
-import { Vec2, TEntity, TParameters } from "./type";
+import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData } from "./type";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 
@@ -43,6 +43,8 @@ export class Game {
     maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
+    tileRenderer: TileRenderer | null = null;
+    mapChanged = false;
 
     // Game state Properties
     gamemap: number[] = [];
@@ -95,9 +97,12 @@ export class Game {
         document.body.appendChild(this.canvasElement);
 
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
-        this.setDimensionsVars();
 
         this.gl = this.canvasElement.getContext('webgl2')!;
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // transparent black
+        this.setDimensionsVars();
 
         // Prevent right-click context menu
         this.canvasElement.addEventListener('contextmenu', (event) => {
@@ -122,6 +127,7 @@ export class Game {
             document.body.removeChild(loadingText);
             this.creaturesImage = images[0];
             this.tilesImage = images[1];
+            this.resizeCanvasToDisplaySize(this.canvasElement);
             this.mainMenu();
         });
 
@@ -168,6 +174,8 @@ export class Game {
     }
 
     setDimensionsVars(): DOMRect {
+        this.gl.viewport(0, 0, this.canvasElement.width, this.canvasElement.height); // Set the viewport to fill the canvas
+
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
         this.gameWidthRatio = (this.gameScreenWidth / this.canvasBoundingRect.width);
         this.gameHeightRatio = (this.gameScreenHeight / this.canvasBoundingRect.height)
@@ -214,7 +222,7 @@ export class Game {
         }
 
         if (!skipRender) {
-            // Gather render data and interpolate
+            // Gather renderable data and interpolate
             this.render(this.tickAccumulator / this.timePerTick);
         }
 
@@ -255,15 +263,22 @@ export class Game {
         this.resizeCanvasToDisplaySize(this.canvasElement);
 
         // Clear the canvas
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set base buffer color to black 
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
-        this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // Set base buffer color to black fully transparent
 
         // Render the game
 
-        // TODO: 1 Render the game map. Map states are in this.gamemap.
-        // TODO: 2 Render the game entities. Entity states are in this.entities.pool.
+        // 1 Render the game map. Map states are in this.gamemap and rarely change.
+        if (this.tileRenderer) {
+            if (this.mapChanged) {
+                this.tileRenderer.updateTransformData(this.gamemap);
+                this.mapChanged = false;
+            }
+            this.tileRenderer.render();
+        }
+
+        // TODO: 2 Render the game entities. Entity states are in this.entities.pool and change often.
+
         // TODO: 3 Render Selection lines, if user is selecting.
 
         // Finished
@@ -331,6 +346,43 @@ export class Game {
     }
 
     initGameStates(): void {
+
+        // For now, we will just create a TileRenderer
+        console.log(this.gameScreenWidth, this.gameScreenHeight);
+        this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY, this.gameScreenWidth, this.gameScreenHeight);
+        // const spriteRenderer = new SpriteRenderer(gl, spriteImage); // TODO: Implement SpriteRenderer
+        // const lineRenderer = new RectangleRenderer(gl); // TODO: Implement RectangleRenderer
+
+        // Create a uniform buffer
+        const worldBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, worldBuffer);
+        this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
+
+        // Bind the buffer to binding point 0
+        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, worldBuffer);
+
+        // Set the uniform block binding for both programs
+        const tileProgram = this.tileRenderer.program;
+        // const spriteProgram = spriteRenderer.program;
+        // const lineProgram = lineRenderer.program;
+
+        const worldIndex = 0; // Binding point 0
+
+        const tileBlockIndex = this.gl.getUniformBlockIndex(tileProgram, 'World');
+        this.gl.uniformBlockBinding(tileProgram, tileBlockIndex, worldIndex);
+
+        // const spriteBlockIndex = this.gl.getUniformBlockIndex(spriteProgram, 'World');
+        // this.gl.uniformBlockBinding(spriteProgram, spriteBlockIndex, worldIndex);
+
+        // const lineBlockIndex = this.gl.getUniformBlockIndex(lineProgram, 'World');
+        // this.gl.uniformBlockBinding(lineProgram, lineBlockIndex, worldIndex);
+
+        window.addEventListener('unload', () => {
+            this.tileRenderer?.dispose();
+            // spriteRenderer?.dispose();
+            // lineRenderer?.dispose();
+        });
+
         // Build entities pool
         this.entities = new Entities(100);
         this.entityBehaviors = new EntityBehavior(this);
@@ -365,6 +417,8 @@ export class Game {
         for (let temp = 0; temp < 9; temp++) { // add last row for total of 9 ROWS
             this.gamemap.push(temp + 56);
         }
+
+        this.mapChanged = true;
     }
 
     toggleGameMenu(): void {
@@ -659,6 +713,8 @@ export class Entities {
                 state: 0,
                 x: 0,
                 y: 0,
+                oldX: 0,
+                oldY: 0,
                 orderQty: 0,
                 orderIndex: 0,
                 orderPool: [
@@ -725,6 +781,235 @@ export class EntityBehavior {
         // TODO : Add real behaviors!
     }
 
+
+}
+
+abstract class BaseRenderer {
+    protected gl: WebGL2RenderingContext;
+    public program: WebGLProgram;
+    protected vao: WebGLVertexArrayObject;
+    protected dirtyTransforms: boolean; // Flag to update bufferData from transformData in the render method.
+    protected resources: GLResources = {
+        buffers: [],
+        textures: [],
+        shaders: []
+    };
+
+    constructor(gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) {
+        this.gl = gl;
+        this.program = this.createProgram(vertexShader, fragmentShader);
+        this.gl.useProgram(this.program);
+        this.vao = this.gl.createVertexArray()!;
+        this.dirtyTransforms = false;
+    }
+
+    protected createProgram(vertexSource: string, fragmentSource: string): WebGLProgram {
+        const program = this.gl.createProgram()!;
+        let errorLog = '';
+        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexSource)!;
+        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentSource)!;
+
+        this.gl.attachShader(program, vertexShader);
+        this.gl.attachShader(program, fragmentShader);
+        this.gl.linkProgram(program);
+
+        // Error checking
+        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+            errorLog += `\nProgram linking failed: ${this.gl.getProgramInfoLog(program)}`;
+        }
+        this.gl.validateProgram(program);
+        if (!this.gl.getProgramParameter(program, this.gl.VALIDATE_STATUS)) {
+            errorLog += `\nProgram validation failed: ${this.gl.getProgramInfoLog(program)}`;
+        }
+        const activeAttributes = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES);
+        const activeUniforms = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS);
+        if (activeAttributes === 0 && activeUniforms === 0) {
+            errorLog += '\nWarning: Program has no active attributes or uniforms';
+        }
+        if (errorLog) {
+            throw new Error(`WebGL Program creation failed: ${errorLog}`);
+        }
+
+        return program;
+    }
+
+    protected createShader(type: ShaderType, source: string): WebGLShader {
+        const shader = this.gl.createShader(type)!;
+        this.resources.shaders.push(shader);
+        this.gl.shaderSource(shader, source);
+        this.gl.compileShader(shader);
+        if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+            console.error(this.gl.getShaderInfoLog(shader));
+            throw new Error('Shader compilation failed');
+        }
+        return shader;
+    }
+
+    protected createBuffer(): WebGLBuffer {
+        const buffer = this.gl.createBuffer()!;
+        this.resources.buffers.push(buffer);
+        return buffer;
+    }
+
+    protected createTexture(): WebGLTexture {
+        const texture = this.gl.createTexture()!;
+        this.resources.textures.push(texture);
+        return texture;
+    }
+
+    protected setupAttribute(
+        location: number,
+        size: number,
+        stride: number,
+        offset: number,
+        divisor: number = 0
+    ): void {
+        this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, stride, offset);
+        this.gl.enableVertexAttribArray(location);
+        this.gl.vertexAttribDivisor(location, divisor);
+    }
+
+    abstract updateTransformData(data: any[]): void; // This will also set dirtyTransforms to true.
+
+    abstract render(): void; // Before rendering, update bufferData from transformData if dirtyTransforms is true.
+
+    dispose(): void {
+        // Delete all resources in reverse order
+        this.resources.textures.forEach(texture => this.gl.deleteTexture(texture));
+        this.resources.buffers.forEach(buffer => this.gl.deleteBuffer(buffer));
+        this.resources.shaders.forEach(shader => this.gl.deleteShader(shader));
+        this.gl.deleteProgram(this.program);
+        this.gl.deleteVertexArray(this.vao);
+
+        // Clear arrays
+        this.resources.textures = [];
+        this.resources.buffers = [];
+        this.resources.shaders = [];
+    }
+}
+
+class TileRenderer extends BaseRenderer {
+    private transformBuffer: WebGLBuffer;
+    private modelBuffer: WebGLBuffer;
+    private transformData: Float32Array;
+    private image: HTMLImageElement
+    private texture: WebGLTexture;
+    private renderMax: number = 0;
+    public gameWidth: number = 0;
+    public gameHeight: number = 0;
+
+    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number, gameWidth: number, gameHeight: number) {
+        super(gl, SHADERS.TILE_VERTEX_SHADER, SHADERS.TILE_FRAGMENT_SHADER);
+        console.log('constructor: ', gameWidth, gameHeight);
+
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
+
+        // Move existing shader setup & buffer creation here
+        this.image = image;
+        this.texture = this.createTexture();
+        this.modelBuffer = this.createBuffer(); // Create a buffer
+        this.transformBuffer = this.createBuffer()!;
+
+        // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
+        // this.transformData = new Float32Array(size * 7); // Init with 0s
+        // this.transformData = new Float32Array(3 * 7); // Init with 0s
+
+        this.transformData = new Float32Array([
+            // posX, posY, scale, colorR, colorG, colorB, depth
+            100, 100, 64, 1, 1, 1, 0,     // White tile at 100,100
+            300, 200, 64, 0, 1, 0, 1,     // Green tile at 300,200 
+            500, 300, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+        ]);
+
+        this.setupVAO();
+
+    }
+
+    private setupVAO() {
+        this.gl.bindVertexArray(this.vao);
+
+        this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
+        this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS
+        this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
+
+        console.log('Texture loaded and bound', this.gameWidth, this.gameHeight);
+
+        const uWorldXLoc = this.gl.getUniformLocation(this.program, 'uWorldX')!;
+        this.gl.uniform1f(uWorldXLoc, 2 / this.gameWidth);
+
+        const uWorldYLoc = this.gl.getUniformLocation(this.program, 'uWorldY')!;
+        this.gl.uniform1f(uWorldYLoc, 2 / -this.gameHeight);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
+        this.setupAttribute(0, 2, 16, 0);
+        this.setupAttribute(1, 2, 16, 8);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates);
+        this.setupAttribute(2, 2, 28, 0, 1);
+        this.setupAttribute(3, 1, 28, 8, 1);
+        this.setupAttribute(4, 3, 28, 12, 1);
+        this.setupAttribute(5, 1, 28, 24, 1);
+
+        this.gl.bindVertexArray(null); // All done, unbind the VAO
+
+    }
+
+    updateTransformData(data: number[]): void {
+        console.log('Updating TileRenderer with new data');
+        const bufferData: TileBufferData[] = []
+        for (let i = 0; i < data.length; i++) {
+            bufferData.push({
+                posX: (i % 9) * CONFIG.GAME.TILE.SIZE,
+                posY: Math.floor(i / 9) * CONFIG.GAME.TILE.SIZE,
+                scale: CONFIG.GAME.TILE.SIZE,
+                colorR: 1,
+                colorG: 1,
+                colorB: 1,
+                depth: data[i]
+            });
+        }
+
+        // TileBufferData
+        // for (let i = 0; i < bufferData.length; i++) {
+        //     const offset = i * 7;
+        //     const d = bufferData[i];
+        //     this.transformData[offset] = d.posX;
+        //     this.transformData[offset + 1] = d.posY;
+        //     this.transformData[offset + 2] = d.scale;
+        //     this.transformData[offset + 3] = d.colorR;
+        //     this.transformData[offset + 4] = d.colorG;
+        //     this.transformData[offset + 5] = d.colorB;
+        //     this.transformData[offset + 6] = d.depth;
+        // }
+        this.renderMax = 3; //  data.length;
+
+        // this.transformData = new Float32Array([
+        //     // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
+        //     0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin
+        //     200, 150, 128, 0, 0, 1, 1,    // Blue Test at center
+        //     380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right
+        // ]);
+
+        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
+        // this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW);
+        // this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, data.length); // Change to DYNAMIC_DRAW to allow updates);
+
+    }
+
+    render(): void {
+        this.gl.useProgram(this.program);
+        this.gl.bindVertexArray(this.vao);
+
+        // Update the buffer with the new transform data and draw the sprites
+        // this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.STATIC_DRAW);
+        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
+
+    }
 
 }
 

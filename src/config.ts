@@ -29,7 +29,8 @@ const GAME = {
     },
     TILE: {
         BITMAP_SIZE: 1024, // size of a square bitmap of tiles
-        SIZE: 128 // size of an individual square TILE 
+        SIZE: 128, // size of an individual square TILE 
+        DEPTH: 64
     },
     MAP: {
         WIDTH: 9, // game map width in TILES 
@@ -45,8 +46,30 @@ const GAME = {
     }
 } as const;
 
+const TEXTURE_MODEL_DATA = new Float32Array([
+    // XY Coords, UV Offset 
+    1, 0, 1, 0,
+    0, 1, 0, 1,
+    1, 1, 1, 1,
+    1, 0, 1, 0,
+    0, 0, 0, 0,
+    0, 1, 0, 1,
+]);
+
+const RECTANGLE_MODEL_DATA = new Float32Array([
+    // XY Coords
+    1, 0,
+    0, 1,
+    1, 1,
+    1, 0,
+    0, 0,
+    0, 1,
+]);
+
 // Export all configs from a single point
 export const CONFIG = {
+    TEXTURE_MODEL_DATA,
+    RECTANGLE_MODEL_DATA,
     DISPLAY,
     GAME
 } as const;

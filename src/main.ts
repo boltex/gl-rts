@@ -102,7 +102,6 @@ export class Game {
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // transparent black
-        this.setDimensionsVars();
 
         // Prevent right-click context menu
         this.canvasElement.addEventListener('contextmenu', (event) => {
@@ -174,8 +173,6 @@ export class Game {
     }
 
     setDimensionsVars(): DOMRect {
-        this.gl.viewport(0, 0, this.canvasElement.width, this.canvasElement.height); // Set the viewport to fill the canvas
-
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
         this.gameWidthRatio = (this.gameScreenWidth / this.canvasBoundingRect.width);
         this.gameHeightRatio = (this.gameScreenHeight / this.canvasBoundingRect.height)
@@ -197,6 +194,9 @@ export class Game {
             // Make the canvas the same size
             canvas.width = displayWidth;
             canvas.height = displayHeight;
+
+            // Set the viewport to fill the canvas
+            this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
         }
 
         return needResize;
@@ -259,12 +259,16 @@ export class Game {
 
     render(interpolation: number): void {
 
-        // Before rendering, resize canvas to display size. (in case of changing window size)
-        this.resizeCanvasToDisplaySize(this.canvasElement);
 
-        // Clear the canvas
+
+        // Set clear color to black
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+        // Before rendering, resize canvas to display size. (in case of changing window size)
+        if (!this.resizeCanvasToDisplaySize(this.canvasElement)) {
+            // If it did not resize and call gl.viewport which clears the canvas, we need to clear it again.
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        }
 
         // Render the game
 
@@ -917,9 +921,14 @@ class TileRenderer extends BaseRenderer {
 
         this.transformData = new Float32Array([
             // posX, posY, scale, colorR, colorG, colorB, depth
-            100, 100, 64, 1, 1, 1, 0,     // White tile at 100,100
-            300, 200, 64, 0, 1, 0, 1,     // Green tile at 300,200 
-            500, 300, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+            // 100, 100, 64, 1, 1, 1, 0,     // White tile at 100,100
+            // 300, 200, 64, 0, 1, 0, 1,     // Green tile at 300,200 
+            // 500, 300, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+
+
+            0.1, 0.1, 64, 1, 1, 1, 0,     // White tile at 100,100
+            0.3, -0.2, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
+            -0.4, 0.3, 64, 0, 0, 1, 2,     // Blue tile at 500,300
         ]);
 
         this.setupVAO();

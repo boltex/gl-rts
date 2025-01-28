@@ -25,6 +25,7 @@ export class Game {
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
     gl: WebGL2RenderingContext;
+    worldBuffer: WebGLBuffer | null = null;
 
     // Game Screen Properties
     aspectRatio = 1; // set in startGame, this is display aspect ratio
@@ -197,9 +198,26 @@ export class Game {
 
             // Set the viewport to fill the canvas
             this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
+            this.setUboWorldTransforms();
         }
 
         return needResize;
+    }
+
+    setUboWorldTransforms() {
+
+        // Set ubo values for world transform
+        const worldData = new Float32Array([2 / 400, 2 / -300]);
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
+        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
+
+        // const uWorldXLoc = this.gl.getUniformLocation(this.program, 'uWorldX')!;
+        // // this.gl.uniform1f(uWorldXLoc, 2 / this.gameWidth);
+        // this.gl.uniform1f(uWorldXLoc, 2 / 400); // 400 to test with a small fake screen
+        // const uWorldYLoc = this.gl.getUniformLocation(this.program, 'uWorldY')!;
+        // // this.gl.uniform1f(uWorldYLoc, 2 / -this.gameHeight);
+        // this.gl.uniform1f(uWorldYLoc, 2 / -300); // 300 to test with a small fake screen
+
     }
 
     update(timestamp: number, skipRender?: boolean): void {
@@ -271,6 +289,7 @@ export class Game {
         }
 
         // Render the game
+
 
         // 1 Render the game map. Map states are in this.gamemap and rarely change.
         if (this.tileRenderer) {
@@ -358,12 +377,12 @@ export class Game {
         // const lineRenderer = new RectangleRenderer(gl); // TODO: Implement RectangleRenderer
 
         // Create a uniform buffer
-        const worldBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, worldBuffer);
+        this.worldBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
 
         // Bind the buffer to binding point 0
-        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, worldBuffer);
+        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, this.worldBuffer);
 
         // Set the uniform block binding for both programs
         const tileProgram = this.tileRenderer.program;
@@ -380,6 +399,8 @@ export class Game {
 
         // const lineBlockIndex = this.gl.getUniformBlockIndex(lineProgram, 'World');
         // this.gl.uniformBlockBinding(lineProgram, lineBlockIndex, worldIndex);
+
+        this.setUboWorldTransforms(); // Initial set of ubo values
 
         window.addEventListener('unload', () => {
             this.tileRenderer?.dispose();
@@ -921,14 +942,16 @@ class TileRenderer extends BaseRenderer {
 
         this.transformData = new Float32Array([
             // posX, posY, scale, colorR, colorG, colorB, depth
-            // 100, 100, 64, 1, 1, 1, 0,     // White tile at 100,100
-            // 300, 200, 64, 0, 1, 0, 1,     // Green tile at 300,200 
-            // 500, 300, 64, 0, 0, 1, 2,     // Blue tile at 500,300
 
+            // Non-scaled test data
+            // 0.5, 0.0, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
+            // -0.5, 0.5, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+            // -1.0, -1.0, 64, 1, 1, 1, 0,     // White tile at 100,100
 
-            0.5, 0.0, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
-            -0.5, 0.5, 64, 0, 0, 1, 2,     // Blue tile at 500,300
-            -1.0, -1.0, 64, 1, 1, 1, 0,     // White tile at 100,100
+            // Some scaled test data
+            0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin. Since its at zero, it will show also if not scaled.
+            200, 150, 128, 0, 0, 1, 1,    // Blue Test at center. Since 200 and 150 are way outside of the range, it will not show.
+            380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right. Same as above, it will not show.
         ]);
 
         this.setupVAO();
@@ -943,14 +966,6 @@ class TileRenderer extends BaseRenderer {
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
-
-        console.log('Texture loaded and bound', this.gameWidth, this.gameHeight);
-
-        const uWorldXLoc = this.gl.getUniformLocation(this.program, 'uWorldX')!;
-        this.gl.uniform1f(uWorldXLoc, 2 / this.gameWidth);
-
-        const uWorldYLoc = this.gl.getUniformLocation(this.program, 'uWorldY')!;
-        this.gl.uniform1f(uWorldYLoc, 2 / -this.gameHeight);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
         this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer

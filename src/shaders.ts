@@ -28,8 +28,8 @@ void main()
     vDepth = aDepth;
     vec3 pos = aPosition.xyz * aScale + aOffset;
     // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.
-    // gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
-    gl_Position = vec4( vec3(aPosition.xyz + aOffset), 1.0);
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
+    // gl_Position = vec4( vec3(aPosition.xyz + aOffset), 1.0);
 
 }`;
 

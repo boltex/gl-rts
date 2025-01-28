@@ -1540,7 +1540,7 @@ export class Entities {
 
     // For now, we will just create a TileRenderer
     console.log(this.gameScreenWidth, this.gameScreenHeight);
-    this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY, this.gameScreenWidth, this.gameScreenHeight);
+    this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY);
     // const spriteRenderer = new SpriteRenderer(gl, spriteImage); // TODO: Implement SpriteRenderer
     // const lineRenderer = new RectangleRenderer(gl); // TODO: Implement RectangleRenderer
 
@@ -2420,15 +2420,9 @@ export const SHADERS = {
     private image: HTMLImageElement
     private texture: WebGLTexture;
     private renderMax: number = 0;
-    public gameWidth: number = 0;
-    public gameHeight: number = 0;
 
-    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number, gameWidth: number, gameHeight: number) {
+    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {
         super(gl, SHADERS.TILE_VERTEX_SHADER, SHADERS.TILE_FRAGMENT_SHADER);
-        console.log('constructor: ', gameWidth, gameHeight);
-
-        this.gameWidth = gameWidth;
-        this.gameHeight = gameHeight;
 
         // Move existing shader setup &amp; buffer creation here
         this.image = image;
@@ -2528,11 +2522,7 @@ export const SHADERS = {
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
-
-        // Update the buffer with the new transform data and draw the sprites
-        // this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.STATIC_DRAW);
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
-
     }
 
 }
@@ -2541,16 +2531,9 @@ export const SHADERS = {
 <t tx="felix.20250127223242.1">setUboWorldTransforms() {
 
     // Set ubo values for world transform
-    const worldData = new Float32Array([2 / 400, 2 / -300]);
+    const worldData = new Float32Array([2 / this.gameScreenWidth, 2 / -this.gameScreenHeight]);
     this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
     this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
-
-    // const uWorldXLoc = this.gl.getUniformLocation(this.program, 'uWorldX')!;
-    // // this.gl.uniform1f(uWorldXLoc, 2 / this.gameWidth);
-    // this.gl.uniform1f(uWorldXLoc, 2 / 400); // 400 to test with a small fake screen
-    // const uWorldYLoc = this.gl.getUniformLocation(this.program, 'uWorldY')!;
-    // // this.gl.uniform1f(uWorldYLoc, 2 / -this.gameHeight);
-    // this.gl.uniform1f(uWorldYLoc, 2 / -300); // 300 to test with a small fake screen
 
 }
 

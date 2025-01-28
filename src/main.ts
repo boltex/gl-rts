@@ -926,9 +926,9 @@ class TileRenderer extends BaseRenderer {
             // 500, 300, 64, 0, 0, 1, 2,     // Blue tile at 500,300
 
 
-            0.1, 0.1, 64, 1, 1, 1, 0,     // White tile at 100,100
-            0.3, -0.2, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
-            -0.4, 0.3, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+            0.5, 0.0, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
+            -0.5, 0.5, 64, 0, 0, 1, 2,     // Blue tile at 500,300
+            -1.0, -1.0, 64, 1, 1, 1, 0,     // White tile at 100,100
         ]);
 
         this.setupVAO();

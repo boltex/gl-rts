@@ -199,7 +199,9 @@ export class Game {
 
             // Set the viewport to fill the canvas
             this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
-            this.setUboWorldTransforms();
+            if (this.worldBuffer) {
+                this.setUboWorldTransforms();
+            }
         }
 
         return needResize;
@@ -419,18 +421,23 @@ export class Game {
         alien1.x = 515;
         alien1.y = 100;
         alien1.frameIndex = 33;
+        alien1.orientation = 6;
+
         const alien2 = this.entities.spawn();
         alien2.type = 1;
         alien2.hitPoints = 100;
         alien2.x = 0;
         alien2.y = 0;
-        alien2.orientation = 4;
+        alien2.frameIndex = 212;
+        alien2.orientation = 5;
+
         const alien3 = this.entities.spawn();
         alien3.type = 1;
         alien3.hitPoints = 100;
         alien3.x = 64;
-        alien3.y = 64;
-        alien3.orientation = 9;
+        alien3.y = 455;
+        alien3.frameIndex = 122;
+        alien3.orientation = 14;
 
         // Build Map (Will later be bigger maps loaded from file)
         // EXPERIMENTAL TEST: temp map 9 by 9 tiles 
@@ -1048,6 +1055,7 @@ class SpriteRenderer extends BaseRenderer {
         this.setupAttribute(2, 2, 32, 0, 1);
         this.setupAttribute(3, 1, 32, 8, 1);
         this.setupAttribute(4, 3, 32, 12, 1);
+        this.setupAttribute(5, 2, 32, 24, 1);
 
         this.gl.bindVertexArray(null); // All done, unbind the VAO
 
@@ -1064,7 +1072,7 @@ class SpriteRenderer extends BaseRenderer {
                     posY: item.y,
                     scale: 128, // default entity size
                     colorR: 1, // default color
-                    colorG: 1, // default color
+                    colorG: 0, // default color
                     colorB: 1, // default color
                     frame: item.frameIndex,
                     orientation: item.orientation
@@ -1091,17 +1099,16 @@ class SpriteRenderer extends BaseRenderer {
             this.transformData[offset + 5] = d.colorB;
             this.transformData[offset + 6] = u(d.frame, d.orientation);
             this.transformData[offset + 7] = v(d.frame, d.orientation);
-        };
+        }
         this.renderMax = bufferData.length;
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0); // TODO : Limit length to active entities
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);
     }
 
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
     }
 

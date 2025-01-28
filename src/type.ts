@@ -87,3 +87,14 @@ export interface TileBufferData {
     colorB: number;
     depth: number;
 }
+
+export interface SpriteBufferData {
+    posX: number;
+    posY: number;
+    scale: number;
+    colorR: number;
+    colorG: number;
+    colorB: number;
+    frame: number;
+    orientation: number;
+}

@@ -114,6 +114,7 @@
 </v>
 <v t="felix.20250126174340.1"><vh>BaseRenderer</vh></v>
 <v t="felix.20250126193731.1"><vh>TileRenderer</vh></v>
+<v t="felix.20250127234240.1"><vh>SpriteRenderer</vh></v>
 </v>
 <v t="felix.20241220002054.1"><vh>@clean src/type.ts</vh>
 <v t="felix.20241220002054.3"><vh>types</vh></v>
@@ -797,6 +798,17 @@ export interface TileBufferData {
     colorB: number;
     depth: number;
 }
+
+export interface SpriteBufferData {
+    posX: number;
+    posY: number;
+    scale: number;
+    colorR: number;
+    colorG: number;
+    colorB: number;
+    frame: number;
+    orientation: number;
+}
 </t>
 <t tx="felix.20241224183015.1">&lt;&lt; imports &gt;&gt;
 @others
@@ -944,9 +956,10 @@ export function fullScreen(element: Element): Promise&lt;void&gt; {
 </t>
 <t tx="felix.20241227202430.1">&lt;&lt; imports &gt;&gt;
 @others
+@nowrap
 </t>
 <t tx="felix.20241227202519.1">import * as utils from "./utils";
-import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData } from "./type";
+import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData, SpriteUpdate, SpriteBufferData } from "./type";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 
@@ -994,6 +1007,7 @@ import { SHADERS } from './shaders';
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
     tileRenderer: TileRenderer | null = null;
+    spriteRenderer: SpriteRenderer | null = null;
     mapChanged = false;
 
     // Game state Properties
@@ -1368,8 +1382,6 @@ tick(): void {
 </t>
 <t tx="felix.20241231221007.1">render(interpolation: number): void {
 
-
-
     // Set clear color to black
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -1392,6 +1404,13 @@ tick(): void {
     }
 
     // TODO: 2 Render the game entities. Entity states are in this.entities.pool and change often.
+    if (this.spriteRenderer) {
+        this.spriteRenderer.updateTransformData(this.entities.pool);
+
+        this.spriteRenderer.render();
+
+    }
+
 
     // TODO: 3 Render Selection lines, if user is selecting.
 
@@ -1541,8 +1560,8 @@ export class Entities {
     // For now, we will just create a TileRenderer
     console.log(this.gameScreenWidth, this.gameScreenHeight);
     this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY);
-    // const spriteRenderer = new SpriteRenderer(gl, spriteImage); // TODO: Implement SpriteRenderer
-    // const lineRenderer = new RectangleRenderer(gl); // TODO: Implement RectangleRenderer
+    this.spriteRenderer = new SpriteRenderer(this.gl, this.creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE); // TODO: Implement SpriteRenderer
+    // const lineRenderer = new RectangleRenderer(this.gl); // TODO: Implement RectangleRenderer
 
     // Create a uniform buffer
     this.worldBuffer = this.gl.createBuffer();
@@ -1554,7 +1573,7 @@ export class Entities {
 
     // Set the uniform block binding for both programs
     const tileProgram = this.tileRenderer.program;
-    // const spriteProgram = spriteRenderer.program;
+    const spriteProgram = this.spriteRenderer.program;
     // const lineProgram = lineRenderer.program;
 
     const worldIndex = 0; // Binding point 0
@@ -1562,8 +1581,8 @@ export class Entities {
     const tileBlockIndex = this.gl.getUniformBlockIndex(tileProgram, 'World');
     this.gl.uniformBlockBinding(tileProgram, tileBlockIndex, worldIndex);
 
-    // const spriteBlockIndex = this.gl.getUniformBlockIndex(spriteProgram, 'World');
-    // this.gl.uniformBlockBinding(spriteProgram, spriteBlockIndex, worldIndex);
+    const spriteBlockIndex = this.gl.getUniformBlockIndex(spriteProgram, 'World');
+    this.gl.uniformBlockBinding(spriteProgram, spriteBlockIndex, worldIndex);
 
     // const lineBlockIndex = this.gl.getUniformBlockIndex(lineProgram, 'World');
     // this.gl.uniformBlockBinding(lineProgram, lineBlockIndex, worldIndex);
@@ -1572,7 +1591,7 @@ export class Entities {
 
     window.addEventListener('unload', () =&gt; {
         this.tileRenderer?.dispose();
-        // spriteRenderer?.dispose();
+        this.spriteRenderer?.dispose();
         // lineRenderer?.dispose();
     });
 
@@ -1587,16 +1606,19 @@ export class Entities {
     alien1.hitPoints = 100;
     alien1.x = 515;
     alien1.y = 100;
+    alien1.frameIndex = 33;
     const alien2 = this.entities.spawn();
     alien2.type = 1;
     alien2.hitPoints = 100;
     alien2.x = 0;
     alien2.y = 0;
+    alien2.orientation = 4;
     const alien3 = this.entities.spawn();
     alien3.type = 1;
     alien3.hitPoints = 100;
     alien3.x = 64;
     alien3.y = 64;
+    alien3.orientation = 9;
 
     // Build Map (Will later be bigger maps loaded from file)
     // EXPERIMENTAL TEST: temp map 9 by 9 tiles 
@@ -2431,22 +2453,7 @@ export const SHADERS = {
         this.transformBuffer = this.createBuffer()!;
 
         // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
-        // this.transformData = new Float32Array(size * 7); // Init with 0s
-        // this.transformData = new Float32Array(3 * 7); // Init with 0s
-
-        this.transformData = new Float32Array([
-            // posX, posY, scale, colorR, colorG, colorB, depth
-
-            // Non-scaled test data
-            // 0.5, 0.0, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
-            // -0.5, 0.5, 64, 0, 0, 1, 2,     // Blue tile at 500,300
-            // -1.0, -1.0, 64, 1, 1, 1, 0,     // White tile at 100,100
-
-            // Some scaled test data
-            0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin. Since its at zero, it will show also if not scaled.
-            200, 150, 128, 0, 0, 1, 1,    // Blue Test at center. Since 200 and 150 are way outside of the range, it will not show.
-            380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right. Same as above, it will not show.
-        ]);
+        this.transformData = new Float32Array(size * 7); // Init with 0s
 
         this.setupVAO();
 
@@ -2457,8 +2464,8 @@ export const SHADERS = {
 
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
         this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
-        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS
-        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
@@ -2493,29 +2500,21 @@ export const SHADERS = {
         }
 
         // TileBufferData
-        // for (let i = 0; i &lt; bufferData.length; i++) {
-        //     const offset = i * 7;
-        //     const d = bufferData[i];
-        //     this.transformData[offset] = d.posX;
-        //     this.transformData[offset + 1] = d.posY;
-        //     this.transformData[offset + 2] = d.scale;
-        //     this.transformData[offset + 3] = d.colorR;
-        //     this.transformData[offset + 4] = d.colorG;
-        //     this.transformData[offset + 5] = d.colorB;
-        //     this.transformData[offset + 6] = d.depth;
-        // }
-        this.renderMax = 3; //  data.length;
+        for (let i = 0; i &lt; bufferData.length; i++) {
+            const offset = i * 7;
+            const d = bufferData[i];
+            this.transformData[offset] = d.posX;
+            this.transformData[offset + 1] = d.posY;
+            this.transformData[offset + 2] = d.scale;
+            this.transformData[offset + 3] = d.colorR;
+            this.transformData[offset + 4] = d.colorG;
+            this.transformData[offset + 5] = d.colorB;
+            this.transformData[offset + 6] = d.depth;
+        }
+        this.renderMax = data.length;
 
-        // this.transformData = new Float32Array([
-        //     // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
-        //     0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin
-        //     200, 150, 128, 0, 0, 1, 1,    // Blue Test at center
-        //     380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right
-        // ]);
-
-        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
-        // this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW);
-        // this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, data.length); // Change to DYNAMIC_DRAW to allow updates);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
 
     }
 
@@ -2534,6 +2533,108 @@ export const SHADERS = {
     const worldData = new Float32Array([2 / this.gameScreenWidth, 2 / -this.gameScreenHeight]);
     this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
     this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
+
+}
+
+</t>
+<t tx="felix.20250127234240.1">class SpriteRenderer extends BaseRenderer {
+    private transformBuffer: WebGLBuffer;
+    private modelBuffer: WebGLBuffer;
+    private transformData: Float32Array;
+    private image: HTMLImageElement
+    private texture: WebGLTexture;
+    private renderMax: number = 0;
+
+    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {
+        super(gl, SHADERS.SPRITE_VERTEX_SHADER, SHADERS.SPRITE_FRAGMENT_SHADER);
+
+        // Move existing shader setup &amp; buffer creation here
+        this.image = image;
+        this.texture = this.createTexture()!;
+        this.modelBuffer = this.createBuffer()!; // Create a buffer
+        this.transformBuffer = this.createBuffer()!;
+
+        this.transformData = new Float32Array(size * 8); // 8 floats per sprite, Init with 0s
+
+        this.setupVAO();
+
+    }
+
+    private setupVAO() {
+        this.gl.bindVertexArray(this.vao);
+
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 4096, 4096, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
+        this.gl.generateMipmap(this.gl.TEXTURE_2D);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
+        this.setupAttribute(0, 2, 16, 0);
+        this.setupAttribute(1, 2, 16, 8);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
+        this.setupAttribute(2, 2, 32, 0, 1);
+        this.setupAttribute(3, 1, 32, 8, 1);
+        this.setupAttribute(4, 3, 32, 12, 1);
+
+        this.gl.bindVertexArray(null); // All done, unbind the VAO
+
+    }
+
+    updateTransformData(data: TEntity[]): void {
+
+        const bufferData: SpriteBufferData[] = []
+        for (let i = 0; i &lt; data.length; i++) {
+            if (data[i].active) {
+                const item = data[i];
+                bufferData.push({
+                    posX: item.x,
+                    posY: item.y,
+                    scale: 128, // default entity size
+                    colorR: 1, // default color
+                    colorG: 1, // default color
+                    colorB: 1, // default color
+                    frame: item.frameIndex,
+                    orientation: item.orientation
+                });
+            }
+        }
+
+        // Those are used to calculate the UVs for the sprite sheet
+        // SPRITES_PER_ROW: 16,
+        // ORIENTATIONS_PER_ROW: 4,
+        // UV_UNIT: 0.015625 // (1/64) Pre-calculated
+
+        const u = (sprite: number, orientation: number) =&gt; ((sprite % 16) * 0.015625) + (orientation % 4) * 0.25;
+        const v = (sprite: number, orientation: number) =&gt; (Math.floor(sprite / 16) * 0.015625) + Math.floor(orientation / 4) * 0.25;
+
+        for (let i = 0; i &lt; bufferData.length; i++) {
+            const offset = i * 8;
+            const d = bufferData[i];
+            this.transformData[offset] = d.posX;
+            this.transformData[offset + 1] = d.posY;
+            this.transformData[offset + 2] = d.scale;
+            this.transformData[offset + 3] = d.colorR;
+            this.transformData[offset + 4] = d.colorG;
+            this.transformData[offset + 5] = d.colorB;
+            this.transformData[offset + 6] = u(d.frame, d.orientation);
+            this.transformData[offset + 7] = v(d.frame, d.orientation);
+        };
+        this.renderMax = bufferData.length;
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0); // TODO : Limit length to active entities
+    }
+
+    render(): void {
+        this.gl.useProgram(this.program);
+        this.gl.bindVertexArray(this.vao);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
+    }
 
 }
 

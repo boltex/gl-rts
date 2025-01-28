@@ -270,8 +270,6 @@ export class Game {
 
     render(interpolation: number): void {
 
-
-
         // Set clear color to black
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -924,22 +922,7 @@ class TileRenderer extends BaseRenderer {
         this.transformBuffer = this.createBuffer()!;
 
         // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
-        // this.transformData = new Float32Array(size * 7); // Init with 0s
-        // this.transformData = new Float32Array(3 * 7); // Init with 0s
-
-        this.transformData = new Float32Array([
-            // posX, posY, scale, colorR, colorG, colorB, depth
-
-            // Non-scaled test data
-            // 0.5, 0.0, 64, 0, 1, 0, 1,     // Green tile at 0.3,200 
-            // -0.5, 0.5, 64, 0, 0, 1, 2,     // Blue tile at 500,300
-            // -1.0, -1.0, 64, 1, 1, 1, 0,     // White tile at 100,100
-
-            // Some scaled test data
-            0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin. Since its at zero, it will show also if not scaled.
-            200, 150, 128, 0, 0, 1, 1,    // Blue Test at center. Since 200 and 150 are way outside of the range, it will not show.
-            380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right. Same as above, it will not show.
-        ]);
+        this.transformData = new Float32Array(size * 7); // Init with 0s
 
         this.setupVAO();
 
@@ -986,29 +969,21 @@ class TileRenderer extends BaseRenderer {
         }
 
         // TileBufferData
-        // for (let i = 0; i < bufferData.length; i++) {
-        //     const offset = i * 7;
-        //     const d = bufferData[i];
-        //     this.transformData[offset] = d.posX;
-        //     this.transformData[offset + 1] = d.posY;
-        //     this.transformData[offset + 2] = d.scale;
-        //     this.transformData[offset + 3] = d.colorR;
-        //     this.transformData[offset + 4] = d.colorG;
-        //     this.transformData[offset + 5] = d.colorB;
-        //     this.transformData[offset + 6] = d.depth;
-        // }
-        this.renderMax = 3; //  data.length;
+        for (let i = 0; i < bufferData.length; i++) {
+            const offset = i * 7;
+            const d = bufferData[i];
+            this.transformData[offset] = d.posX;
+            this.transformData[offset + 1] = d.posY;
+            this.transformData[offset + 2] = d.scale;
+            this.transformData[offset + 3] = d.colorR;
+            this.transformData[offset + 4] = d.colorG;
+            this.transformData[offset + 5] = d.colorB;
+            this.transformData[offset + 6] = d.depth;
+        }
+        this.renderMax = data.length;
 
-        // this.transformData = new Float32Array([
-        //     // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
-        //     0, 0, 64, 0, 1.5, 0, 0,      // Green Test at origin
-        //     200, 150, 128, 0, 0, 1, 1,    // Blue Test at center
-        //     380, 280, 32, 1, 0, 1, 22,   // Purple Test at bottom right
-        // ]);
-
-        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
-        // this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW);
-        // this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, data.length); // Change to DYNAMIC_DRAW to allow updates);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
 
     }
 

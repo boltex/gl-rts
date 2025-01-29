@@ -98,3 +98,13 @@ export interface SpriteBufferData {
     frame: number;
     orientation: number;
 }
+
+export interface RectangleBufferData {
+    posX: number;
+    posY: number;
+    scaleX: number;
+    scaleY: number;
+    colorR: number;
+    colorG: number;
+    colorB: number;
+}

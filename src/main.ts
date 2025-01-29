@@ -1,5 +1,5 @@
 import * as utils from "./utils";
-import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData, SpriteUpdate, SpriteBufferData } from "./type";
+import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData, SpriteUpdate, SpriteBufferData, RectangleBufferData } from "./type";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 
@@ -46,6 +46,7 @@ export class Game {
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
     tileRenderer: TileRenderer | null = null;
     spriteRenderer: SpriteRenderer | null = null;
+    rectangleRenderer: RectangleRenderer | null = null;
     mapChanged = false;
 
     // Game state Properties
@@ -374,8 +375,8 @@ export class Game {
         // For now, we will just create a TileRenderer
         console.log(this.gameScreenWidth, this.gameScreenHeight);
         this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY);
-        this.spriteRenderer = new SpriteRenderer(this.gl, this.creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE); // TODO: Implement SpriteRenderer
-        // const lineRenderer = new RectangleRenderer(this.gl); // TODO: Implement RectangleRenderer
+        this.spriteRenderer = new SpriteRenderer(this.gl, this.creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
+        this.rectangleRenderer = new RectangleRenderer(this.gl, 4); // 4 rectangles make up a square selection rectangle
 
         // Create a uniform buffer
         this.worldBuffer = this.gl.createBuffer();
@@ -1110,6 +1111,96 @@ class SpriteRenderer extends BaseRenderer {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
+    }
+
+}
+
+class RectangleRenderer extends BaseRenderer {
+    private transformBuffer: WebGLBuffer;
+    private modelBuffer: WebGLBuffer;
+    private transformData: Float32Array;
+    private renderMax: number = 0;
+
+    constructor(gl: WebGL2RenderingContext, size: number) {
+        super(gl, SHADERS.RECTANGLE_VERTEX_SHADER, SHADERS.RECTANGLE_FRAGMENT_SHADER);
+        // Move existing shader setup & buffer creation here
+        this.modelBuffer = this.createBuffer(); // Create a buffer
+        this.transformBuffer = this.createBuffer()!;
+
+        // posX, posY, scaleX, scaleY, colorR, colorG, colorB. A stride of 28 bytes.
+
+        // this.transformData = new Float32Array([
+        //     20, 20, 64, 2, 0, 1, 0,       // Green Test at origin
+        //     150, 100, 2, 32, 0, 1, 0,    // Blue Test at center
+        //     280, 180, 32, 2, 0, 1, 0,  // Purple Test at bottom right
+        //     // TODO : Add more to test negative scaling.
+        // ]);
+
+        this.transformData = new Float32Array(size * 7); // Init with 0s
+
+        this.setupVAO();
+
+    }
+
+    updateTransformData(data: number[]): void {
+        const bufferData: RectangleBufferData[] = []
+        for (let i = 0; i < data.length; i++) {
+            bufferData.push({
+                posX: data[i],
+                posY: data[i],
+                scaleX: data[i],
+                scaleY: data[i],
+                colorR: data[i],
+                colorG: data[i],
+                colorB: data[i]
+            });
+        }
+
+        for (let i = 0; i < bufferData.length; i++) {
+            const offset = i * 7;
+            const d = bufferData[i];
+            this.transformData[offset] = d.posX;
+            this.transformData[offset + 1] = d.posY;
+            this.transformData[offset + 2] = d.scaleX;
+            this.transformData[offset + 3] = d.scaleY;
+            this.transformData[offset + 4] = d.colorR;
+            this.transformData[offset + 5] = d.colorG;
+            this.transformData[offset + 6] = d.colorB;
+        }
+        this.renderMax = data.length;
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
+    }
+
+    private setupVAO() {
+        this.gl.bindVertexArray(this.vao);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
+        this.setupAttribute(0, 2, 8, 0);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
+        this.setupAttribute(1, 2, 28, 0, 1);
+        this.setupAttribute(2, 1, 28, 8, 1);
+        this.setupAttribute(3, 1, 28, 12, 1);
+        this.setupAttribute(4, 3, 28, 16, 1);
+
+        this.gl.bindVertexArray(null); // All done, unbind the VAO
+
+    }
+
+    render(): void {
+        this.gl.useProgram(this.program);
+        this.gl.bindVertexArray(this.vao);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+
+        // Update the buffer with the new transform data and draw the sprites
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.STATIC_DRAW);
+        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax); // Draw the model of 6 vertex that form 2 triangles, 3 times
+
     }
 
 }

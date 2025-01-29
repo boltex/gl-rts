@@ -1030,8 +1030,8 @@ import { SHADERS } from './shaders';
 
 </t>
 <t tx="felix.20241227213217.1">handleCanvasResize(entries: ResizeObserverEntry[]): void {
-    // Canvas has style width: 100vw; and style height: 100vh;
-    // So we need to handle a window resize which changes the canvas size.
+
+    // Canvas has style width: 100vw; and height: 100vh; so we need to handle window resizes!
     for (const entry of entries) {
         let width;
         let height;
@@ -1040,38 +1040,33 @@ import { SHADERS } from './shaders';
             // NOTE: Only this path gives the correct answer
             // The other 2 paths are an imperfect fallback
             // for browsers that don't provide anyway to do this
-            width = entry.devicePixelContentBoxSize[0].inlineSize;
-            height = entry.devicePixelContentBoxSize[0].blockSize;
+            [width, height] = [entry.devicePixelContentBoxSize[0].inlineSize, entry.devicePixelContentBoxSize[0].blockSize];
             dpr = 1; // it's already in width and height
         } else if (entry.contentBoxSize) {
             if (entry.contentBoxSize[0]) {
-                width = entry.contentBoxSize[0].inlineSize;
-                height = entry.contentBoxSize[0].blockSize;
+                [width, height] = [entry.contentBoxSize[0].inlineSize, entry.contentBoxSize[0].blockSize];
             } else {
                 // legacy mozilla impl using only contentBox
                 // @ts-expect-error
-                width = entry.contentBoxSize.inlineSize;
-                // @ts-expect-error
-                height = entry.contentBoxSize.blockSize;
+                [width, height] = [entry.contentBoxSize.inlineSize, entry.contentBoxSize.blockSize];
             }
         } else {
             // legacy
-            width = entry.contentRect.width;
-            height = entry.contentRect.height;
+            [width, height] = [entry.contentRect.width, entry.contentRect.height];
         }
         const displayWidth = Math.round(width * dpr);
         const displayHeight = Math.round(height * dpr);
         [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
-
         this.setDimensionsVars();
     }
 }
 
 </t>
 <t tx="felix.20241227213236.1">update(timestamp: number, skipRender?: boolean): void {
+
+    // Calculate deltaTime so that we can interpolate between frames if needed.
     const deltaTime = timestamp - this.lastTime;
     this.lastTime = timestamp;
-
     this.tickAccumulator += deltaTime;
     this.animAccumulator += deltaTime;
 
@@ -1098,7 +1093,6 @@ import { SHADERS } from './shaders';
         this.fpsLastTime = timestamp;
         // console.log('RAF FPS ', this.fps); // 30
     }
-
 }
 
 </t>
@@ -1150,14 +1144,15 @@ import { SHADERS } from './shaders';
 
 </t>
 <t tx="felix.20241228191055.1">resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {
+
     // Get the size the browser is displaying the canvas in device pixels.
     const [displayWidth, displayHeight] = [this.lastDisplayWidth, this.lastDisplayHeight];
 
     // Check if the canvas is not the same size.
-    const needResize = canvas.width !== displayWidth ||
-        canvas.height !== displayHeight;
+    const needResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
 
     if (needResize) {
+
         // Make the canvas the same size
         canvas.width = displayWidth;
         canvas.height = displayHeight;
@@ -1168,7 +1163,6 @@ import { SHADERS } from './shaders';
             this.setUboWorldTransforms();
         }
     }
-
     return needResize;
 }
 
@@ -1183,7 +1177,6 @@ import { SHADERS } from './shaders';
 
 </t>
 <t tx="felix.20241228193009.1">mainMenu(): void {
-    // The images have loaded, so it's time to show the pre-game menu
 
     // Create the start button
     this.startButtonElement.textContent = "Start Game";
@@ -1202,12 +1195,11 @@ import { SHADERS } from './shaders';
         option.textContent = label;
         this.resolutionSelectElement.appendChild(option);
     }
+
+    // Use resolutionSelectElement.selectedIndex to get the selected resolution
     document.body.appendChild(this.resolutionSelectElement);
 
-    // Use resolutionSelect.selectedIndex to get the selected resolution
-
     this.startButtonElement.addEventListener("click", this.startGame.bind(this));
-
 }
 
 </t>
@@ -1247,8 +1239,6 @@ import { SHADERS } from './shaders';
     this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
     this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-
-    console.log('Starting the game with aspect ratio', this.aspectRatio);
 
     this.setCursor("cur-pointer");
 
@@ -1336,17 +1326,18 @@ tick(): void {
 </t>
 <t tx="felix.20241230215401.1">trydefault(): void {
     const gamePosition = this.inputManager.gamePosition;
-    console.log('default', gamePosition.x, gamePosition.y);
+    console.log('default action at: ', gamePosition.x, gamePosition.y);
+
     // TODO : Replace with test cursor animation with the real default action
     // TEST START WIDGET ANIMATION ON DEFAULT ACTION
     this.widgetAnim = 1;
     this.widgetAnimX = gamePosition.x - 32;
     this.widgetAnimY = gamePosition.y - 32;
-
 }
 
 </t>
 <t tx="felix.20241230215406.1">tryselect(): void {
+
     // Called from procGame
     const selectionStart = this.inputManager.selectionStart;
     const selectionEnd = this.inputManager.selectionEnd;
@@ -1380,7 +1371,10 @@ tick(): void {
         this.spriteRenderer.render();
     }
 
-    // 3 Render Selection lines with four thin rectangles, if user is selecting.
+    // 3 Render fog of war, if any.
+    // Todo: Implement Fog of War
+
+    // Last, Render Selection lines with four thin rectangles, if user is selecting.
     const cursor: TRectangle[] = [];
     if (this.rectangleRenderer &amp;&amp; this.inputManager.isSelecting) {
         // Draw selection rectangle with lines
@@ -1389,70 +1383,30 @@ tick(): void {
         const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
         const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
 
+        // Top, bottom, left, right lines
         cursor.push(
-            // top horizontal line
-            {
-                x: cx1,
-                y: cy1,
-                width: cx2 - cx1,
-                height: 2,
-                r: 0,
-                g: 1,
-                b: 0,
-            },
-            // bottom horizontal line
-            {
-                x: cx1,
-                y: cy2,
-                width: cx2 - cx1,
-                height: 2,
-                r: 0,
-                g: 1,
-                b: 0,
-            },
-            // left vertical line
-            {
-                x: cx1,
-                y: cy1,
-                width: 2,
-                height: cy2 - cy1,
-                r: 0,
-                g: 1,
-                b: 0,
-            },
-            // right vertical line
-            {
-                x: cx2,
-                y: cy1,
-                width: 2,
-                height: cy2 - cy1,
-                r: 0,
-                g: 1,
-                b: 0,
-            }
+            { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+            { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+            { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
+            { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
         );
 
         this.rectangleRenderer.updateTransformData(cursor);
         this.rectangleRenderer.render();
-
     }
 
-
-    // Finished
     this.gl.flush();
 }
 
 </t>
 <t tx="felix.20241231225835.1">animateCursor(): void {
-    // Animate at 15 FPS
 
-    // Cursor
+    // Animate cursor at 15 FPS
     if (this.widgetAnim) {
         this.widgetAnim += 1;
         if (this.widgetAnim &gt; this.widgetAnimTotal)
             this.widgetAnim = 0;
     }
-
 }
 
 </t>
@@ -1473,7 +1427,6 @@ tick(): void {
     this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;
     this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-
     return this.canvasBoundingRect;
 }
 
@@ -1580,9 +1533,6 @@ export class Entities {
 
 </t>
 <t tx="felix.20250105213621.1">initGameStates(): void {
-
-    // For now, we will just create a TileRenderer
-    console.log(this.gameScreenWidth, this.gameScreenHeight);
     this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY);
     this.spriteRenderer = new SpriteRenderer(this.gl, this.creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
     this.rectangleRenderer = new RectangleRenderer(this.gl, 4); // 4 rectangles make up a square selection rectangle
@@ -1598,7 +1548,7 @@ export class Entities {
     // Set the uniform block binding for both programs
     const tileProgram = this.tileRenderer.program;
     const spriteProgram = this.spriteRenderer.program;
-    // const lineProgram = lineRenderer.program;
+    const rectangleProgram = this.rectangleRenderer.program;
 
     const worldIndex = 0; // Binding point 0
 
@@ -1608,15 +1558,15 @@ export class Entities {
     const spriteBlockIndex = this.gl.getUniformBlockIndex(spriteProgram, 'World');
     this.gl.uniformBlockBinding(spriteProgram, spriteBlockIndex, worldIndex);
 
-    // const lineBlockIndex = this.gl.getUniformBlockIndex(lineProgram, 'World');
-    // this.gl.uniformBlockBinding(lineProgram, lineBlockIndex, worldIndex);
+    const rectangleBlockIndex = this.gl.getUniformBlockIndex(rectangleProgram, 'World');
+    this.gl.uniformBlockBinding(rectangleProgram, rectangleBlockIndex, worldIndex);
 
     this.setUboWorldTransforms(); // Initial set of ubo values
 
     window.addEventListener('unload', () =&gt; {
         this.tileRenderer?.dispose();
         this.spriteRenderer?.dispose();
-        // lineRenderer?.dispose();
+        this.rectangleRenderer?.dispose();
     });
 
     // Build entities pool
@@ -2471,7 +2421,6 @@ export const SHADERS = {
     constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {
         super(gl, SHADERS.TILE_VERTEX_SHADER, SHADERS.TILE_FRAGMENT_SHADER);
 
-        // Move existing shader setup &amp; buffer creation here
         this.image = image;
         this.texture = this.createTexture();
         this.modelBuffer = this.createBuffer(); // Create a buffer
@@ -2479,34 +2428,27 @@ export const SHADERS = {
 
         // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.
         this.transformData = new Float32Array(size * 7); // Init with 0s
-
         this.setupVAO();
-
     }
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
-
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
         this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
         this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
         this.setupAttribute(0, 2, 16, 0);
         this.setupAttribute(1, 2, 16, 8);
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates);
         this.setupAttribute(2, 2, 28, 0, 1);
         this.setupAttribute(3, 1, 28, 8, 1);
         this.setupAttribute(4, 3, 28, 12, 1);
         this.setupAttribute(5, 1, 28, 24, 1);
-
         this.gl.bindVertexArray(null); // All done, unbind the VAO
-
     }
 
     updateTransformData(data: number[]): void {
@@ -2522,7 +2464,6 @@ export const SHADERS = {
             this.transformData[offset + 6] = data[i];
         }
         this.renderMax = data.length;
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
     }
@@ -2542,7 +2483,6 @@ export const SHADERS = {
     const worldData = new Float32Array([2 / this.gameScreenWidth, 2 / -this.gameScreenHeight]);
     this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
     this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
-
 }
 
 </t>
@@ -2556,17 +2496,12 @@ export const SHADERS = {
 
     constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {
         super(gl, SHADERS.SPRITE_VERTEX_SHADER, SHADERS.SPRITE_FRAGMENT_SHADER);
-
-        // Move existing shader setup &amp; buffer creation here
         this.image = image;
         this.texture = this.createTexture()!;
         this.modelBuffer = this.createBuffer()!; // Create a buffer
         this.transformBuffer = this.createBuffer()!;
-
         this.transformData = new Float32Array(size * 8); // 8 floats per sprite, Init with 0s
-
         this.setupVAO();
-
     }
 
     private setupVAO() {
@@ -2589,9 +2524,7 @@ export const SHADERS = {
         this.setupAttribute(3, 1, 32, 8, 1);
         this.setupAttribute(4, 3, 32, 12, 1);
         this.setupAttribute(5, 2, 32, 24, 1);
-
         this.gl.bindVertexArray(null); // All done, unbind the VAO
-
     }
 
     updateTransformData(data: TEntity[]): void {
@@ -2636,23 +2569,10 @@ export const SHADERS = {
 
     constructor(gl: WebGL2RenderingContext, size: number) {
         super(gl, SHADERS.RECTANGLE_VERTEX_SHADER, SHADERS.RECTANGLE_FRAGMENT_SHADER);
-        // Move existing shader setup &amp; buffer creation here
         this.modelBuffer = this.createBuffer(); // Create a buffer
         this.transformBuffer = this.createBuffer()!;
-
-        // posX, posY, scaleX, scaleY, colorR, colorG, colorB. A stride of 28 bytes.
-
-        // this.transformData = new Float32Array([
-        //     20, 20, 64, 2, 0, 1, 0,       // Green Test at origin
-        //     150, 100, 2, 32, 0, 1, 0,    // Blue Test at center
-        //     280, 180, 32, 2, 0, 1, 0,  // Purple Test at bottom right
-        //     // TODO : Add more to test negative scaling.
-        // ]);
-
         this.transformData = new Float32Array(size * 7); // Init with 0s
-
         this.setupVAO();
-
     }
 
     updateTransformData(data: TRectangle[]): void {
@@ -2667,39 +2587,28 @@ export const SHADERS = {
             this.transformData[offset + 6] = data[i].b;
         }
         this.renderMax = data.length;
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
     }
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
         this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
         this.setupAttribute(0, 2, 8, 0);
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
         this.setupAttribute(1, 2, 28, 0, 1);
         this.setupAttribute(2, 1, 28, 8, 1);
         this.setupAttribute(3, 1, 28, 12, 1);
         this.setupAttribute(4, 3, 28, 16, 1);
-
         this.gl.bindVertexArray(null); // All done, unbind the VAO
-
     }
 
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-
-        // Update the buffer with the new transform data and draw the sprites
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.STATIC_DRAW);
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax); // Draw the model of 6 vertex that form 2 triangles, 3 times
-
     }
 
 }

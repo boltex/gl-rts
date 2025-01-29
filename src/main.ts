@@ -209,39 +209,6 @@ export class Game {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
     }
 
-    update(timestamp: number, skipRender?: boolean): void {
-
-        // Calculate deltaTime so that we can interpolate between frames if needed.
-        const deltaTime = timestamp - this.lastTime;
-        this.lastTime = timestamp;
-        this.tickAccumulator += deltaTime;
-        this.animAccumulator += deltaTime;
-
-        this.procGame();
-
-        while (this.animAccumulator >= this.timePerAnim) {
-            this.animateCursor();
-            this.animAccumulator -= this.timePerAnim;
-        }
-
-        while (this.tickAccumulator >= this.timePerTick) {
-            this.tick();
-            this.tickAccumulator -= this.timePerTick;
-        }
-
-        if (!skipRender) {
-            // Gather renderable data and interpolate
-            this.render(this.tickAccumulator / this.timePerTick);
-        }
-
-        // Calculate FPS
-        if (timestamp - this.fpsLastTime > this.fpsInterval) {
-            this.fps = Math.round(1000 / deltaTime);
-            this.fpsLastTime = timestamp;
-            // console.log('RAF FPS ', this.fps); // 30
-        }
-    }
-
     setCursor(newClass: string) {
         if (this.currentCursorClass !== newClass) {
             if (this.currentCursorClass) {
@@ -262,57 +229,8 @@ export class Game {
         }
     }
 
-    render(interpolation: number): void {
-
-        // Set clear color to black
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-        // Before rendering, resize canvas to display size. (in case of changing window size)
-        if (!this.resizeCanvasToDisplaySize(this.canvasElement)) {
-            // If it did not resize and call gl.viewport which clears the canvas, we need to clear it again.
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        }
-
-        // 1 Render the game map. Map states are in this.gamemap and rarely change.
-        if (this.tileRenderer) {
-            if (this.mapChanged) {
-                this.tileRenderer.updateTransformData(this.gamemap);
-                this.mapChanged = false;
-            }
-            this.tileRenderer.render();
-        }
-
-        // 2 Render the game entities. Entity states are in this.entities.pool and change often.
-        if (this.spriteRenderer) {
-            this.spriteRenderer.updateTransformData(this.entities.pool);
-            this.spriteRenderer.render();
-        }
-
-        // 3 Render fog of war, if any.
-        // Todo: Implement Fog of War
-
-        // Last, Render Selection lines with four thin rectangles, if user is selecting.
-        const cursor: TRectangle[] = [];
-        if (this.rectangleRenderer && this.inputManager.isSelecting) {
-            // Draw selection rectangle with lines
-            const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
-            const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
-            const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
-            const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
-
-            // Top, bottom, left, right lines
-            cursor.push(
-                { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
-                { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
-            );
-
-            this.rectangleRenderer.updateTransformData(cursor);
-            this.rectangleRenderer.render();
-        }
-
-        this.gl.flush();
+    toggleGameMenu(): void {
+        console.log('Toggle Options Menu'); // Todo: Implement In-Game Option Menu
     }
 
     mainMenu(): void {
@@ -454,10 +372,6 @@ export class Game {
         this.mapChanged = true;
     }
 
-    toggleGameMenu(): void {
-        console.log('Toggle Game Menu'); // Todo: Implement Game Menu
-    }
-
     procGame(): void {
 
         // procgame processes a game frame, animating each RAF.
@@ -498,6 +412,97 @@ export class Game {
             if (this.scrollY < 0) {
                 this.scrollY = 0;
             }
+        }
+    }
+
+    render(interpolation: number): void {
+
+        // Set clear color to black
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        // Before rendering, resize canvas to display size. (in case of changing window size)
+        if (!this.resizeCanvasToDisplaySize(this.canvasElement)) {
+            // If it did not resize and call gl.viewport which clears the canvas, we need to clear it again.
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        }
+
+        // 1 Render the game map. Map states are in this.gamemap and rarely change.
+        if (this.tileRenderer) {
+            if (this.mapChanged) {
+                this.tileRenderer.updateTransformData(this.gamemap);
+                this.mapChanged = false;
+            }
+            this.tileRenderer.render();
+        }
+
+        // 2 Render the game entities. Entity states are in this.entities.pool and change often.
+        if (this.spriteRenderer) {
+            this.spriteRenderer.updateTransformData(this.entities.pool);
+            this.spriteRenderer.render();
+        }
+
+        // 3 Render fog of war, if any.
+        // Todo: Implement Fog of War
+
+        // Last, Render Selection lines with four thin rectangles, if user is selecting.
+        const cursor: TRectangle[] = [];
+        if (this.rectangleRenderer && this.inputManager.isSelecting) {
+            // Draw selection rectangle with lines
+            const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
+            const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
+            const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
+            const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
+
+            // Top, bottom, left, right lines
+            cursor.push(
+                { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+                { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+                { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
+                { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
+            );
+
+            this.rectangleRenderer.updateTransformData(cursor);
+            this.rectangleRenderer.render();
+        }
+
+        this.gl.flush();
+    }
+
+    update(timestamp: number, skipRender?: boolean): void {
+
+        // 1. Calculate timing and delta
+        const deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
+
+        // 2. Accumulate time for different update frequencies
+        this.tickAccumulator += deltaTime;  // For game logic (8 FPS)
+        this.animAccumulator += deltaTime;  // For animations (15 FPS)
+
+        // 3. Process immediate inputs/actions
+        this.procGame();  // Handle mouse clicks, selection, etc.
+
+        // 4. Update animations at 15 FPS
+        while (this.animAccumulator >= this.timePerAnim) {
+            this.animateCursor();
+            this.animAccumulator -= this.timePerAnim;
+        }
+
+        // 5. Update game state at 8 FPS 
+        while (this.tickAccumulator >= this.timePerTick) {
+            this.tick(); // Updates entity positions, AI, etc.
+            this.tickAccumulator -= this.timePerTick;
+        }
+
+        // 6. Render at full frame rate: Pass interpolation value for smooth movement.
+        if (!skipRender) {
+            this.render(this.tickAccumulator / this.timePerTick);
+        }
+
+        // Calculate FPS
+        if (timestamp - this.fpsLastTime > this.fpsInterval) {
+            this.fps = Math.round(1000 / deltaTime);
+            this.fpsLastTime = timestamp;
+            // console.log('RAF FPS ', this.fps); // 30
         }
     }
 
@@ -941,26 +946,29 @@ class TileRenderer extends BaseRenderer {
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
+
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
         this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
         this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
         this.setupAttribute(0, 2, 16, 0);
         this.setupAttribute(1, 2, 16, 8);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates);
         this.setupAttribute(2, 2, 28, 0, 1);
         this.setupAttribute(3, 1, 28, 8, 1);
         this.setupAttribute(4, 3, 28, 12, 1);
         this.setupAttribute(5, 1, 28, 24, 1);
+
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
     updateTransformData(data: number[]): void {
-        console.log('Updating TileRenderer with new data');
         for (let i = 0; i < data.length; i++) {
             const offset = i * 7;
             this.transformData[offset] = (i % 9) * CONFIG.GAME.TILE.SIZE;
@@ -1022,6 +1030,7 @@ class SpriteRenderer extends BaseRenderer {
         this.setupAttribute(3, 1, 32, 8, 1);
         this.setupAttribute(4, 3, 32, 12, 1);
         this.setupAttribute(5, 2, 32, 24, 1);
+
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
@@ -1090,15 +1099,18 @@ class RectangleRenderer extends BaseRenderer {
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
         this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
         this.setupAttribute(0, 2, 8, 0);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
         this.setupAttribute(1, 2, 28, 0, 1);
         this.setupAttribute(2, 1, 28, 8, 1);
         this.setupAttribute(3, 1, 28, 12, 1);
         this.setupAttribute(4, 3, 28, 16, 1);
+
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 

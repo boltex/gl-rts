@@ -1,5 +1,5 @@
 import * as utils from "./utils";
-import { Vec2, TEntity, TParameters, GLResources, ShaderType, TileBufferData, SpriteUpdate, SpriteBufferData, RectangleBufferData } from "./type";
+import { Vec2, TEntity, GLResources, ShaderType, TRectangle } from "./type";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 
@@ -177,8 +177,8 @@ export class Game {
 
     setDimensionsVars(): DOMRect {
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
-        this.gameWidthRatio = (this.gameScreenWidth / this.canvasBoundingRect.width);
-        this.gameHeightRatio = (this.gameScreenHeight / this.canvasBoundingRect.height)
+        this.gameWidthRatio = this.gameScreenWidth / this.canvasBoundingRect.width;
+        this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
@@ -283,9 +283,6 @@ export class Game {
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         }
 
-        // Render the game
-
-
         // 1 Render the game map. Map states are in this.gamemap and rarely change.
         if (this.tileRenderer) {
             if (this.mapChanged) {
@@ -295,16 +292,69 @@ export class Game {
             this.tileRenderer.render();
         }
 
-        // TODO: 2 Render the game entities. Entity states are in this.entities.pool and change often.
+        // 2 Render the game entities. Entity states are in this.entities.pool and change often.
         if (this.spriteRenderer) {
             this.spriteRenderer.updateTransformData(this.entities.pool);
-
             this.spriteRenderer.render();
+        }
+
+        // 3 Render Selection lines with four thin rectangles, if user is selecting.
+        const cursor: TRectangle[] = [];
+        if (this.rectangleRenderer && this.inputManager.isSelecting) {
+            // Draw selection rectangle with lines
+            const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
+            const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
+            const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
+            const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
+
+            cursor.push(
+                // top horizontal line
+                {
+                    x: cx1,
+                    y: cy1,
+                    width: cx2 - cx1,
+                    height: 2,
+                    r: 0,
+                    g: 1,
+                    b: 0,
+                },
+                // bottom horizontal line
+                {
+                    x: cx1,
+                    y: cy2,
+                    width: cx2 - cx1,
+                    height: 2,
+                    r: 0,
+                    g: 1,
+                    b: 0,
+                },
+                // left vertical line
+                {
+                    x: cx1,
+                    y: cy1,
+                    width: 2,
+                    height: cy2 - cy1,
+                    r: 0,
+                    g: 1,
+                    b: 0,
+                },
+                // right vertical line
+                {
+                    x: cx2,
+                    y: cy1,
+                    width: 2,
+                    height: cy2 - cy1,
+                    r: 0,
+                    g: 1,
+                    b: 0,
+                }
+            );
+
+            this.rectangleRenderer.updateTransformData(cursor);
+            this.rectangleRenderer.render();
 
         }
 
-
-        // TODO: 3 Render Selection lines, if user is selecting.
 
         // Finished
         this.gl.flush();
@@ -566,12 +616,12 @@ export class InputManager {
     private game: Game;
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
-    private mouseX = 0;
-    private mouseY = 0;
+    public mouseX = 0;
+    public mouseY = 0;
     private gameMouseX = 0;
     private gameMouseY = 0;
-    private selX = 0;
-    private selY = 0;
+    public selX = 0;
+    public selY = 0;
     private gameSelStartX = 0;
     private gameSelStartY = 0;
     private gameSelEndX = 0;
@@ -581,10 +631,6 @@ export class InputManager {
 
     constructor(game: Game) {
         this.game = game;
-    }
-
-    public get mousePosition(): { x: number, y: number } {
-        return { x: this.mouseX, y: this.mouseY };
     }
 
     public get gamePosition(): { x: number, y: number } {
@@ -651,11 +697,11 @@ export class InputManager {
         if (!this.selecting) {
             if (event.button === 0) {
                 this.selecting = true;
-                this.game.setCursor('cur-target');
                 this.selX = this.mouseX;
                 this.selY = this.mouseY;
                 this.gameSelStartX = this.selX + this.game.scrollX;
                 this.gameSelStartY = this.selY + this.game.scrollY;
+                this.game.setCursor('cur-target');
             }
             if (event.button === 2) {
                 this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
@@ -669,8 +715,8 @@ export class InputManager {
             this.gameSelEndX = this.mouseX + this.game.scrollX;
             this.gameSelEndY = this.mouseY + this.game.scrollY;
             this.selecting = false;
-            this.game.setCursor('cur-pointer');
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
+            this.game.setCursor('cur-pointer');
         }
     }
 
@@ -974,36 +1020,20 @@ class TileRenderer extends BaseRenderer {
 
     updateTransformData(data: number[]): void {
         console.log('Updating TileRenderer with new data');
-        const bufferData: TileBufferData[] = []
         for (let i = 0; i < data.length; i++) {
-            bufferData.push({
-                posX: (i % 9) * CONFIG.GAME.TILE.SIZE,
-                posY: Math.floor(i / 9) * CONFIG.GAME.TILE.SIZE,
-                scale: CONFIG.GAME.TILE.SIZE,
-                colorR: 1,
-                colorG: 1,
-                colorB: 1,
-                depth: data[i]
-            });
-        }
-
-        // TileBufferData
-        for (let i = 0; i < bufferData.length; i++) {
             const offset = i * 7;
-            const d = bufferData[i];
-            this.transformData[offset] = d.posX;
-            this.transformData[offset + 1] = d.posY;
-            this.transformData[offset + 2] = d.scale;
-            this.transformData[offset + 3] = d.colorR;
-            this.transformData[offset + 4] = d.colorG;
-            this.transformData[offset + 5] = d.colorB;
-            this.transformData[offset + 6] = d.depth;
+            this.transformData[offset] = (i % 9) * CONFIG.GAME.TILE.SIZE;
+            this.transformData[offset + 1] = Math.floor(i / 9) * CONFIG.GAME.TILE.SIZE;
+            this.transformData[offset + 2] = CONFIG.GAME.TILE.SIZE;
+            this.transformData[offset + 3] = 1;
+            this.transformData[offset + 4] = 1;
+            this.transformData[offset + 5] = 1;
+            this.transformData[offset + 6] = data[i];
         }
         this.renderMax = data.length;
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
-
     }
 
     render(): void {
@@ -1063,45 +1093,25 @@ class SpriteRenderer extends BaseRenderer {
     }
 
     updateTransformData(data: TEntity[]): void {
-
-        const bufferData: SpriteBufferData[] = []
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].active) {
-                const item = data[i];
-                bufferData.push({
-                    posX: item.x,
-                    posY: item.y,
-                    scale: 128, // default entity size
-                    colorR: 1, // default color
-                    colorG: 0, // default color
-                    colorB: 1, // default color
-                    frame: item.frameIndex,
-                    orientation: item.orientation
-                });
-            }
-        }
-
-        // Those are used to calculate the UVs for the sprite sheet
-        // SPRITES_PER_ROW: 16,
-        // ORIENTATIONS_PER_ROW: 4,
-        // UV_UNIT: 0.015625 // (1/64) Pre-calculated
-
         const u = (sprite: number, orientation: number) => ((sprite % 16) * 0.015625) + (orientation % 4) * 0.25;
         const v = (sprite: number, orientation: number) => (Math.floor(sprite / 16) * 0.015625) + Math.floor(orientation / 4) * 0.25;
 
-        for (let i = 0; i < bufferData.length; i++) {
-            const offset = i * 8;
-            const d = bufferData[i];
-            this.transformData[offset] = d.posX;
-            this.transformData[offset + 1] = d.posY;
-            this.transformData[offset + 2] = d.scale;
-            this.transformData[offset + 3] = d.colorR;
-            this.transformData[offset + 4] = d.colorG;
-            this.transformData[offset + 5] = d.colorB;
-            this.transformData[offset + 6] = u(d.frame, d.orientation);
-            this.transformData[offset + 7] = v(d.frame, d.orientation);
+        let index = 0;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].active) {
+                const offset = index * 8;
+                this.transformData[offset] = data[i].x;
+                this.transformData[offset + 1] = data[i].y;
+                this.transformData[offset + 2] = 128; // default entity size
+                this.transformData[offset + 3] = 1; // default color
+                this.transformData[offset + 4] = 1; // default color
+                this.transformData[offset + 5] = 1; // default color
+                this.transformData[offset + 6] = u(data[i].frameIndex, data[i].orientation);
+                this.transformData[offset + 7] = v(data[i].frameIndex, data[i].orientation);
+                index++;
+            }
         }
-        this.renderMax = bufferData.length;
+        this.renderMax = index;
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);
@@ -1142,30 +1152,16 @@ class RectangleRenderer extends BaseRenderer {
 
     }
 
-    updateTransformData(data: number[]): void {
-        const bufferData: RectangleBufferData[] = []
+    updateTransformData(data: TRectangle[]): void {
         for (let i = 0; i < data.length; i++) {
-            bufferData.push({
-                posX: data[i],
-                posY: data[i],
-                scaleX: data[i],
-                scaleY: data[i],
-                colorR: data[i],
-                colorG: data[i],
-                colorB: data[i]
-            });
-        }
-
-        for (let i = 0; i < bufferData.length; i++) {
             const offset = i * 7;
-            const d = bufferData[i];
-            this.transformData[offset] = d.posX;
-            this.transformData[offset + 1] = d.posY;
-            this.transformData[offset + 2] = d.scaleX;
-            this.transformData[offset + 3] = d.scaleY;
-            this.transformData[offset + 4] = d.colorR;
-            this.transformData[offset + 5] = d.colorG;
-            this.transformData[offset + 6] = d.colorB;
+            this.transformData[offset] = data[i].x;
+            this.transformData[offset + 1] = data[i].y;
+            this.transformData[offset + 2] = data[i].width;
+            this.transformData[offset + 3] = data[i].height;
+            this.transformData[offset + 4] = data[i].r;
+            this.transformData[offset + 5] = data[i].g;
+            this.transformData[offset + 6] = data[i].b;
         }
         this.renderMax = data.length;
 

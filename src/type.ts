@@ -29,6 +29,16 @@ export type TEntity = {
     active: boolean;
 }
 
+export type TRectangle = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    r: number;
+    g: number;
+    b: number;
+}
+
 export type TParameters =
     | {
         uniform: true;
@@ -48,25 +58,6 @@ export interface GLResources {
     shaders: WebGLShader[];
 }
 
-export type Color = {
-    r: number;
-    g: number;
-    b: number;
-};
-
-export interface RenderableSprite {
-    position: Vec2;
-    scale: number;
-    color: Color;
-    frame: number;
-    orientation: number;
-}
-
-export type SpriteUpdate = {
-    index: number;
-    properties: Partial<RenderableSprite>;
-};
-
 export enum ShaderType {
     VERTEX = WebGL2RenderingContext.VERTEX_SHADER,
     FRAGMENT = WebGL2RenderingContext.FRAGMENT_SHADER
@@ -76,35 +67,4 @@ export type WebGLError = {
     type: 'shader' | 'program' | 'buffer' | 'texture';
     message: string;
     details?: string;
-}
-
-export interface TileBufferData {
-    posX: number;
-    posY: number;
-    scale: number;
-    colorR: number;
-    colorG: number;
-    colorB: number;
-    depth: number;
-}
-
-export interface SpriteBufferData {
-    posX: number;
-    posY: number;
-    scale: number;
-    colorR: number;
-    colorG: number;
-    colorB: number;
-    frame: number;
-    orientation: number;
-}
-
-export interface RectangleBufferData {
-    posX: number;
-    posY: number;
-    scaleX: number;
-    scaleY: number;
-    colorR: number;
-    colorG: number;
-    colorB: number;
 }

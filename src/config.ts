@@ -33,8 +33,8 @@ const GAME = {
         DEPTH: 64
     },
     MAP: {
-        WIDTH: 9, // game map width in TILES 
-        HEIGHT: 9 // game map height in TILES 
+        WIDTH: 64, // game map width in TILES 
+        HEIGHT: 64 // game map height in TILES 
     },
     TIMING: {
         TICK_RATE: 8, // 8 fps for game logic

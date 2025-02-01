@@ -66,6 +66,9 @@
 <v t="felix.20241227202430.1"><vh>@clean src/main.ts</vh>
 <v t="felix.20241227202519.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241227213048.1"><vh>Create Game</vh></v>
+</v>
+<v t="felix.20250131210259.1"><vh>@clean src/game.ts</vh>
+<v t="felix.20250131211056.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20241227213056.1"><vh>class Game</vh>
 <v t="felix.20241227213841.1"><vh>constructor</vh></v>
 <v t="felix.20241227213217.1"><vh>handleCanvasResize</vh></v>
@@ -77,6 +80,7 @@
 <v t="felix.20241229162002.1"><vh>toggleGameMenu</vh></v>
 <v t="felix.20241228193009.1"><vh>mainMenu</vh></v>
 <v t="felix.20241229230016.1"><vh>startGame</vh></v>
+<v t="felix.20250130230812.1"><vh>setGameScreenStates</vh></v>
 <v t="felix.20250105213621.1"><vh>initGameStates</vh></v>
 <v t="felix.20241230215224.1"><vh>procGame</vh></v>
 <v t="felix.20241231221007.1"><vh>render</vh></v>
@@ -87,6 +91,9 @@
 <v t="felix.20241230215401.1"><vh>trydefault</vh></v>
 <v t="felix.20241230215406.1"><vh>tryselect</vh></v>
 </v>
+</v>
+<v t="felix.20250131210715.1"><vh>@clean src/input-manager.ts</vh>
+<v t="felix.20250131211201.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20250107221804.1"><vh>class InputManager</vh>
 <v t="felix.20250107221855.1"><vh>constructor</vh></v>
 <v t="felix.20250107232140.1"><vh>getters</vh></v>
@@ -102,22 +109,43 @@
 <v t="felix.20250107230918.1"><vh>updateScroll</vh></v>
 <v t="felix.20250107230936.1"><vh>isSelecting</vh></v>
 </v>
+</v>
+<v t="felix.20250201003719.1"><vh>@clean src/renderer-manager.ts</vh>
+<v t="felix.20250201003821.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+</v>
+<v t="felix.20250201003723.1"><vh>@clean src/ui-manager.ts</vh>
+<v t="felix.20250201003823.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+</v>
+<v t="felix.20250201003723.2"><vh>@clean src/camera-manager.ts</vh>
+<v t="felix.20250201003827.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+</v>
+<v t="felix.20250201003723.3"><vh>@clean src/time-manager.ts</vh>
+<v t="felix.20250201003825.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+</v>
+<v t="felix.20250131210755.1"><vh>@clean src/entities.ts</vh>
+<v t="felix.20250131211133.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
 <v t="felix.20250105212000.1"><vh>class Entities</vh>
 <v t="felix.20250105212000.2"><vh>constructor</vh></v>
 <v t="felix.20250105212000.3"><vh>spawn</vh></v>
 <v t="felix.20250105212000.4"><vh>remove</vh></v>
 </v>
-<v t="felix.20250105212047.1"><vh>class EntityBehavior</vh>
+</v>
+<v t="felix.20250131210816.1"><vh>@clean src/behaviors.ts</vh>
+<v t="felix.20250131211212.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+<v t="felix.20250105212047.1"><vh>class Behaviors</vh>
 <v t="felix.20250105212047.2"><vh>constructor</vh></v>
 <v t="felix.20250105212047.3"><vh>process</vh></v>
 <v t="felix.20250105212047.4"><vh>alien</vh></v>
 </v>
-<v t="felix.20250126174340.1"><vh>BaseRenderer</vh></v>
-<v t="felix.20250126193731.1"><vh>TileRenderer</vh></v>
-<v t="felix.20250127234240.1"><vh>SpriteRenderer</vh></v>
-<v t="felix.20250128200945.1"><vh>RectangleRenderer</vh></v>
 </v>
-<v t="felix.20241220002054.1"><vh>@clean src/type.ts</vh>
+<v t="felix.20250131210828.1"><vh>@clean src/renderers.ts</vh>
+<v t="felix.20250131211216.1"><vh>&lt;&lt; imports &gt;&gt;</vh></v>
+<v t="felix.20250126174340.1"><vh>class BaseRenderer</vh></v>
+<v t="felix.20250126193731.1"><vh>class TileRenderer</vh></v>
+<v t="felix.20250127234240.1"><vh>class SpriteRenderer</vh></v>
+<v t="felix.20250128200945.1"><vh>class RectangleRenderer</vh></v>
+</v>
+<v t="felix.20241220002054.1"><vh>@clean src/types.ts</vh>
 <v t="felix.20241220002054.3"><vh>types</vh></v>
 </v>
 <v t="felix.20241224183015.1"><vh>@clean src/utils.ts</vh>
@@ -929,10 +957,7 @@ export function fullScreen(element: Element): Promise&lt;void&gt; {
 @others
 @nowrap
 </t>
-<t tx="felix.20241227202519.1">import * as utils from "./utils";
-import { Vec2, TEntity, GLResources, ShaderType, TRectangle } from "./type";
-import { CONFIG } from './config';
-import { SHADERS } from './shaders';
+<t tx="felix.20241227202519.1">import { Game } from "./game";
 
 </t>
 <t tx="felix.20241227213048.1">document.addEventListener('DOMContentLoaded', (event) =&gt; {
@@ -961,17 +986,19 @@ import { SHADERS } from './shaders';
     worldBuffer: WebGLBuffer | null = null;
 
     // Game Screen Properties
-    aspectRatio = 1; // set in startGame, this is display aspect ratio
-    gameScreenWidth = 0; // set in startGame, this is game screen size, used as uWorldX.
+    resolution: { label: string, width: number, height: number } = CONFIG.DISPLAY.RESOLUTIONS[0];
+    aspectRatio = 1; // this is display aspect ratio
+    gameScreenWidth = 0; // this is game screen size, used as uWorldX.
     gameScreenHeight = 0; // Used as uWorldY.
-    gameWidthRatio = 0; // set in startGame, this is game screen ratio to the canvas size
+    gameWidthRatio = 0; // this is game screen ratio to the canvas size
     gameHeightRatio = 0;
-    scrollEdgeX = 0; // set in startGame, constants for finding trigger zone
+    scrollEdgeX = 0; // constants for finding trigger zone
     scrollEdgeY = 0;
+    zoomLevel = 1; // 1 is normal, 0.5 is zoomed out, 2 is zoomed in
 
     // Map Tile Properties
     tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE;
-    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1; // set in startGame
+    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
     initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
     maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
     maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
@@ -987,7 +1014,7 @@ import { SHADERS } from './shaders';
     started = false;
     gameAction = 0;    // 0 = none
     entities!: Entities;
-    entityBehaviors!: EntityBehavior;
+    entityBehaviors!: Behaviors;
 
     // Mouse Cursor Properties
     documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
@@ -1232,10 +1259,11 @@ import { SHADERS } from './shaders';
 
 </t>
 <t tx="felix.20241229230016.1">startGame(): void {
-    const resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
-    this.aspectRatio = resolution.width / resolution.height;
-    this.gameScreenWidth = resolution.width;
-    this.gameScreenHeight = resolution.height;
+    this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
+
+    this.aspectRatio = this.resolution.width / this.resolution.height;
+    this.gameScreenWidth = this.resolution.width;
+    this.gameScreenHeight = this.resolution.height;
     this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
     this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
 
@@ -1364,7 +1392,47 @@ tick(): void {
     // 1 Render the game map. Map states are in this.gamemap and rarely change.
     if (this.tileRenderer) {
         if (this.mapChanged) {
+            const backgroundTiles: any[] = [];
+
+            // Todo: This is a temporary map test render, replace with the fixed commented code below!
+            // const tileoffx = Math.floor(this.scrollx / this.tilesize);
+            // const tileoffy = Math.floor(this.scrolly / this.tilesize);
+            // let rangex = this.initrangex
+            // let rangey = this.initrangey
+            // if (this.scrollx % this.tilesize &gt; this.tilesize - (this.screenx % this.tilesize)) {
+            //     rangex += 1;
+            // }
+            // if (this.scrolly % this.tilesize &gt; this.tilesize - (this.screeny % this.tilesize)) {
+            //     rangey += 1;
+            // }
+            // for (let y = 0; y &lt; rangey; y++) {
+            //     for (let x = 0; x &lt; rangex; x++) {
+            //         const a = this.gamemap[(tileoffx + x) + ((tileoffy + y) * (this.gamemapw))];
+            //         // console.log(a);
+            //         backgroundTiles.push(
+            //             {
+            //                 sprite: "background", // bottom horizontal
+            //                 position: {
+            //                     x: x * this.tilesize - (this.scrollx % this.tilesize),
+            //                     y: y * this.tilesize - (this.scrolly % this.tilesize)
+            //                 },
+            //                 oldPosition: {
+            //                     x: x * this.tilesize - (this.scrollx % this.tilesize),
+            //                     y: y * this.tilesize - (this.scrolly % this.tilesize)
+            //                 },
+            //                 frame: { x: a % this.tileratio, y: Math.floor(a / this.tileratio) },
+            //                 flip: false,
+            //                 blendmode: Game.BLENDMODE_ALPHA,
+            //                 options: {}
+            //             }
+            //         );
+            //     }
+            // }
+            // this.tileRenderer.updateTransformData(backgroundTiles);
+
+            // Todo: replace this is a temporary map test render with the fixed commented code above!
             this.tileRenderer.updateTransformData(this.gamemap);
+
             this.mapChanged = false;
         }
         this.tileRenderer.render();
@@ -1503,7 +1571,7 @@ export class Entities {
 }
 
 </t>
-<t tx="felix.20250105212047.1">export class EntityBehavior {
+<t tx="felix.20250105212047.1">export class Behaviors {
 
     public game: Game;
 
@@ -1576,7 +1644,7 @@ export class Entities {
 
     // Build entities pool
     this.entities = new Entities(100);
-    this.entityBehaviors = new EntityBehavior(this);
+    this.entityBehaviors = new Behaviors(this);
 
     // Fill Entities pool
     // EXPERIMENTAL TEST: Create 3 test Aliens
@@ -1616,6 +1684,8 @@ export class Entities {
     for (let temp = 0; temp &lt; 9; temp++) { // add last row for total of 9 ROWS
         this.gamemap.push(temp + 56);
     }
+
+    // TODO: Instead create a 32x32 map with random tiles!
 
     this.mapChanged = true;
 }
@@ -1822,8 +1892,8 @@ const GAME = {
         DEPTH: 64
     },
     MAP: {
-        WIDTH: 9, // game map width in TILES 
-        HEIGHT: 9 // game map height in TILES 
+        WIDTH: 64, // game map width in TILES 
+        HEIGHT: 64 // game map height in TILES 
     },
     TIMING: {
         TICK_RATE: 8, // 8 fps for game logic
@@ -2152,7 +2222,7 @@ public get scrollVelocity(): { x: number, y: number } {
 }
 
 </t>
-<t tx="felix.20250122233854.1">import { Vec2 } from "./type";
+<t tx="felix.20250122233854.1">import { Vec2 } from "./types";
 
 </t>
 <t tx="felix.20250125002444.1">Archives of old stuff/unused stuff
@@ -2415,7 +2485,7 @@ export const SHADERS = {
 }
 
 </t>
-<t tx="felix.20250126193731.1">class TileRenderer extends BaseRenderer {
+<t tx="felix.20250126193731.1">export class TileRenderer extends BaseRenderer {
     private transformBuffer: WebGLBuffer;
     private modelBuffer: WebGLBuffer;
     private transformData: Float32Array;
@@ -2494,7 +2564,7 @@ export const SHADERS = {
 }
 
 </t>
-<t tx="felix.20250127234240.1">class SpriteRenderer extends BaseRenderer {
+<t tx="felix.20250127234240.1">export class SpriteRenderer extends BaseRenderer {
     private transformBuffer: WebGLBuffer;
     private modelBuffer: WebGLBuffer;
     private transformData: Float32Array;
@@ -2570,7 +2640,7 @@ export const SHADERS = {
 }
 
 </t>
-<t tx="felix.20250128200945.1">class RectangleRenderer extends BaseRenderer {
+<t tx="felix.20250128200945.1">export class RectangleRenderer extends BaseRenderer {
     private transformBuffer: WebGLBuffer;
     private modelBuffer: WebGLBuffer;
     private transformData: Float32Array;
@@ -2624,6 +2694,91 @@ export const SHADERS = {
     }
 
 }
+
+</t>
+<t tx="felix.20250130230812.1">setGameScreenStates(): void {
+    // Set the game screen width, scroll and zoom states.
+    // Called when the window is resized, mouse-wheel zoomed in or out, or when the game is started.
+    //
+
+}
+
+</t>
+<t tx="felix.20250131210259.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250131210715.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250131210755.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250131210816.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250131210828.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250131211056.1">import * as utils from "./utils";
+import { TRectangle } from "./types";
+import { CONFIG } from './config';
+import { InputManager } from "./input-manager";
+import { Behaviors } from "./behaviors";
+import { Entities } from "./entities";
+import { TileRenderer, SpriteRenderer, RectangleRenderer } from "./renderers";
+
+</t>
+<t tx="felix.20250131211133.1">import { TEntity } from "./types";
+
+</t>
+<t tx="felix.20250131211201.1">import { Game } from "./game";
+import { CONFIG } from './config';
+
+</t>
+<t tx="felix.20250131211212.1">import { TEntity } from "./types";
+import { Game } from "./game";
+
+</t>
+<t tx="felix.20250131211216.1">import { TEntity, GLResources, ShaderType, TRectangle } from "./types";
+import { CONFIG } from './config';
+import { SHADERS } from './shaders';
+
+</t>
+<t tx="felix.20250201003719.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250201003723.1">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250201003723.2">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250201003723.3">&lt;&lt; imports &gt;&gt;
+@others
+@nowrap
+</t>
+<t tx="felix.20250201003821.1">import { Game } from "./game";
+import { CONFIG } from './config';
+
+</t>
+<t tx="felix.20250201003823.1">import { Game } from "./game";
+import { CONFIG } from './config';
+
+</t>
+<t tx="felix.20250201003825.1">import { Game } from "./game";
+import { CONFIG } from './config';
+
+</t>
+<t tx="felix.20250201003827.1">import { Game } from "./game";
+import { CONFIG } from './config';
 
 </t>
 </tnodes>

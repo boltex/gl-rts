@@ -1,4 +1,4 @@
-import { Vec2 } from "./type";
+import { Vec2 } from "./types";
 
 /**
  * Tries to put browser into fullscreen mode.

@@ -1,0 +1,714 @@
+{
+  "leoHeader": {
+    "fileFormat": 2
+  },
+  "vnodes": [
+    {
+      "gnx": "felix.20241217200720.1",
+      "vh": "introduction"
+    },
+    {
+      "gnx": "felix.20250125002444.1",
+      "vh": "deprecated",
+      "children": [
+        {
+          "gnx": "felix.20241217201352.1",
+          "vh": "@@clean src/main.ts",
+          "children": [
+            {
+              "gnx": "felix.20241220001536.1",
+              "vh": "<< imports >>"
+            },
+            {
+              "gnx": "felix.20241217225754.1",
+              "vh": "shaders"
+            },
+            {
+              "gnx": "felix.20241217225604.1",
+              "vh": "loadImage"
+            },
+            {
+              "gnx": "felix.20241217225540.1",
+              "vh": "Asynchronous IIFE",
+              "children": [
+                {
+                  "gnx": "felix.20241217230346.1",
+                  "vh": "Startup"
+                }
+              ]
+            },
+            {
+              "gnx": "felix.20241217230454.1",
+              "vh": "class Game",
+              "children": [
+                {
+                  "gnx": "felix.20241220000920.1",
+                  "vh": "constructor"
+                },
+                {
+                  "gnx": "felix.20241217230518.1",
+                  "vh": "resize"
+                },
+                {
+                  "gnx": "felix.20241220001712.1",
+                  "vh": "toggleGameMenu"
+                },
+                {
+                  "gnx": "felix.20241220001715.1",
+                  "vh": "setCursor"
+                },
+                {
+                  "gnx": "felix.20241224223317.1",
+                  "vh": "checkKeys"
+                },
+                {
+                  "gnx": "felix.20241220001738.1",
+                  "vh": "mouseDown"
+                },
+                {
+                  "gnx": "felix.20241220001741.1",
+                  "vh": "mouseUp"
+                },
+                {
+                  "gnx": "felix.20241220001745.1",
+                  "vh": "mouseMove"
+                },
+                {
+                  "gnx": "felix.20241220001755.1",
+                  "vh": "setCursorPos"
+                },
+                {
+                  "gnx": "felix.20241224222932.1",
+                  "vh": "procGame"
+                },
+                {
+                  "gnx": "felix.20241217230522.1",
+                  "vh": "update"
+                },
+                {
+                  "gnx": "felix.20241220001814.1",
+                  "vh": "checkUpdate"
+                },
+                {
+                  "gnx": "felix.20241224222952.1",
+                  "vh": "tick"
+                },
+                {
+                  "gnx": "felix.20241224223038.1",
+                  "vh": "animateCursor"
+                },
+                {
+                  "gnx": "felix.20241224223235.1",
+                  "vh": "trydefault"
+                },
+                {
+                  "gnx": "felix.20241224223239.1",
+                  "vh": "tryselect"
+                }
+              ]
+            },
+            {
+              "gnx": "felix.20241220001453.1",
+              "vh": "class Entities",
+              "children": [
+                {
+                  "gnx": "felix.20241220001453.2",
+                  "vh": "constructor"
+                },
+                {
+                  "gnx": "felix.20241220001453.3",
+                  "vh": "spawn"
+                },
+                {
+                  "gnx": "felix.20241220001453.4",
+                  "vh": "remove"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "gnx": "felix.20250106224739.1",
+          "vh": "MAYBE class ShaderProgram",
+          "children": [
+            {
+              "gnx": "felix.20250106224739.2",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250106224739.3",
+              "vh": "getShader"
+            },
+            {
+              "gnx": "felix.20250106224739.4",
+              "vh": "gatherParameters"
+            },
+            {
+              "gnx": "felix.20250106224739.5",
+              "vh": "setParam & helpers",
+              "children": [
+                {
+                  "gnx": "felix.20250106224739.6",
+                  "vh": "setUniform"
+                },
+                {
+                  "gnx": "felix.20250106224739.7",
+                  "vh": "setAttribute"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "gnx": "felix.20250108220449.1",
+          "vh": "MAYBE class GLContext",
+          "children": [
+            {
+              "gnx": "felix.20250108220555.1",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250108220630.1",
+              "vh": "setupGL"
+            },
+            {
+              "gnx": "felix.20250108220609.1",
+              "vh": "createBuffer"
+            },
+            {
+              "gnx": "felix.20250108220643.1",
+              "vh": "createTexture"
+            },
+            {
+              "gnx": "felix.20250108220648.1",
+              "vh": "useProgram"
+            },
+            {
+              "gnx": "felix.20250108220655.1",
+              "vh": "clear"
+            },
+            {
+              "gnx": "felix.20250108220715.1",
+              "vh": "setViewport"
+            },
+            {
+              "gnx": "felix.20250108220720.1",
+              "vh": "bindVAO"
+            },
+            {
+              "gnx": "felix.20250108221254.1",
+              "vh": "setAttribute"
+            },
+            {
+              "gnx": "felix.20250108221302.1",
+              "vh": "draw"
+            },
+            {
+              "gnx": "felix.20250108221307.1",
+              "vh": "drawElements"
+            },
+            {
+              "gnx": "felix.20250108221318.1",
+              "vh": "checkError"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20241227202430.1",
+      "vh": "@clean src/main.ts",
+      "children": [
+        {
+          "gnx": "felix.20241227202519.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20241227213048.1",
+          "vh": "Create Game"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250131210259.1",
+      "vh": "@clean src/game.ts",
+      "children": [
+        {
+          "gnx": "felix.20250131211056.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20241227213056.1",
+          "vh": "class Game",
+          "children": [
+            {
+              "gnx": "felix.20241227213841.1",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20241227213217.1",
+              "vh": "handleCanvasResize"
+            },
+            {
+              "gnx": "felix.20250101222813.1",
+              "vh": "setDimensionsVars"
+            },
+            {
+              "gnx": "felix.20241228191055.1",
+              "vh": "resizeCanvasToDisplaySize"
+            },
+            {
+              "gnx": "felix.20250101211507.1",
+              "vh": "setCursor"
+            },
+            {
+              "gnx": "felix.20241231225835.1",
+              "vh": "animateCursor"
+            },
+            {
+              "gnx": "felix.20241229162002.1",
+              "vh": "toggleGameMenu"
+            },
+            {
+              "gnx": "felix.20241228193009.1",
+              "vh": "mainMenu"
+            },
+            {
+              "gnx": "felix.20241229230016.1",
+              "vh": "startGame"
+            },
+            {
+              "gnx": "felix.20250130230812.1",
+              "vh": "setGameScreenStates"
+            },
+            {
+              "gnx": "felix.20250105213621.1",
+              "vh": "initGameStates"
+            },
+            {
+              "gnx": "felix.20241230215224.1",
+              "vh": "procGame"
+            },
+            {
+              "gnx": "felix.20241231221007.1",
+              "vh": "render"
+            },
+            {
+              "gnx": "felix.20241227213236.1",
+              "vh": "update"
+            },
+            {
+              "gnx": "felix.20241229162229.1",
+              "vh": "checkUpdate"
+            },
+            {
+              "gnx": "felix.20241230215229.1",
+              "vh": "tick"
+            },
+            {
+              "gnx": "felix.20241229214656.1",
+              "vh": "loop"
+            },
+            {
+              "gnx": "felix.20241230215401.1",
+              "vh": "trydefault"
+            },
+            {
+              "gnx": "felix.20241230215406.1",
+              "vh": "tryselect"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250131210715.1",
+      "vh": "@clean src/input-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250131211201.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250107221804.1",
+          "vh": "class InputManager",
+          "children": [
+            {
+              "gnx": "felix.20250107221855.1",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250107232140.1",
+              "vh": "getters"
+            },
+            {
+              "gnx": "felix.20250107230733.1",
+              "vh": "init"
+            },
+            {
+              "gnx": "felix.20250107230755.1",
+              "vh": "handleKeyDown"
+            },
+            {
+              "gnx": "felix.20250107230802.1",
+              "vh": "handleKeyUp"
+            },
+            {
+              "gnx": "felix.20250107230806.1",
+              "vh": "handleMouseMove"
+            },
+            {
+              "gnx": "felix.20250107230811.1",
+              "vh": "handleMouseDown"
+            },
+            {
+              "gnx": "felix.20250107230817.1",
+              "vh": "handleMouseUp"
+            },
+            {
+              "gnx": "felix.20250107230822.1",
+              "vh": "handleMouseWheel"
+            },
+            {
+              "gnx": "felix.20250107230828.1",
+              "vh": "setCursorPos"
+            },
+            {
+              "gnx": "felix.20250107230906.1",
+              "vh": "processInputs"
+            },
+            {
+              "gnx": "felix.20250107230918.1",
+              "vh": "updateScroll"
+            },
+            {
+              "gnx": "felix.20250107230936.1",
+              "vh": "isSelecting"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250201003719.1",
+      "vh": "@clean src/renderer-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250201003821.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250201171432.1",
+          "vh": "class RendererManager",
+          "children": [
+            {
+              "gnx": "felix.20250201171528.1",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250201171619.1",
+              "vh": "initRenderers"
+            },
+            {
+              "gnx": "felix.20250201171626.1",
+              "vh": "setUboWorldTransforms"
+            },
+            {
+              "gnx": "felix.20250201171643.1",
+              "vh": "render"
+            },
+            {
+              "gnx": "felix.20250201171639.1",
+              "vh": "dispose"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250201003723.1",
+      "vh": "@clean src/ui-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250201003823.1",
+          "vh": "<< imports >>"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250201003723.2",
+      "vh": "@clean src/camera-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250201003827.1",
+          "vh": "<< imports >>"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250201003723.3",
+      "vh": "@clean src/time-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250201003825.1",
+          "vh": "<< imports >>"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250131210755.1",
+      "vh": "@clean src/entities.ts",
+      "children": [
+        {
+          "gnx": "felix.20250131211133.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250105212000.1",
+          "vh": "class Entities",
+          "children": [
+            {
+              "gnx": "felix.20250105212000.2",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250105212000.3",
+              "vh": "spawn"
+            },
+            {
+              "gnx": "felix.20250105212000.4",
+              "vh": "remove"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250131210816.1",
+      "vh": "@clean src/behaviors.ts",
+      "children": [
+        {
+          "gnx": "felix.20250131211212.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250105212047.1",
+          "vh": "class Behaviors",
+          "children": [
+            {
+              "gnx": "felix.20250105212047.2",
+              "vh": "constructor"
+            },
+            {
+              "gnx": "felix.20250105212047.3",
+              "vh": "process"
+            },
+            {
+              "gnx": "felix.20250105212047.4",
+              "vh": "alien"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250131210828.1",
+      "vh": "@clean src/renderers.ts",
+      "children": [
+        {
+          "gnx": "felix.20250131211216.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250126174340.1",
+          "vh": "class BaseRenderer"
+        },
+        {
+          "gnx": "felix.20250126193731.1",
+          "vh": "class TileRenderer"
+        },
+        {
+          "gnx": "felix.20250127234240.1",
+          "vh": "class SpriteRenderer"
+        },
+        {
+          "gnx": "felix.20250128200945.1",
+          "vh": "class RectangleRenderer"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20241220002054.1",
+      "vh": "@clean src/types.ts",
+      "children": [
+        {
+          "gnx": "felix.20241220002054.3",
+          "vh": "types"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20241224183015.1",
+      "vh": "@clean src/utils.ts",
+      "children": [
+        {
+          "gnx": "felix.20250122233854.1",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20241224183525.1",
+          "vh": "fullScreen"
+        },
+        {
+          "gnx": "felix.20250120234029.1",
+          "vh": "interpolate"
+        },
+        {
+          "gnx": "felix.20241228192145.1",
+          "vh": "loadImage"
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250107011547.1",
+      "vh": "@clean src/config.ts"
+    },
+    {
+      "gnx": "felix.20250125002553.1",
+      "vh": "@clean src/shaders.ts"
+    }
+  ],
+  "tnodes": {
+    "felix.20241217200720.1": "Basic WebGL RTS game engine\n\nBased on the following tutorials:\n\n- Main features use WebGL concepts such as VAO (Vertex Array Objects), UBO (Uniform Buffer Objects), draw instances, and shaders from the Andrew Adamson WebGL tutorials at https://www.youtube.com/watch?v=-T6EbWCq99c&list=PLPbmjY2NVO_X1U1JzLxLDdRn4NmtxyQQo\n\n- Window resize detection and handling for canvas from https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html\n\n- Game class setup inspired by [James Byrde](https://github.com/jamesrehabstudio) tutorials at [https://www.youtube.com/@jamesbyrde3798](https://www.youtube.com/@jamesbyrde3798)\n\n- Timing inspired from the [Glenn Fiedler](https://github.com/gafferongames) tutorial at [https://gafferongames.com/post/fix_your_timestep/](https://gafferongames.com/post/fix_your_timestep/)\n\n",
+    "felix.20250125002444.1": "Archives of old stuff/unused stuff\n",
+    "felix.20241217201352.1": "@language typescript\n<< imports >>\n@others\n\n",
+    "felix.20241220001536.1": "// import * as Constants from \"./constants\";\n// import * as utils from \"./utils\";\nimport { Point, M3x3 } from \"./maths\";\nimport { TEntity, } from \"./type\";\n\n",
+    "felix.20241217225754.1": "// VERTEX SHADER\nconst vertexShaderSource = /*glsl*/ `#version 300 es\n\nlayout(location=0) in vec4 aPosition;\nlayout(location=1) in vec2 aTexCoord;\nlayout(location=2) in vec3 aOffset;\nlayout(location=3) in float aScale;\nlayout(location=4) in vec2 aUV;\n\nout vec2 vTexCoord;\n\nvoid main()\n{\n    vTexCoord = vec2(aTexCoord * 0.015625) + aUV;\n    gl_Position = vec4(aPosition.xyz * aScale + aOffset, 1.0);\n}`;\n\n// FRAGMENT SHADER\nconst fragmentShaderSource = /*glsl*/ `#version 300 es\n\nprecision mediump float;\n\nuniform mediump sampler2D uSampler;\n\nin vec2 vTexCoord;\n\nout vec4 fragColor;\n\nvoid main()\n{\n    fragColor = texture(uSampler, vTexCoord);\n}`;\n\n",
+    "felix.20241217225604.1": "function loadImage(src: string): Promise<HTMLImageElement> {\n    return new Promise((resolve, reject) => {\n        const image = new Image();\n        image.onload = () => resolve(image);\n        image.src = src;\n    });\n}\n\n",
+    "felix.20241217225540.1": "(async () => {\n\n    console.log('Hello World!');\n\n    const canvas = document.querySelector('canvas')!;\n    const gl = canvas.getContext('webgl2')!;\n\n    const program = gl.createProgram()!;\n\n    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;\n    gl.shaderSource(vertexShader, vertexShaderSource);\n    gl.compileShader(vertexShader);\n    gl.attachShader(program, vertexShader);\n\n    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;\n    gl.shaderSource(fragmentShader, fragmentShaderSource);\n    gl.compileShader(fragmentShader);\n    gl.attachShader(program, fragmentShader);\n\n    gl.linkProgram(program);\n\n    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {\n        console.log(gl.getShaderInfoLog(vertexShader));\n        console.log(gl.getShaderInfoLog(fragmentShader));\n        console.log(gl.getProgramInfoLog(program));\n    }\n\n    gl.useProgram(program);\n\n    // * Start Program *\n\n    const image = await loadImage('images/alien.png');\n\n    let lastDisplayWidth = 0;\n    let lastDisplayHeight = 0;\n\n    const resizeObserver = new ResizeObserver(onResize);\n    resizeObserver.observe(canvas, { box: 'content-box' });\n\n    /**\n     * Call before rendering in draw loop to resize canvas to display size. (in case of changing window size)\n     * @param canvas \n     */\n    function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {\n        // Get the size the browser is displaying the canvas in device pixels.\n        const [displayWidth, displayHeight] = [lastDisplayWidth, lastDisplayHeight];\n\n        // Check if the canvas is not the same size.\n        const needResize = canvas.width !== displayWidth ||\n            canvas.height !== displayHeight;\n\n        if (needResize) {\n            // Make the canvas the same size\n            canvas.width = displayWidth;\n            canvas.height = displayHeight;\n        }\n\n        return needResize;\n    }\n\n    function onResize(entries: any) {\n\n        for (const entry of entries) {\n            let width;\n            let height;\n            let dpr = window.devicePixelRatio;\n            if (entry.devicePixelContentBoxSize) {\n                // NOTE: Only this path gives the correct answer\n                // The other 2 paths are an imperfect fallback\n                // for browsers that don't provide anyway to do this\n                width = entry.devicePixelContentBoxSize[0].inlineSize;\n                height = entry.devicePixelContentBoxSize[0].blockSize;\n                dpr = 1; // it's already in width and height\n            } else if (entry.contentBoxSize) {\n                if (entry.contentBoxSize[0]) {\n                    width = entry.contentBoxSize[0].inlineSize;\n                    height = entry.contentBoxSize[0].blockSize;\n                } else {\n                    // legacy\n                    width = entry.contentBoxSize.inlineSize;\n                    height = entry.contentBoxSize.blockSize;\n                }\n            } else {\n                // legacy\n                width = entry.contentRect.width;\n                height = entry.contentRect.height;\n            }\n            const displayWidth = Math.round(width * dpr);\n            const displayHeight = Math.round(height * dpr);\n            [lastDisplayWidth, lastDisplayHeight] = [displayWidth, displayHeight];\n        }\n        console.log(lastDisplayWidth, lastDisplayHeight);\n    }\n\n    @others\n\n})();\n\n",
+    "felix.20241217230346.1": "document.addEventListener('DOMContentLoaded', (event) => {\n    if (!window.game) {\n        window.game = new Game();\n        window.game.resize(\n            window.innerWidth,\n            window.innerHeight,\n            true // First resize not debounced.\n        );\n    } else {\n        console.log('Game instance already started');\n    }\n});\n\nwindow.addEventListener('resize', (event) => {\n    if (window.game) {\n        window.game.resize(\n            window.innerWidth,\n            window.innerHeight\n        );\n    }\n});\n\nfunction loop(timestamp: number): void {\n    window.game.update(timestamp);\n    requestAnimationFrame(loop);\n}\n\n",
+    "felix.20241217230454.1": "export class Game {\n\n    public started = false;\n    public canvasRect: DOMRect;\n    public optionsVisible = false;\n    public menu: HTMLElement;\n\n\n    public canvasElement: HTMLCanvasElement;\n    public gl!: WebGL2RenderingContext;\n\n    public worldSpaceMatrix: M3x3;\n\n    // Game States\n    public entities!: Entities;\n\n    // Key press state\n    public keysPressed: Record<string, any> = {};\n\n    // Game Map\n    public gamemap: number[] = [];\n\n    // Screen States\n    public screenx = 1920;\n    public screeny = 1080;\n\n    public selecting: boolean = false;\n    public selx = 0; // Started selection at specific coords\n    public sely = 0;\n\n    public scrollx = 0; // Current scroll position \n    public scrolly = 0;\n\n    public SCROLLSPEED = 50;   // speed in pixels for scrolling\n    public SCROLLBORDER = 10; // 5;   // pixels from screen to trigger scrolling\n    public xscr_e = this.screenx - this.SCROLLBORDER; // constants for finding trigger zone\n    public yscr_e = this.screeny - this.SCROLLBORDER;\n\n\n    public tilebmpsize = 1024;  // size of a bitmap of tiles\n    public tilesize = 128;      // size of an individual square TILE \n    public tileratio = this.tilebmpsize / this.tilesize;\n    public initrangex = (this.screenx / this.tilesize) + 1;\n    public initrangey = (this.screeny / this.tilesize) + 1;\n\n    public gamemapw = 9; // game map width in TILES \n    public gamemaph = 9;\n    public maxmapx = (this.gamemapw * this.tilesize) - 1;\n    public maxmapy = (this.gamemaph * this.tilesize) - 1;\n    public maxscrollx = 1 + this.maxmapx - this.screenx;\n    public maxscrolly = 1 + this.maxmapy - this.screeny;\n\n    public scrollnowx = 0; // Scroll amount to be applied to scroll when processing\n    public scrollnowy = 0;\n\n\n\n    public htmlClassList: DOMTokenList;\n    public curClass = \"\"; //\"cur-pointer\", \"cur-target\", \"cur-select\" ...\n\n    public curx = 0 // Current mouse position\n    public cury = 0\n\n    public gamestate = 0   // 0=SPLASH\n    // 1=Lobby (main menu)\n    // 2=game Lobby\n    // 3=play Loop\n    // 4=Game over/stats\n    // 5=EDITION ANIMS\n    // 6=EDITION MAP\n    // 7=OPTIONS\n\n    public gameaction = 0    // 0=none\n    public DEFAULTACTION = 1 // game actions CONSTANTS, zero means none\n    public RELEASESEL = 2\n\n    public gamecurx = 0\n    public gamecury = 0\n    public gameselx = 0\n    public gamesely = 0\n\n    // Test Cursor vatiables\n    public curanim = 0\n    public curanimtotal = 6\n    public curanimx = 0\n    public curanimy = 0\n\n    // Test Orientation vatiable\n    public testSpriteOrientation = 0;\n\n    // FPS counter\n    public lastTime = 0;\n    public fps = 0;\n    public fpsInterval = 1000; // Update FPS every 1 second\n    public fpsLastTime = 0;\n\n    // GAME-STATE TICKS AT 8 FPS\n    public tickAccumulator = 0; // What remained in deltaTime after last update \n    public currentTick = 0;\n    public timePerTick = 125; // dt in ms (125 is 8 per second)\n    public timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick\n\n    // ANIMATIONS AT 15 FPS\n    public animAccumulator = 0; // What remained in deltaTime after last update \n    public currentAnim = 0;\n    public timePerAnim = 67; // dt in ms (66.66 is 15 per second)\n\n\n\n    @others\n\n}\n\n",
+    "felix.20241220000920.1": "constructor() {\n    console.log('Init WebGL2 Game !');\n    console.log('initrangex', this.initrangex);\n    console.log('initrangey', this.initrangey);\n    console.log('tileratio', this.tileratio);\n\n    this.menu = document.getElementById('game-menu')!;\n\n    this.htmlClassList = document.documentElement.classList;\n    this.setCursor(\"cur-pointer\");\n    // this.canvasElement = document.createElement(\"canvas\");\n\n    this.canvasElement = document.querySelector('canvas')!;\n    this.canvasElement.width = this.screenx;\n    this.canvasElement.height = this.screeny;\n    this.canvasRect = this.canvasElement.getBoundingClientRect();\n\n    this.worldSpaceMatrix = new M3x3();\n\n    this.gl = this.canvasElement.getContext('webgl2', {\n        // antialias: false,\n        // alpha: false,\n        // depth: false,\n    })!;\n    // this.gl.enable(this.gl.BLEND);  // TODO: Check if needed\n\n    // document.body.appendChild(this.canvasElement);\n\n    // Prevent right-click context menu\n    this.canvasElement.addEventListener('contextmenu', (event) => {\n        event.preventDefault();\n    });\n\n\n    console.log('Starting the game!');\n\n    document.addEventListener('keydown', (e) => {\n        this.keysPressed[e.key] = true;\n        if (e.key === 'F10') {\n            e.preventDefault();  // Prevent default F10 behavior\n            this.toggleGameMenu();\n        }\n        if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {\n            e.preventDefault();\n        }\n        // 107 Num Key  +\n        // 109 Num Key  -\n        // 173 Min Key  hyphen/underscore key\n        // 61 Plus key  +/= key\n\n    });\n    document.addEventListener('keyup', (e) => {\n        this.keysPressed[e.key] = false;\n    });\n\n    const resumeButton = document.getElementById('resume-btn');\n\n    resumeButton!.addEventListener('click', () => {\n        this.toggleGameMenu();  // Close the menu and resume the game\n    });\n\n    window.addEventListener(\"mousemove\", (event) => {\n        this.mouseMove(event);\n    });\n    window.addEventListener(\"mousedown\", (event) => {\n        this.mouseDown(event);\n    });\n    window.addEventListener(\"mouseup\", (event) => {\n        this.mouseUp(event);\n    });\n\n    window.addEventListener(\"wheel DOMMouseScroll\", (event: any) => {\n        if (event.ctrlKey) {\n            event.preventDefault(); // Prevents the default zoom behavior\n            // Use the event's deltaY property to detect scroll direction\n            // if (event.deltaY < 0) {\n            //     console.log(\"CTRL+Scroll Up\"); // You could trigger a specific game action here\n            // } else if (event.deltaY > 0) {\n            //     console.log(\"CTRL+Scroll Down\");\n            // }\n        }\n    }, { passive: false });\n\n    // startButton.style.display = 'none';\n    // resolutionSelect.style.display = 'none';\n    // document.body.style.cursor = 'none'; // ! HIDE NATIVE CURSOR !\n    this.started = true;\n    // Setup timer in case RAF Skipped when not in foreground or minimized.\n    setInterval(() => { this.checkUpdate(); }, 500);\n\n    // TODO START ! \n    // loop(0); \n\n}\n\n",
+    "felix.20241217230518.1": "resize(w: number, h: number, noDebounce?: boolean): void {\n    // if (noDebounce) {\n    //     this.calculateResize(w, h);\n    // } else {\n    //     if (this._resizeTimer) {\n    //         clearTimeout(this._resizeTimer);\n    //     }\n    //     this._resizeTimer = setTimeout(() => {\n    //         this.calculateResize(w, h); // Debounced\n    //     }, 100);\n    // }\n}\n\n",
+    "felix.20241220001712.1": "public toggleGameMenu(): void {\n\n    if (this.menu.style.display === 'none') {\n        this.menu.style.display = 'flex';  // Show the menu\n        // Pause game logic here (if needed)\n    } else {\n        this.menu.style.display = 'none';  // Hide the menu\n        // Resume game logic here (if needed)\n    }\n}\n\n",
+    "felix.20241220001715.1": "setCursor(newClass: string) {\n    if (this.curClass !== newClass) {\n        if (this.curClass) {\n            this.htmlClassList.remove(this.curClass); // Remove from html\n        }\n        this.htmlClassList.add(newClass); // Add to html\n        this.curClass = newClass; // Update the tracked cursor class\n    }\n}\n",
+    "felix.20241224223317.1": "checkKeys(): void {\n    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {\n        // playerY -= playerSpeed * deltaTime;\n        // EXPERIMENT  this.setCursor(\"cur-pointer\");\n    }\n    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {\n        // playerY += playerSpeed * deltaTime;\n        // EXPERIMENT  this.setCursor(\"cur-target\");\n    }\n    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {\n        // playerX -= playerSpeed * deltaTime;\n        // EXPERIMENT  this.changeOrientation(false);\n    }\n    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {\n        // playerX += playerSpeed * deltaTime;\n        // EXPERIMENT  this.changeOrientation(true);\n    }\n}\n\n",
+    "felix.20241220001738.1": "public mouseDown(event: MouseEvent): void {\n    this.setCursorPos(event);\n    this.gamecurx = this.curx + this.scrollx;\n    this.gamecury = this.cury + this.scrolly;\n    if (!this.selecting) {\n        if (event.button == 0) {\n            this.selecting = true;\n            this.setCursor(\"cur-target\");\n            this.selx = this.curx;\n            this.sely = this.cury;\n        }\n        if (event.button == 2) {\n            this.gameaction = this.DEFAULTACTION;\n        }\n    }\n}\n\n",
+    "felix.20241220001741.1": "public mouseUp(event: MouseEvent): void {\n    this.setCursorPos(event);\n    this.gameselx = this.selx + this.scrollx;\n    this.gamesely = this.sely + this.scrolly;\n    this.gamecurx = this.curx + this.scrollx;\n    this.gamecury = this.cury + this.scrolly;\n    if (event.button == 0) {\n        this.selecting = false;\n        this.setCursor(\"cur-pointer\");\n        this.gameaction = this.RELEASESEL;\n    }\n}\n\n",
+    "felix.20241220001745.1": "public mouseMove(event: MouseEvent): void {\n    this.setCursorPos(event);\n    this.scrollnowx = 0;\n    this.scrollnowy = 0;\n    if (this.curx > this.xscr_e) {\n        this.scrollnowx = this.SCROLLSPEED;\n    }\n    if (this.cury > this.yscr_e) {\n        this.scrollnowy = this.SCROLLSPEED;\n    }\n    if (this.curx < this.SCROLLBORDER) {\n        this.scrollnowx = -this.SCROLLSPEED;\n    }\n    if (this.cury < this.SCROLLBORDER) {\n        this.scrollnowy = -this.SCROLLSPEED;\n    }\n}\n\n",
+    "felix.20241220001755.1": "public setCursorPos(event: MouseEvent): void {\n    this.curx = (event.clientX - this.canvasRect.left) * (this.screenx / this.canvasRect.width);\n    this.cury = (event.clientY - this.canvasRect.top) * (this.screeny / this.canvasRect.height);\n}\n\n",
+    "felix.20241224222932.1": "public procGame(): void {\n\n    // procgame processes a game frame, animating each RAF.\n    // Note: This is not a game-states tick, at timePerTick intervals.\n\n    if (this.gameaction) {\n\n        switch (this.gameaction) {\n            case this.DEFAULTACTION:\n                this.trydefault()\n                break;\n            case this.RELEASESEL:\n                this.tryselect()\n                break;\n\n            default:\n                break;\n        }\n\n    }\n\n    this.gameaction = 0 // -------------- no more game actions to do\n\n    // Scroll if not selected    \n    if (!this.selecting) {\n        this.scrollx += this.scrollnowx;\n        this.scrolly += this.scrollnowy;\n        if (this.scrollx > this.maxscrollx) {\n            this.scrollx = this.maxscrollx;\n        }\n        if (this.scrollx < 0) {\n            this.scrollx = 0;\n        }\n        if (this.scrolly > this.maxscrolly) {\n            this.scrolly = this.maxscrolly;\n        }\n        if (this.scrolly < 0) {\n            this.scrolly = 0;\n        }\n    }\n}\n\n",
+    "felix.20241217230522.1": "update(timestamp: number, skipRender?: boolean): void {\n    // \n}\n\n",
+    "felix.20241220001814.1": "public checkUpdate(): void {\n    // Checks for needed ticks to be computed if game is minimized\n    const timestamp = performance.now();\n    const deltaTime = timestamp - this.lastTime;\n    if ((this.tickAccumulator + deltaTime) < this.timerTriggerAccum) {\n        return;\n    }\n    // It's been a while, game is minimized: update without rendering.\n    this.update(timestamp, true);\n}\n\n",
+    "felix.20241224222952.1": "tick(): void {\n\n\n    // Advance game states in pool:\n    // meaning, from currentTick count, to the next one.\n\n    // #########################################\n\n    let processed = 0;\n    let entity;\n    for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {\n        entity = this.entities.pool[i];\n        if (entity.active) {\n            processed += 1;\n            // EXPERIMENT this.ai.process(entity);\n        }\n    }\n\n    this.checkKeys();\n\n    // Update currentTick count\n    this.currentTick += 1;\n}\n\n",
+    "felix.20241224223038.1": "public animateCursor(): void {\n    // Animate at 15 FPS\n\n    // Cursor\n    if (this.curanim) {\n        this.curanim += 1;\n        if (this.curanim > this.curanimtotal)\n            this.curanim = 0\n    }\n\n}\n\n",
+    "felix.20241224223235.1": "public trydefault(): void {\n    // TODO : Replace with real default action\n    // TEST CURSOR ANIMATION ON DEFAULT ACTION\n    this.curanim = 1;\n    this.curanimx = this.gamecurx - 32;\n    this.curanimy = this.gamecury - 32;\n}\n\n",
+    "felix.20241224223239.1": "public tryselect(): void {\n    // Called from procGame\n}\n\n",
+    "felix.20241220001453.1": "/**\n * Singleton Entities Object Pool\n */\nexport class Entities {\n\n    public total: number;\n    public active: number = 0;\n    public pool: Array<TEntity> = [];\n    private lastId = 0;\n\n    @others\n\n}\n",
+    "felix.20241220001453.2": "constructor(initialPoolSize: number) {\n    this.total = initialPoolSize;\n    for (let i = 0; i < initialPoolSize; i++) {\n        this.pool.push({\n            id: 0,\n            type: 0,\n            hitPoints: 0,\n            state: 0,\n            x: 0,\n            y: 0,\n            orderQty: 0,\n            orderIndex: 0,\n            orderPool: [\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n            ],\n            orientation: 0,\n            frameIndex: 0,\n            active: false,\n        });\n    }\n\n}\n\n",
+    "felix.20241220001453.3": "spawn(): TEntity {\n    if (this.active === this.total) {\n        throw new Error(\"Pool Full\");\n    }\n    const entity = this.pool.find(e => !e.active);\n    if (entity) {\n        entity.active = true;\n        entity.id = ++this.lastId;\n        this.active++;\n        return entity;\n    } else {\n        throw new Error(\"Pool Full\");\n    }\n}\n\n",
+    "felix.20241220001453.4": "remove(entity: TEntity): void {\n    this.active--;\n    entity.active = false;\n}\n\n",
+    "felix.20250106224739.1": "export class ShaderProgram {\n\n    public gl!: WebGL2RenderingContext;\n    public program!: WebGLProgram;\n    public parameters: Record<string, TParameters> = {};\n\n    @others\n\n}\n\n",
+    "felix.20250106224739.2": "constructor(gl: WebGL2RenderingContext, vs: string, fs: string) {\n    this.gl = gl;\n\n    const vsShader = this.getShader(vs, gl.VERTEX_SHADER);\n    const fsShader = this.getShader(fs, gl.FRAGMENT_SHADER);\n\n    if (vsShader && fsShader) {\n        this.program = gl.createProgram()!;\n        gl.attachShader(this.program, vsShader);\n        gl.attachShader(this.program, fsShader);\n        gl.linkProgram(this.program);\n        if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {\n            console.error(\"Cannot load shader \\n\" + gl.getProgramInfoLog(this.program));\n        }\n\n        this.gatherParameters();\n\n        gl.detachShader(this.program, vsShader);\n        gl.detachShader(this.program, fsShader);\n        gl.deleteShader(vsShader);\n        gl.deleteShader(fsShader);\n\n        gl.useProgram(null);\n    }\n}\n\n",
+    "felix.20250106224739.3": "getShader(script: string, type: number): WebGLShader | null {\n    const gl = this.gl;\n    const output = gl.createShader(type);\n    if (output) {\n        gl.shaderSource(output, script);\n        gl.compileShader(output);\n        if (!gl.getShaderParameter(output, gl.COMPILE_STATUS)) {\n            console.error(\"Shader Error: \\n\" + gl.getShaderInfoLog(output));\n            return null;\n        }\n    }\n    return output;\n}\n\n",
+    "felix.20250106224739.4": "gatherParameters(): void {\n    const gl = this.gl;\n    let isUniform = 0;\n\n    this.parameters = {};\n    while (isUniform < 2) {\n        let paramType = isUniform ? gl.ACTIVE_UNIFORMS : gl.ACTIVE_ATTRIBUTES;\n        let count = gl.getProgramParameter(this.program, paramType);\n\n        for (let i = 0; i < count; i++) {\n            let details;\n            let location;\n            if (isUniform) {\n                details = gl.getActiveUniform(this.program, i);\n                location = gl.getUniformLocation(this.program, details!.name);\n                this.parameters[details!.name] = {\n                    location: location as WebGLUniformLocation,\n                    uniform: true,\n                    type: details!.type\n                };\n            } else {\n                details = gl.getActiveAttrib(this.program, i);\n                location = gl.getAttribLocation(this.program, details!.name);\n                this.parameters[details!.name] = {\n                    location: location as number,\n                    uniform: false,\n                    type: details!.type\n                };\n            }\n\n        }\n        isUniform++;\n    }\n\n}\n\n",
+    "felix.20250106224739.5": "setParam(w_name: string, a?: any, b?: any, c?: any, d?: any) {\n\n    if (!(w_name in this.parameters)) {\n        return;\n    }\n\n    const gl = this.gl;\n    const param = this.parameters[w_name];\n\n    if (param.uniform) {\n        this.setUniform(param, a, b, c, d);\n    } else {\n        this.setAttribute(param, a, b, c, d);\n    }\n\n}\n\n",
+    "felix.20250106224739.6": "private setUniform(param: TParameters & { uniform: true }, a?: any, b?: any, c?: any, d?: any) {\n    const gl = this.gl;\n\n    switch (param.type) {\n        case gl.FLOAT:\n            gl.uniform1f(param.location, a);\n            break;\n        case gl.FLOAT_VEC2:\n            gl.uniform2f(param.location, a, b);\n            break;\n        case gl.FLOAT_VEC3:\n            gl.uniform3f(param.location, a, b, c);\n            break;\n        case gl.FLOAT_VEC4:\n            gl.uniform4f(param.location, a, b, c, d);\n            break;\n        case gl.FLOAT_MAT3:\n            gl.uniformMatrix3fv(param.location, false, a);\n            break;\n        case gl.FLOAT_MAT4:\n            gl.uniformMatrix4fv(param.location, false, a);\n            break;\n        case gl.SAMPLER_2D:\n            gl.uniform1i(param.location, a);\n            break;\n        default:\n            console.warn(`Unsupported uniform type: ${param.type}`);\n    }\n}\n\n",
+    "felix.20250106224739.7": "private setAttribute(param: TParameters & { uniform: false }, a?: any, b?: any, c?: any, d?: any) {\n    const gl = this.gl;\n\n    gl.enableVertexAttribArray(param.location);\n    const type = a ?? gl.FLOAT;\n    const normalized = b ?? false;\n    const stride = c ?? 0;\n    const offset = d ?? 0;\n\n    switch (param.type) {\n        case gl.FLOAT:\n            gl.vertexAttribPointer(param.location, 1, type, normalized, stride, offset);\n            break;\n        case gl.FLOAT_VEC2:\n            gl.vertexAttribPointer(param.location, 2, type, normalized, stride, offset);\n            break;\n        case gl.FLOAT_VEC3:\n            gl.vertexAttribPointer(param.location, 3, type, normalized, stride, offset);\n            break;\n        case gl.FLOAT_VEC4:\n            gl.vertexAttribPointer(param.location, 4, type, normalized, stride, offset);\n            break;\n        default:\n            console.warn(`Unsupported attribute type: ${param.type}`);\n    }\n}\n",
+    "felix.20250108220449.1": "export class GLContext {\n    private gl: WebGL2RenderingContext;\n    private boundBuffers: Map<string, WebGLBuffer> = new Map();\n    private boundTextures: Map<string, WebGLTexture> = new Map();\n    private activeShader: WebGLProgram | null = null;\n\n    @others\n\n}\n\n",
+    "felix.20250108220555.1": "constructor(canvas: HTMLCanvasElement) {\n    const gl = canvas.getContext('webgl2');\n    if (!gl) {\n        throw new Error('WebGL 2 not supported');\n    }\n    this.gl = gl;\n    this.setupGL();\n}\n",
+    "felix.20250108220630.1": "private setupGL(): void {\n    this.gl.enable(this.gl.BLEND);\n    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);\n    this.gl.enable(this.gl.DEPTH_TEST);\n    this.gl.depthFunc(this.gl.LEQUAL);\n}\n\n",
+    "felix.20250108220609.1": "public createBuffer(data: Float32Array | Uint16Array, target: number = this.gl.ARRAY_BUFFER): WebGLBuffer {\n    const buffer = this.gl.createBuffer();\n    if (!buffer) throw new Error('Failed to create buffer');\n\n    this.gl.bindBuffer(target, buffer);\n    this.gl.bufferData(target, data, this.gl.STATIC_DRAW);\n    return buffer;\n}\n\n",
+    "felix.20250108220643.1": "public createTexture(image: HTMLImageElement, options = {\n    wrap: this.gl.CLAMP_TO_EDGE,\n    filter: this.gl.NEAREST\n}): WebGLTexture {\n    const texture = this.gl.createTexture();\n    if (!texture) throw new Error('Failed to create texture');\n\n    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);\n    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,\n        this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);\n\n    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, options.wrap);\n    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, options.wrap);\n    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, options.filter);\n    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, options.filter);\n\n    return texture;\n}\n\n",
+    "felix.20250108220648.1": "public useProgram(program: WebGLProgram): void {\n    if (this.activeShader !== program) {\n        this.gl.useProgram(program);\n        this.activeShader = program;\n    }\n}\n\n",
+    "felix.20250108220655.1": "public clear(r: number = 0, g: number = 0, b: number = 0, a: number = 1): void {\n    this.gl.clearColor(r, g, b, a);\n    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);\n}\n\n",
+    "felix.20250108220715.1": "public setViewport(width: number, height: number): void {\n    this.gl.viewport(0, 0, width, height);\n}\n\n",
+    "felix.20250108220720.1": "public bindVAO(vao: WebGLVertexArrayObject | null): void {\n    this.gl.bindVertexArray(vao);\n}\n\n",
+    "felix.20250108221254.1": "public setAttribute(location: number, size: number, type: number,\n    normalized: boolean, stride: number, offset: number): void {\n    this.gl.vertexAttribPointer(location, size, type, normalized, stride, offset);\n    this.gl.enableVertexAttribArray(location);\n}\n\n",
+    "felix.20250108221302.1": "public draw(mode: number, count: number, offset: number = 0): void {\n    this.gl.drawArrays(mode, offset, count);\n}\n\n",
+    "felix.20250108221307.1": "public drawElements(mode: number, count: number, type: number, offset: number = 0): void {\n    this.gl.drawElements(mode, count, type, offset);\n}\n\n",
+    "felix.20250108221318.1": "public checkError(operation: string): void {\n    const error = this.gl.getError();\n    if (error !== this.gl.NO_ERROR) {\n        throw new Error(`WebGL Error after ${operation}: ${error}`);\n    }\n}\n\n",
+    "felix.20241227202430.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20241227202519.1": "import { Game } from \"./game\";\n\n",
+    "felix.20241227213048.1": "document.addEventListener('DOMContentLoaded', (event) => {\n    if (!window.game) {\n        window.game = new Game();\n    } else {\n        console.log('Game instance already started');\n    }\n});\n\n",
+    "felix.20250131210259.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250131211056.1": "import * as utils from \"./utils\";\nimport { RendererManager } from \"./renderer-manager\";\nimport { TRectangle } from \"./types\";\nimport { CONFIG } from './config';\nimport { InputManager } from \"./input-manager\";\nimport { Behaviors } from \"./behaviors\";\nimport { Entities } from \"./entities\";\n\n",
+    "felix.20241227213056.1": "export class Game {\n\n    inputManager: InputManager;\n    rendererManager: RendererManager;\n\n    // HTML Elements\n    startButtonElement: HTMLButtonElement = document.createElement(\"button\");\n    resolutionSelectElement: HTMLSelectElement = document.createElement(\"select\");\n\n    // Canvas Properties\n    lastDisplayWidth = 0;\n    lastDisplayHeight = 0;\n    canvasElement: HTMLCanvasElement;\n    canvasBoundingRect: DOMRect;\n    gl: WebGL2RenderingContext;\n    worldBuffer: WebGLBuffer | null = null;\n\n    // Game Screen Properties\n    resolution: { label: string, width: number, height: number } = CONFIG.DISPLAY.RESOLUTIONS[0];\n    aspectRatio = 1; // this is display aspect ratio\n    gameScreenWidth = 0; // this is game screen size, used as uWorldX.\n    gameScreenHeight = 0; // Used as uWorldY.\n    gameWidthRatio = 0; // this is game screen ratio to the canvas size\n    gameHeightRatio = 0;\n    scrollEdgeX = 0; // constants for finding trigger zone\n    scrollEdgeY = 0;\n    zoomLevel = 1; // 1 is normal, 0.5 is zoomed out, 2 is zoomed in\n\n    // Map Tile Properties\n    tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE;\n    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;\n    initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;\n    maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;\n    maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;\n    maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;\n    maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;\n\n    // Game state Properties\n    gamemap: number[] = [];\n    started = false;\n    gameAction = 0;    // 0 = none\n    entities!: Entities;\n    entityBehaviors!: Behaviors;\n\n    // Mouse Cursor Properties\n    documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.\n    currentCursorClass = \"\"; // \"cur-pointer\", \"cur-target\", \"cur-select\" ...\n\n    // Command Acknowledged Widget Animation Properties\n    widgetAnim = 0;\n    widgetAnimTotal = 6;\n    widgetAnimX = 0;\n    widgetAnimY = 0;\n\n    // Scroll Properties\n    scrollX = 0; // Current scroll position \n    scrollY = 0;\n\n    // Image Assets\n    creaturesImage!: HTMLImageElement;\n    tilesImage!: HTMLImageElement;\n\n    // Game-State Ticks (at 8 fps)\n    tickAccumulator = 0; // What remained in deltaTime after last update \n    currentTick = 0;\n    timePerTick = 1000 / CONFIG.GAME.TIMING.TICK_RATE; // dt in ms (125 is 8 per second)\n    timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick\n\n    // Graphic Animations (at 15 fps)\n    animAccumulator = 0; // What remained in deltaTime after last update \n    currentAnim = 0;\n    timePerAnim = 1000 / CONFIG.GAME.TIMING.ANIM_RATE; // dt in ms (66.66 is 15 per second)\n\n    // FPS counter\n    lastTime = 0;\n    fps = 0;\n    fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL; // Update FPS every 1 second\n    fpsLastTime = 0;\n\n    @others\n\n}\n\n",
+    "felix.20241227213841.1": "constructor() {\n    console.log(\"constructing game\");\n\n    this.documentElementClassList = document.documentElement.classList;\n\n    this.canvasElement = document.createElement('canvas');\n    document.body.appendChild(this.canvasElement);\n\n    this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();\n\n    this.gl = this.canvasElement.getContext('webgl2')!;\n    this.gl.enable(this.gl.BLEND);\n    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);\n    this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // transparent black\n\n    // Prevent right-click context menu\n    this.canvasElement.addEventListener('contextmenu', (event) => {\n        event.preventDefault();\n    });\n\n    // Canvas has style width: 100vw; and style height: 100vh;\n    const resizeObserver = new ResizeObserver(this.handleCanvasResize.bind(this));\n    resizeObserver.observe(this.canvasElement, { box: 'content-box' });\n\n    // Create a 'loading...' text element centered on screen\n    const loadingText = document.createElement('div');\n    loadingText.classList.add(\"loading-text\");\n    loadingText.textContent = 'Loading...';\n\n    document.body.appendChild(loadingText);\n\n    // Using promises, after both image assets have loaded, call mainMenu\n    const creaturesPromise = utils.loadImage('images/alien.png');\n    const tilesPromise = utils.loadImage('images/plancher-vertical.png');\n    Promise.all([creaturesPromise, tilesPromise]).then((images) => {\n        document.body.removeChild(loadingText);\n        this.creaturesImage = images[0];\n        this.tilesImage = images[1];\n        this.resizeCanvasToDisplaySize(this.canvasElement);\n        this.mainMenu();\n    });\n\n    this.inputManager = new InputManager(this);\n    this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);\n\n}\n\n",
+    "felix.20241227213217.1": "handleCanvasResize(entries: ResizeObserverEntry[]): void {\n\n    // Canvas has style width: 100vw; and height: 100vh; so we need to handle window resizes!\n    for (const entry of entries) {\n        let width;\n        let height;\n        let dpr = window.devicePixelRatio;\n        if (entry.devicePixelContentBoxSize) {\n            // NOTE: Only this path gives the correct answer\n            // The other 2 paths are an imperfect fallback\n            // for browsers that don't provide anyway to do this\n            [width, height] = [entry.devicePixelContentBoxSize[0].inlineSize, entry.devicePixelContentBoxSize[0].blockSize];\n            dpr = 1; // it's already in width and height\n        } else if (entry.contentBoxSize) {\n            if (entry.contentBoxSize[0]) {\n                [width, height] = [entry.contentBoxSize[0].inlineSize, entry.contentBoxSize[0].blockSize];\n            } else {\n                // legacy mozilla impl using only contentBox\n                // @ts-expect-error\n                [width, height] = [entry.contentBoxSize.inlineSize, entry.contentBoxSize.blockSize];\n            }\n        } else {\n            // legacy\n            [width, height] = [entry.contentRect.width, entry.contentRect.height];\n        }\n        const displayWidth = Math.round(width * dpr);\n        const displayHeight = Math.round(height * dpr);\n        [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];\n        this.setDimensionsVars();\n    }\n}\n\n",
+    "felix.20250101222813.1": "setDimensionsVars(): DOMRect {\n    this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();\n    this.gameWidthRatio = this.gameScreenWidth / this.canvasBoundingRect.width;\n    this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;\n    this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;\n    this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;\n    return this.canvasBoundingRect;\n}\n\n",
+    "felix.20241228191055.1": "resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {\n\n    // Get the size the browser is displaying the canvas in device pixels.\n    const [displayWidth, displayHeight] = [this.lastDisplayWidth, this.lastDisplayHeight];\n\n    // Check if the canvas is not the same size.\n    const needResize = canvas.width !== displayWidth || canvas.height !== displayHeight;\n\n    if (needResize) {\n\n        // Make the canvas the same size\n        canvas.width = displayWidth;\n        canvas.height = displayHeight;\n\n        // Set the viewport to fill the canvas\n        this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  \n        if (this.worldBuffer) {\n            this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);\n        }\n    }\n    return needResize;\n}\n\n",
+    "felix.20250101211507.1": "setCursor(newClass: string) {\n    if (this.currentCursorClass !== newClass) {\n        if (this.currentCursorClass) {\n            this.documentElementClassList.remove(this.currentCursorClass); // Remove from html\n        }\n        this.documentElementClassList.add(newClass); // Add to html\n        this.currentCursorClass = newClass; // Update the tracked cursor class\n    }\n}\n\n",
+    "felix.20241231225835.1": "animateCursor(): void {\n\n    // Animate cursor at 15 FPS\n    if (this.widgetAnim) {\n        this.widgetAnim += 1;\n        if (this.widgetAnim > this.widgetAnimTotal)\n            this.widgetAnim = 0;\n    }\n}\n\n",
+    "felix.20241229162002.1": "toggleGameMenu(): void {\n    console.log('Toggle Options Menu'); // Todo: Implement In-Game Option Menu\n}\n\n",
+    "felix.20241228193009.1": "mainMenu(): void {\n\n    // Create the start button\n    this.startButtonElement.textContent = \"Start Game\";\n    this.startButtonElement.classList.add(\"btn-start\");\n\n    document.body.appendChild(this.startButtonElement);\n\n    // Create the dropdown for screen resolution\n    this.resolutionSelectElement.classList.add(\"resolution-select\");\n\n\n    // Populate the dropdown with options\n    for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {\n        const option = document.createElement(\"option\");\n        option.value = `${width}x${height}`;\n        option.textContent = label;\n        this.resolutionSelectElement.appendChild(option);\n    }\n\n    // Use resolutionSelectElement.selectedIndex to get the selected resolution\n    document.body.appendChild(this.resolutionSelectElement);\n\n    this.startButtonElement.addEventListener(\"click\", this.startGame.bind(this));\n}\n\n",
+    "felix.20241229230016.1": "startGame(): void {\n    this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];\n\n    this.aspectRatio = this.resolution.width / this.resolution.height;\n    this.gameScreenWidth = this.resolution.width;\n    this.gameScreenHeight = this.resolution.height;\n    this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone\n    this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;\n\n    // Re-set \n    this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;\n    this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;\n    this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;\n    this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;\n\n    this.setCursor(\"cur-pointer\");\n\n    this.inputManager.init();\n\n    this.startButtonElement.style.display = 'none';\n    this.resolutionSelectElement.style.display = 'none';\n\n    // Start the game\n    this.initGameStates();\n    this.started = true;\n\n    // Setup timer in case RAF Skipped when minimized or not in foreground.\n    setInterval(() => { this.checkUpdate(); }, 500);\n    this.loop(0);\n}\n\n",
+    "felix.20250130230812.1": "setGameScreenStates(): void {\n    // Set the game screen width, scroll and zoom states.\n    // Called when the window is resized, mouse-wheel zoomed in or out, or when the game is started.\n    //\n\n}\n\n",
+    "felix.20250105213621.1": "initGameStates(): void {\n\n    window.addEventListener('unload', () => {\n        this.rendererManager.dispose();\n    });\n\n    // Build entities pool\n    this.entities = new Entities(100);\n    this.entityBehaviors = new Behaviors(this);\n\n    // Fill Entities pool\n    // EXPERIMENTAL TEST: Create 3 test Aliens\n    const alien1 = this.entities.spawn();\n    alien1.type = 1;\n    alien1.hitPoints = 100;\n    alien1.x = 515;\n    alien1.y = 100;\n    alien1.frameIndex = 33;\n    alien1.orientation = 6;\n\n    const alien2 = this.entities.spawn();\n    alien2.type = 1;\n    alien2.hitPoints = 100;\n    alien2.x = 0;\n    alien2.y = 0;\n    alien2.frameIndex = 212;\n    alien2.orientation = 5;\n\n    const alien3 = this.entities.spawn();\n    alien3.type = 1;\n    alien3.hitPoints = 100;\n    alien3.x = 64;\n    alien3.y = 455;\n    alien3.frameIndex = 122;\n    alien3.orientation = 14;\n\n    // Build Map (Will later be bigger maps loaded from file)\n    // EXPERIMENTAL TEST: temp map 9 by 9 tiles \n    for (let temp1 = 0; temp1 < 8; temp1++) { // start with 8 ROWS \n        this.gamemap.push(temp1 * 8); // added row total 1 width COLUMN\n        for (let temp2 = 0; temp2 < 8; temp2++) {  // + 8 COLUMNS\n            this.gamemap.push(temp2 + temp1 * 8); // here add for total of 9 width COLUMNS\n        }\n    }\n    this.gamemap[21] = 3; // Proof CHANGE THOSE GAMEMAPS TO PROVE THEY ARE TILES\n    for (let temp = 0; temp < 9; temp++) { // add last row for total of 9 ROWS\n        this.gamemap.push(temp + 56);\n    }\n\n    // TODO: Instead create a 32x32 map with random tiles!\n\n}\n\n",
+    "felix.20241230215224.1": "procGame(): void {\n\n    // procgame processes a game frame, animating each RAF.\n    // Note: This is not a game-states tick, at timePerTick intervals.\n\n    if (this.gameAction) {\n\n        switch (this.gameAction) {\n            case CONFIG.GAME.ACTIONS.DEFAULT:\n                this.trydefault();\n                break;\n            case CONFIG.GAME.ACTIONS.RELEASESEL:\n                this.tryselect();\n                break;\n\n            default:\n                break;\n        }\n\n    }\n\n    this.gameAction = 0; // -------------- no more game actions to do\n\n    // Scroll if not currently dragging a selection.\n    if (!this.inputManager.isSelecting) {\n        const scrollVelocity = this.inputManager.scrollVelocity;\n        this.scrollX += scrollVelocity.x;\n        this.scrollY += scrollVelocity.y;\n        if (this.scrollX > this.maxScrollX) {\n            this.scrollX = this.maxScrollX;\n        }\n        if (this.scrollX < 0) {\n            this.scrollX = 0;\n        }\n        if (this.scrollY > this.maxScrollY) {\n            this.scrollY = this.maxScrollY;\n        }\n        if (this.scrollY < 0) {\n            this.scrollY = 0;\n        }\n    }\n}\n\n",
+    "felix.20241231221007.1": "render(interpolation: number): void {\n\n    // Before rendering, resize canvas to display size. (in case of changing window size)\n    this.resizeCanvasToDisplaySize(this.canvasElement)\n\n    // Selection lines with four thin rectangles, if user is selecting.\n    const cursor: TRectangle[] = [];\n    if (this.inputManager.isSelecting) {\n        // Draw selection rectangle with lines\n        const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);\n        const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);\n        const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);\n        const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);\n\n        // Top, bottom, left, right lines\n        cursor.push(\n            { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },\n            { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },\n            { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },\n            { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }\n        );\n    }\n\n    this.rendererManager.render(this.gamemap, this.entities.pool, cursor);\n\n}\n\n",
+    "felix.20241227213236.1": "update(timestamp: number, skipRender?: boolean): void {\n\n    // 1. Calculate timing and delta\n    const deltaTime = timestamp - this.lastTime;\n    this.lastTime = timestamp;\n\n    // 2. Accumulate time for different update frequencies\n    this.tickAccumulator += deltaTime;  // For game logic (8 FPS)\n    this.animAccumulator += deltaTime;  // For animations (15 FPS)\n\n    // 3. Process immediate inputs/actions\n    this.procGame();  // Handle mouse clicks, selection, etc.\n\n    // 4. Update animations at 15 FPS\n    while (this.animAccumulator >= this.timePerAnim) {\n        this.animateCursor();\n        this.animAccumulator -= this.timePerAnim;\n    }\n\n    // 5. Update game state at 8 FPS \n    while (this.tickAccumulator >= this.timePerTick) {\n        this.tick(); // Updates entity positions, AI, etc.\n        this.tickAccumulator -= this.timePerTick;\n    }\n\n    // 6. Render at full frame rate: Pass interpolation value for smooth movement.\n    if (!skipRender) {\n        const interpolation = this.tickAccumulator / this.timePerTick;\n        // Before rendering, resize canvas to display size. (in case of changing window size)\n        this.resizeCanvasToDisplaySize(this.canvasElement)\n\n        // Selection lines with four thin rectangles, if user is selecting.\n        const cursor: TRectangle[] = [];\n        if (this.inputManager.isSelecting) {\n            // Draw selection rectangle with lines\n            const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);\n            const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);\n            const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);\n            const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);\n\n            // Top, bottom, left, right lines\n            cursor.push(\n                { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },\n                { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },\n                { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },\n                { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }\n            );\n        }\n\n        this.rendererManager.render(this.gamemap, this.entities.pool, cursor);\n    }\n\n    // Calculate FPS\n    if (timestamp - this.fpsLastTime > this.fpsInterval) {\n        this.fps = Math.round(1000 / deltaTime);\n        this.fpsLastTime = timestamp;\n        // console.log('RAF FPS ', this.fps); // 30\n    }\n}\n\n",
+    "felix.20241229162229.1": "checkUpdate(): void {\n    // Checks for needed ticks to be computed if game is minimized\n    const timestamp = performance.now();\n    const deltaTime = timestamp - this.lastTime;\n    if ((this.tickAccumulator + deltaTime) < this.timerTriggerAccum) {\n        return;\n    }\n    // It's been a while, game is minimized: update without rendering.\n    this.update(timestamp, true);\n}\n\n",
+    "felix.20241230215229.1": "/**\n * Advance game states in pool from currentTick count, to the next one.\n */\ntick(): void {\n\n    // Process Entities\n    let processed = 0;\n    let entity;\n    for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {\n        entity = this.entities.pool[i];\n        if (entity.active) {\n            processed += 1;\n            this.entityBehaviors.process(entity);\n        }\n    }\n\n    this.inputManager.processInputs();\n\n    // Update currentTick count\n    this.currentTick += 1;\n}\n\n",
+    "felix.20241229214656.1": "loop(timestamp: number): void {\n    this.update(timestamp);\n    requestAnimationFrame(this.loop.bind(this));\n}\n\n",
+    "felix.20241230215401.1": "trydefault(): void {\n    const gamePosition = this.inputManager.gamePosition;\n    console.log('default action at: ', gamePosition.x, gamePosition.y);\n\n    // TODO : Replace with test cursor animation with the real default action\n    // TEST START WIDGET ANIMATION ON DEFAULT ACTION\n    this.widgetAnim = 1;\n    this.widgetAnimX = gamePosition.x - 32;\n    this.widgetAnimY = gamePosition.y - 32;\n}\n\n",
+    "felix.20241230215406.1": "tryselect(): void {\n\n    // Called from procGame\n    const selectionStart = this.inputManager.selectionStart;\n    const selectionEnd = this.inputManager.selectionEnd;\n    console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);\n}\n\n",
+    "felix.20250131210715.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250131211201.1": "import { Game } from \"./game\";\nimport { CONFIG } from './config';\n\n",
+    "felix.20250107221804.1": "export class InputManager {\n    private game: Game;\n    private keysPressed: Record<string, boolean> = {};\n    private selecting: boolean = false;\n    public mouseX = 0;\n    public mouseY = 0;\n    private gameMouseX = 0;\n    private gameMouseY = 0;\n    public selX = 0;\n    public selY = 0;\n    private gameSelStartX = 0;\n    private gameSelStartY = 0;\n    private gameSelEndX = 0;\n    private gameSelEndY = 0;\n    private scrollNowX = 0;\n    private scrollNowY = 0;\n\n    @others\n\n}\n\n",
+    "felix.20250107221855.1": "constructor(game: Game) {\n    this.game = game;\n}\n\n",
+    "felix.20250107232140.1": "public get gamePosition(): { x: number, y: number } {\n    return { x: this.gameMouseX, y: this.gameMouseY };\n}\n\npublic get selectionStart(): { x: number, y: number } {\n    return { x: this.gameSelStartX, y: this.gameSelStartY };\n}\n\npublic get selectionEnd(): { x: number, y: number } {\n    return { x: this.gameSelEndX, y: this.gameSelEndY };\n}\n\npublic get scrollVelocity(): { x: number, y: number } {\n    return { x: this.scrollNowX, y: this.scrollNowY };\n}\n\n\n",
+    "felix.20250107230733.1": "public init(): void {\n    window.addEventListener(\"keydown\", this.handleKeyDown.bind(this));\n    window.addEventListener(\"keyup\", this.handleKeyUp.bind(this));\n    window.addEventListener(\"mousemove\", this.handleMouseMove.bind(this));\n    window.addEventListener(\"mousedown\", this.handleMouseDown.bind(this));\n    window.addEventListener(\"mouseup\", this.handleMouseUp.bind(this));\n    window.addEventListener(\"wheel\", this.handleMouseWheel.bind(this), { passive: false });\n}\n",
+    "felix.20250107230755.1": "private handleKeyDown(e: KeyboardEvent): void {\n    this.keysPressed[e.key] = true;\n    if (e.key === 'F10') {\n        e.preventDefault();\n        this.game.toggleGameMenu();\n    }\n    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {\n        e.preventDefault();\n    }\n}\n\n",
+    "felix.20250107230802.1": "private handleKeyUp(e: KeyboardEvent): void {\n    this.keysPressed[e.key] = false;\n}\n\n",
+    "felix.20250107230806.1": "private handleMouseMove(event: MouseEvent): void {\n    this.setCursorPos(event);\n    this.scrollNowX = 0;\n    this.scrollNowY = 0;\n\n    if (this.mouseX > this.game.scrollEdgeX) {\n        this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;\n    }\n    if (this.mouseY > this.game.scrollEdgeY) {\n        this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;\n    }\n    if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {\n        this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;\n    }\n    if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {\n        this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;\n    }\n}\n\n",
+    "felix.20250107230811.1": "private handleMouseDown(event: MouseEvent): void {\n    this.setCursorPos(event);\n    if (!this.selecting) {\n        if (event.button === 0) {\n            this.selecting = true;\n            this.selX = this.mouseX;\n            this.selY = this.mouseY;\n            this.gameSelStartX = this.selX + this.game.scrollX;\n            this.gameSelStartY = this.selY + this.game.scrollY;\n            this.game.setCursor('cur-target');\n        }\n        if (event.button === 2) {\n            this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;\n        }\n    }\n}\n\n",
+    "felix.20250107230817.1": "private handleMouseUp(event: MouseEvent): void {\n    this.setCursorPos(event);\n    if (event.button === 0) {\n        this.gameSelEndX = this.mouseX + this.game.scrollX;\n        this.gameSelEndY = this.mouseY + this.game.scrollY;\n        this.selecting = false;\n        this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;\n        this.game.setCursor('cur-pointer');\n    }\n}\n\n",
+    "felix.20250107230822.1": "private handleMouseWheel(event: WheelEvent): void {\n    if (event.ctrlKey) {\n        event.preventDefault();\n    }\n    if (event.deltaY < 0) {\n        // Todo: Zoom in\n        console.log(\"CTRL+Scroll Up\"); // You could trigger a specific game action here\n    } else if (event.deltaY > 0) {\n        // Todo: Zoom out\n        console.log(\"CTRL+Scroll Down\");\n    }\n}\n\n",
+    "felix.20250107230828.1": "private setCursorPos(event: MouseEvent): void {\n    this.mouseX = event.clientX * (this.game.gameScreenWidth / this.game.canvasBoundingRect.width);\n    this.mouseY = event.clientY * (this.game.gameScreenHeight / this.game.canvasBoundingRect.height);\n    this.gameMouseX = this.mouseX + this.game.scrollX;\n    this.gameMouseY = this.mouseY + this.game.scrollY;\n}\n\n",
+    "felix.20250107230906.1": "public processInputs(): void {\n    if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {\n        //\n    }\n    if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {\n        //\n    }\n    if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {\n        // \n    }\n    if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {\n        //\n    }\n    if (!this.selecting) {\n        this.updateScroll();\n    }\n}\n\n",
+    "felix.20250107230918.1": "private updateScroll(): void {\n    this.game.scrollX += this.scrollNowX;\n    this.game.scrollY += this.scrollNowY;\n\n    // Clamp scroll values\n    this.game.scrollX = Math.max(0, Math.min(this.game.scrollX, this.game.maxScrollX));\n    this.game.scrollY = Math.max(0, Math.min(this.game.scrollY, this.game.maxScrollY));\n}\n\n",
+    "felix.20250107230936.1": "public get isSelecting(): boolean {\n    return this.selecting;\n}\n\n",
+    "felix.20250201003719.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250201003821.1": "import { TileRenderer, SpriteRenderer, RectangleRenderer } from \"./renderers\";\nimport { CONFIG } from \"./config\";\nimport { TEntity, TRectangle } from \"./types\";\n\n",
+    "felix.20250201171432.1": "export class RendererManager {\n    private gl: WebGL2RenderingContext;\n    public worldBuffer: WebGLBuffer | null = null;\n    private tileRenderer: TileRenderer | null = null;\n    private spriteRenderer: SpriteRenderer | null = null;\n    private rectangleRenderer: RectangleRenderer | null = null;\n\n    @others\n\n}\n\n",
+    "felix.20250201171528.1": "constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement) {\n    this.gl = gl;\n    this.initRenderers(tilesImage, creaturesImage);\n}\n\n",
+    "felix.20250201171619.1": "initRenderers(tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement): void {\n    // Use your own logic to determine capacities as needed.\n    this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);\n    this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);\n    this.rectangleRenderer = new RectangleRenderer(this.gl, 4);\n\n    // Create and bind uniform buffer.\n    this.worldBuffer = this.gl.createBuffer();\n    this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);\n    this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);\n    this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, this.worldBuffer);\n\n    // Bind uniform blocks for each program.\n    const worldIndex = 0;\n    const tileBlockIndex = this.gl.getUniformBlockIndex(this.tileRenderer.program, 'World');\n    this.gl.uniformBlockBinding(this.tileRenderer.program, tileBlockIndex, worldIndex);\n    const spriteBlockIndex = this.gl.getUniformBlockIndex(this.spriteRenderer.program, 'World');\n    this.gl.uniformBlockBinding(this.spriteRenderer.program, spriteBlockIndex, worldIndex);\n    const rectBlockIndex = this.gl.getUniformBlockIndex(this.rectangleRenderer.program, 'World');\n    this.gl.uniformBlockBinding(this.rectangleRenderer.program, rectBlockIndex, worldIndex);\n    //console.log(gameScreenWidth, gameScreenHeight);\n    //this.setUboWorldTransforms(gameScreenWidth, gameScreenHeight);\n}\n\n",
+    "felix.20250201171626.1": "setUboWorldTransforms(gameScreenWidth: number, gameScreenHeight: number): void {\n    // Update the uniform buffer with current world transform values.\n    const worldData = new Float32Array([2 / gameScreenWidth, 2 / -gameScreenHeight]);\n    this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);\n    this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);\n}\n\n",
+    "felix.20250201171643.1": "render(gamemap: number[], entitiesPool: TEntity[], selectionRectangles: TRectangle[]): void {\n    // Clear canvas before rendering.\n    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);\n    this.gl.clear(this.gl.COLOR_BUFFER_BIT);\n\n    // Render tile layer.\n    if (this.tileRenderer) {\n        // Update tile transform data if needed.\n        this.tileRenderer.updateTransformData(gamemap);\n        this.tileRenderer.render();\n    }\n\n    // Render sprites.\n    if (this.spriteRenderer) {\n        this.spriteRenderer.updateTransformData(entitiesPool);\n        this.spriteRenderer.render();\n    }\n\n    // Render fog of war, if any.\n    // Todo: Implement Fog of War at some point :)\n\n    // Render selection rectangles, if any.\n    if (this.rectangleRenderer && selectionRectangles.length) {\n        this.rectangleRenderer.updateTransformData(selectionRectangles);\n        this.rectangleRenderer.render();\n    }\n\n    this.gl.flush();\n}\n\n",
+    "felix.20250201171639.1": "dispose(): void {\n    this.tileRenderer?.dispose();\n    this.spriteRenderer?.dispose();\n    this.rectangleRenderer?.dispose();\n}\n",
+    "felix.20250201003723.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250201003823.1": "import { Game } from \"./game\";\nimport { CONFIG } from './config';\n\n",
+    "felix.20250201003723.2": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250201003827.1": "import { Game } from \"./game\";\nimport { CONFIG } from './config';\n\n",
+    "felix.20250201003723.3": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250201003825.1": "import { Game } from \"./game\";\nimport { CONFIG } from './config';\n\n",
+    "felix.20250131210755.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250131211133.1": "import { TEntity } from \"./types\";\n\n",
+    "felix.20250105212000.1": "/**\n * Singleton Entities Object Pool\n */\nexport class Entities {\n\n    public total: number;\n    public active: number = 0;\n    public pool: Array<TEntity> = [];\n    private lastId = 0;\n\n    @others\n\n}\n\n",
+    "felix.20250105212000.2": "constructor(initialPoolSize: number) {\n    this.total = initialPoolSize;\n    for (let i = 0; i < initialPoolSize; i++) {\n        this.pool.push({\n            id: 0,\n            type: 0,\n            hitPoints: 0,\n            state: 0,\n            x: 0,\n            y: 0,\n            oldX: 0,\n            oldY: 0,\n            orderQty: 0,\n            orderIndex: 0,\n            orderPool: [\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n                { order: 0, x: 0, y: 0, entityId: 0 }, { order: 0, x: 0, y: 0, entityId: 0 },\n            ],\n            orientation: 0,\n            frameIndex: 0,\n            active: false,\n        });\n    }\n\n}\n\n",
+    "felix.20250105212000.3": "spawn(): TEntity {\n    if (this.active === this.total) {\n        throw new Error(\"Pool Full\");\n    }\n    const entity = this.pool.find(e => !e.active);\n    if (entity) {\n        entity.active = true;\n        entity.id = ++this.lastId;\n        this.active++;\n        return entity;\n    } else {\n        throw new Error(\"Pool Full\");\n    }\n}\n\n",
+    "felix.20250105212000.4": "remove(entity: TEntity): void {\n    this.active--;\n    entity.active = false;\n}\n\n",
+    "felix.20250131210816.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250131211212.1": "import { TEntity } from \"./types\";\nimport { Game } from \"./game\";\n\n",
+    "felix.20250105212047.1": "export class Behaviors {\n\n    public game: Game;\n\n    @others\n\n}\n\n",
+    "felix.20250105212047.2": "constructor(game: Game) {\n    this.game = game;\n}\n\n",
+    "felix.20250105212047.3": "public process(entity: TEntity): void {\n    switch (entity.type) {\n        case 1:\n            this.alien(entity);\n            break;\n\n        default:\n            break;\n    }\n}\n\n",
+    "felix.20250105212047.4": "private alien(entity: TEntity): void {\n    // test by just incrementing forward in animations\n    // 249 is the number of frames in the sprite sheet\n    entity.frameIndex = (entity.frameIndex + 1) % 249;\n    // TODO : Add real behaviors!\n}\n\n",
+    "felix.20250131210828.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250131211216.1": "import { TEntity, GLResources, ShaderType, TRectangle } from \"./types\";\nimport { CONFIG } from './config';\nimport { SHADERS } from './shaders';\n\n",
+    "felix.20250126174340.1": "abstract class BaseRenderer {\n    protected gl: WebGL2RenderingContext;\n    public program: WebGLProgram;\n    protected vao: WebGLVertexArrayObject;\n    protected dirtyTransforms: boolean; // Flag to update bufferData from transformData in the render method.\n    protected resources: GLResources = {\n        buffers: [],\n        textures: [],\n        shaders: []\n    };\n\n    constructor(gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) {\n        this.gl = gl;\n        this.program = this.createProgram(vertexShader, fragmentShader);\n        this.gl.useProgram(this.program);\n        this.vao = this.gl.createVertexArray()!;\n        this.dirtyTransforms = false;\n    }\n\n    protected createProgram(vertexSource: string, fragmentSource: string): WebGLProgram {\n        const program = this.gl.createProgram()!;\n        let errorLog = '';\n        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexSource)!;\n        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentSource)!;\n\n        this.gl.attachShader(program, vertexShader);\n        this.gl.attachShader(program, fragmentShader);\n        this.gl.linkProgram(program);\n\n        // Error checking\n        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {\n            errorLog += `\\nProgram linking failed: ${this.gl.getProgramInfoLog(program)}`;\n        }\n        this.gl.validateProgram(program);\n        if (!this.gl.getProgramParameter(program, this.gl.VALIDATE_STATUS)) {\n            errorLog += `\\nProgram validation failed: ${this.gl.getProgramInfoLog(program)}`;\n        }\n        const activeAttributes = this.gl.getProgramParameter(program, this.gl.ACTIVE_ATTRIBUTES);\n        const activeUniforms = this.gl.getProgramParameter(program, this.gl.ACTIVE_UNIFORMS);\n        if (activeAttributes === 0 && activeUniforms === 0) {\n            errorLog += '\\nWarning: Program has no active attributes or uniforms';\n        }\n        if (errorLog) {\n            throw new Error(`WebGL Program creation failed: ${errorLog}`);\n        }\n\n        return program;\n    }\n\n    protected createShader(type: ShaderType, source: string): WebGLShader {\n        const shader = this.gl.createShader(type)!;\n        this.resources.shaders.push(shader);\n        this.gl.shaderSource(shader, source);\n        this.gl.compileShader(shader);\n        if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {\n            console.error(this.gl.getShaderInfoLog(shader));\n            throw new Error('Shader compilation failed');\n        }\n        return shader;\n    }\n\n    protected createBuffer(): WebGLBuffer {\n        const buffer = this.gl.createBuffer()!;\n        this.resources.buffers.push(buffer);\n        return buffer;\n    }\n\n    protected createTexture(): WebGLTexture {\n        const texture = this.gl.createTexture()!;\n        this.resources.textures.push(texture);\n        return texture;\n    }\n\n    protected setupAttribute(\n        location: number,\n        size: number,\n        stride: number,\n        offset: number,\n        divisor: number = 0\n    ): void {\n        this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, stride, offset);\n        this.gl.enableVertexAttribArray(location);\n        this.gl.vertexAttribDivisor(location, divisor);\n    }\n\n    abstract updateTransformData(data: any[]): void; // This will also set dirtyTransforms to true.\n\n    abstract render(): void; // Before rendering, update bufferData from transformData if dirtyTransforms is true.\n\n    dispose(): void {\n        // Delete all resources in reverse order\n        this.resources.textures.forEach(texture => this.gl.deleteTexture(texture));\n        this.resources.buffers.forEach(buffer => this.gl.deleteBuffer(buffer));\n        this.resources.shaders.forEach(shader => this.gl.deleteShader(shader));\n        this.gl.deleteProgram(this.program);\n        this.gl.deleteVertexArray(this.vao);\n\n        // Clear arrays\n        this.resources.textures = [];\n        this.resources.buffers = [];\n        this.resources.shaders = [];\n    }\n}\n\n",
+    "felix.20250126193731.1": "export class TileRenderer extends BaseRenderer {\n    private transformBuffer: WebGLBuffer;\n    private modelBuffer: WebGLBuffer;\n    private transformData: Float32Array;\n    private image: HTMLImageElement\n    private texture: WebGLTexture;\n    private renderMax: number = 0;\n\n    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {\n        super(gl, SHADERS.TILE_VERTEX_SHADER, SHADERS.TILE_FRAGMENT_SHADER);\n\n        this.image = image;\n        this.texture = this.createTexture();\n        this.modelBuffer = this.createBuffer(); // Create a buffer\n        this.transformBuffer = this.createBuffer()!;\n\n        // posX, posY, scale, colorR, colorG, colorB, depth. A stride of 28 bytes.\n        this.transformData = new Float32Array(size * 7); // Init with 0s\n        this.setupVAO();\n    }\n\n    private setupVAO() {\n        this.gl.bindVertexArray(this.vao);\n\n        this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);\n        this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels\n        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?\n        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?\n        this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning \"use this buffer\" for the following operations)\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer\n        this.setupAttribute(0, 2, 16, 0);\n        this.setupAttribute(1, 2, 16, 8);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning \"use this buffer for the following operations\")\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates);\n        this.setupAttribute(2, 2, 28, 0, 1);\n        this.setupAttribute(3, 1, 28, 8, 1);\n        this.setupAttribute(4, 3, 28, 12, 1);\n        this.setupAttribute(5, 1, 28, 24, 1);\n\n        this.gl.bindVertexArray(null); // All done, unbind the VAO\n    }\n\n    updateTransformData(data: number[]): void {\n        for (let i = 0; i < data.length; i++) {\n            const offset = i * 7;\n            this.transformData[offset] = (i % 9) * CONFIG.GAME.TILE.SIZE;\n            this.transformData[offset + 1] = Math.floor(i / 9) * CONFIG.GAME.TILE.SIZE;\n            this.transformData[offset + 2] = CONFIG.GAME.TILE.SIZE;\n            this.transformData[offset + 3] = 1;\n            this.transformData[offset + 4] = 1;\n            this.transformData[offset + 5] = 1;\n            this.transformData[offset + 6] = data[i];\n        }\n        this.renderMax = data.length;\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);\n        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);\n    }\n\n    render(): void {\n        this.gl.useProgram(this.program);\n        this.gl.bindVertexArray(this.vao);\n        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);\n    }\n\n}\n\n",
+    "felix.20250127234240.1": "export class SpriteRenderer extends BaseRenderer {\n    private transformBuffer: WebGLBuffer;\n    private modelBuffer: WebGLBuffer;\n    private transformData: Float32Array;\n    private image: HTMLImageElement\n    private texture: WebGLTexture;\n    private renderMax: number = 0;\n\n    constructor(gl: WebGL2RenderingContext, image: HTMLImageElement, size: number) {\n        super(gl, SHADERS.SPRITE_VERTEX_SHADER, SHADERS.SPRITE_FRAGMENT_SHADER);\n        this.image = image;\n        this.texture = this.createTexture()!;\n        this.modelBuffer = this.createBuffer()!; // Create a buffer\n        this.transformBuffer = this.createBuffer()!;\n        this.transformData = new Float32Array(size * 8); // 8 floats per sprite, Init with 0s\n        this.setupVAO();\n    }\n\n    private setupVAO() {\n        this.gl.bindVertexArray(this.vao);\n\n        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);\n        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 4096, 4096, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);\n        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?\n        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?\n        this.gl.generateMipmap(this.gl.TEXTURE_2D);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning \"use this buffer\" for the following operations)\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer\n        this.setupAttribute(0, 2, 16, 0);\n        this.setupAttribute(1, 2, 16, 8);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning \"use this buffer for the following operations\")\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates\n        this.setupAttribute(2, 2, 32, 0, 1);\n        this.setupAttribute(3, 1, 32, 8, 1);\n        this.setupAttribute(4, 3, 32, 12, 1);\n        this.setupAttribute(5, 2, 32, 24, 1);\n\n        this.gl.bindVertexArray(null); // All done, unbind the VAO\n    }\n\n    updateTransformData(data: TEntity[]): void {\n        const u = (sprite: number, orientation: number) => ((sprite % 16) * 0.015625) + (orientation % 4) * 0.25;\n        const v = (sprite: number, orientation: number) => (Math.floor(sprite / 16) * 0.015625) + Math.floor(orientation / 4) * 0.25;\n\n        let index = 0;\n        for (let i = 0; i < data.length; i++) {\n            if (data[i].active) {\n                const offset = index * 8;\n                this.transformData[offset] = data[i].x;\n                this.transformData[offset + 1] = data[i].y;\n                this.transformData[offset + 2] = 128; // default entity size\n                this.transformData[offset + 3] = 1; // default color\n                this.transformData[offset + 4] = 1; // default color\n                this.transformData[offset + 5] = 1; // default color\n                this.transformData[offset + 6] = u(data[i].frameIndex, data[i].orientation);\n                this.transformData[offset + 7] = v(data[i].frameIndex, data[i].orientation);\n                index++;\n            }\n        }\n        this.renderMax = index;\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);\n        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);\n    }\n\n    render(): void {\n        this.gl.useProgram(this.program);\n        this.gl.bindVertexArray(this.vao);\n        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);\n    }\n\n}\n\n",
+    "felix.20250128200945.1": "export class RectangleRenderer extends BaseRenderer {\n    private transformBuffer: WebGLBuffer;\n    private modelBuffer: WebGLBuffer;\n    private transformData: Float32Array;\n    private renderMax: number = 0;\n\n    constructor(gl: WebGL2RenderingContext, size: number) {\n        super(gl, SHADERS.RECTANGLE_VERTEX_SHADER, SHADERS.RECTANGLE_FRAGMENT_SHADER);\n        this.modelBuffer = this.createBuffer(); // Create a buffer\n        this.transformBuffer = this.createBuffer()!;\n        this.transformData = new Float32Array(size * 7); // Init with 0s\n        this.setupVAO();\n    }\n\n    updateTransformData(data: TRectangle[]): void {\n        for (let i = 0; i < data.length; i++) {\n            const offset = i * 7;\n            this.transformData[offset] = data[i].x;\n            this.transformData[offset + 1] = data[i].y;\n            this.transformData[offset + 2] = data[i].width;\n            this.transformData[offset + 3] = data[i].height;\n            this.transformData[offset + 4] = data[i].r;\n            this.transformData[offset + 5] = data[i].g;\n            this.transformData[offset + 6] = data[i].b;\n        }\n        this.renderMax = data.length;\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);\n        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);\n    }\n\n    private setupVAO() {\n        this.gl.bindVertexArray(this.vao);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning \"use this buffer\" for the following operations)\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer\n        this.setupAttribute(0, 2, 8, 0);\n\n        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning \"use this buffer for the following operations\")\n        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates\n        this.setupAttribute(1, 2, 28, 0, 1);\n        this.setupAttribute(2, 1, 28, 8, 1);\n        this.setupAttribute(3, 1, 28, 12, 1);\n        this.setupAttribute(4, 3, 28, 16, 1);\n\n        this.gl.bindVertexArray(null); // All done, unbind the VAO\n    }\n\n    render(): void {\n        this.gl.useProgram(this.program);\n        this.gl.bindVertexArray(this.vao);\n        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax); // Draw the model of 6 vertex that form 2 triangles, 3 times\n    }\n\n}\n\n",
+    "felix.20241220002054.1": "@others\n",
+    "felix.20241220002054.3": "export type Vec2 = { x: number, y: number };\n\nexport type TCommand = {\n    order: number;\n    x: number;\n    y: number;\n    entityId: number;\n}\n\nexport type TEntity = {\n    id: number;\n    // states\n    type: number;\n    hitPoints: number;\n    state: number;\n    x: number;\n    y: number;\n    oldX: number; // For interpolation. Meaning that the entity is moving from oldX, oldY to x, y\n    oldY: number;\n    orientation: number;\n    frameIndex: number;\n    // Ten queuable commands\n    orderQty: number;\n    orderIndex: number;\n    orderPool: [\n        TCommand, TCommand, TCommand, TCommand, TCommand,\n        TCommand, TCommand, TCommand, TCommand, TCommand\n    ];\n    active: boolean;\n}\n\nexport type TRectangle = {\n    x: number;\n    y: number;\n    width: number;\n    height: number;\n    r: number;\n    g: number;\n    b: number;\n}\n\nexport type TParameters =\n    | {\n        uniform: true;\n        location: WebGLUniformLocation;\n        type: number;\n    }\n    | {\n        uniform: false;\n        location: number;\n        type: number;\n    };\n\n\nexport interface GLResources {\n    buffers: WebGLBuffer[];\n    textures: WebGLTexture[];\n    shaders: WebGLShader[];\n}\n\nexport enum ShaderType {\n    VERTEX = WebGL2RenderingContext.VERTEX_SHADER,\n    FRAGMENT = WebGL2RenderingContext.FRAGMENT_SHADER\n}\n\nexport type WebGLError = {\n    type: 'shader' | 'program' | 'buffer' | 'texture';\n    message: string;\n    details?: string;\n}\n",
+    "felix.20241224183015.1": "<< imports >>\n@others\n",
+    "felix.20250122233854.1": "import { Vec2 } from \"./types\";\n\n",
+    "felix.20241224183525.1": "/**\n * Tries to put browser into fullscreen mode.\n * @param element The element to put into fullscreen mode.\n * @returns A promise that resolves when the browser is in fullscreen mode.\n */\nexport function fullScreen(element: Element): Promise<void> {\n    if (document.fullscreenElement !== null) {\n        return Promise.resolve();  // already fullscreen\n    }\n    if (element.requestFullscreen) {\n        const requestFullscreen = element.requestFullscreen || (element as any).webkitRequestFullscreen || (element as any).mozRequestFullScreen || (element as any).msRequestFullscreen;\n        if (requestFullscreen) {\n            return requestFullscreen.call(element).catch((err) => {\n                console.error(\n                    `Error attempting to enable fullscreen mode: ${err.message} (${err.name})`,\n                );\n            });\n        } else {\n            return Promise.resolve();\n        }\n    } else {\n        return Promise.resolve();\n    }\n}\n\n",
+    "felix.20250120234029.1": "export function interpolate(min: Vec2, max: Vec2, fract: number): Vec2 {\n    return { x: max.x + (min.x - max.x) * fract, y: max.y + (min.y - max.y) * fract };\n}\n\n",
+    "felix.20241228192145.1": "export function loadImage(src: string): Promise<HTMLImageElement> {\n    return new Promise((resolve, reject) => {\n        const image = new Image();\n        image.onload = () => resolve(image);\n        image.src = src;\n    });\n}\n\n",
+    "felix.20250107011547.1": "const DISPLAY = {\n    RESOLUTIONS: [\n        {\n            label: \"16:9 (1920x1080)\",\n            width: 1920,\n            height: 1080\n        },\n        {\n            label: \"16:10 (1920x1200)\",\n            width: 1920,\n            height: 1200\n        },\n        {\n            label: \"4:3 (1440x1080)\",\n            width: 1440,\n            height: 1080\n        },\n    ],\n    SCROLL: {\n        SPEED: 50, // speed in pixels for scrolling\n        BORDER: 10 // pixels from screen to trigger scrolling\n    }\n} as const;\n\nconst GAME = {\n    ACTIONS: {\n        DEFAULT: 1,\n        RELEASESEL: 2\n    },\n    TILE: {\n        BITMAP_SIZE: 1024, // size of a square bitmap of tiles\n        SIZE: 128, // size of an individual square TILE \n        DEPTH: 64\n    },\n    MAP: {\n        WIDTH: 64, // game map width in TILES \n        HEIGHT: 64 // game map height in TILES \n    },\n    TIMING: {\n        TICK_RATE: 8, // 8 fps for game logic\n        ANIM_RATE: 15, // 15 fps for animations\n        FPS_UPDATE_INTERVAL: 1000 // Update FPS display every second\n    },\n    ENTITY: {\n        INITIAL_POOL_SIZE: 100\n    }\n} as const;\n\nconst TEXTURE_MODEL_DATA = new Float32Array([\n    // XY Coords, UV Offset \n    1, 0, 1, 0,\n    0, 1, 0, 1,\n    1, 1, 1, 1,\n    1, 0, 1, 0,\n    0, 0, 0, 0,\n    0, 1, 0, 1,\n]);\n\nconst RECTANGLE_MODEL_DATA = new Float32Array([\n    // XY Coords\n    1, 0,\n    0, 1,\n    1, 1,\n    1, 0,\n    0, 0,\n    0, 1,\n]);\n\n// Export all configs from a single point\nexport const CONFIG = {\n    TEXTURE_MODEL_DATA,\n    RECTANGLE_MODEL_DATA,\n    DISPLAY,\n    GAME\n} as const;\n",
+    "felix.20250125002553.1": "\n// BACKGROUND MAP VERTEX SHADER\nconst TILE_VERTEX_SHADER = /*glsl*/ `#version 300 es\n\n// The next two are the repeated geometry and UV for each instance of the model\nlayout(location=0) in vec4 aPosition;\nlayout(location=1) in vec2 aTexCoord;\n\n// Those next four use vertexAttribDivisor and are updated every instance\nlayout(location=2) in vec3 aOffset;\nlayout(location=3) in float aScale;\nlayout(location=4) in vec4 aColor;\nlayout(location=5) in float aDepth;\n\nlayout(std140) uniform World {\n    float uWorldX;\n    float uWorldY;\n};\n\nout vec4 vColor;\nout vec2 vTexCoord;\nout float vDepth;\n\nvoid main()\n{\n    vColor = aColor;\n    vTexCoord = aTexCoord;\n    vDepth = aDepth;\n    vec3 pos = aPosition.xyz * aScale + aOffset;\n    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.\n    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);\n    // gl_Position = vec4( vec3(aPosition.xyz + aOffset), 1.0);\n\n}`;\n\n// BACKGROUND MAP FRAGMENT SHADER\nconst TILE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es\n\nprecision mediump float;\n\nuniform mediump sampler2DArray uSampler;\n\nin vec4 vColor;\nin vec2 vTexCoord;\nin float vDepth;\nout vec4 fragColor;\n\nvoid main()\n{\n    fragColor = vColor * texture(uSampler, vec3(vTexCoord, vDepth));\n}`;\n\n// ALIEN CREATURE SPRITE VERTEX SHADER\nconst SPRITE_VERTEX_SHADER = /*glsl*/ `#version 300 es\n\n// The next two are the repeated geometry and UV for each instance of the model\nlayout(location=0) in vec4 aPosition;\nlayout(location=1) in vec2 aTexCoord;\n\n// Those next four use vertexAttribDivisor and are updated every instance\nlayout(location=2) in vec3 aOffset;\nlayout(location=3) in float aScale;\nlayout(location=4) in vec4 aColor;\nlayout(location=5) in vec2 aUV;\n\nlayout(std140) uniform World {\n    float uWorldX;\n    float uWorldY;\n};\n\nout vec4 vColor;\nout vec2 vTexCoord;\n\nvoid main()\n{\n    vColor = aColor;\n    vTexCoord = vec2(aTexCoord * 0.015625) + aUV;\n\n    vec3 pos = aPosition.xyz * aScale + aOffset;\n\n    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.\n    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);\n\n}`;\n\n// ALIEN CREATURE SPRITE FRAGMENT SHADER\nconst SPRITE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es\n\nprecision mediump float;\n\nuniform mediump sampler2D uSampler;\n\nin vec4 vColor;\nin vec2 vTexCoord;\nout vec4 fragColor;\n\nvoid main()\n{\n    fragColor = vColor * texture(uSampler, vTexCoord);\n}`;\n\n// SELECTION LINE VERTEX SHADER\nconst RECTANGLE_VERTEX_SHADER = /*glsl*/ `#version 300 es\n\n// The next two are the repeated geometry and UV for each instance of the model\nlayout(location=0) in vec4 aPosition;\n\n// Those next four use vertexAttribDivisor and are updated every instance\nlayout(location=1) in vec3 aOffset;\nlayout(location=2) in float aScaleX;\nlayout(location=3) in float aScaleY;\nlayout(location=4) in vec4 aColor;\n\nlayout(std140) uniform World {\n    float uWorldX;\n    float uWorldY;\n};\n\nout vec4 vColor;\n\nvoid main()\n{\n    vColor = aColor;\n    vec3 pos = aPosition.xyz * vec3(aScaleX, aScaleY, 1.0) + aOffset;\n    \n    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.\n    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);\n\n}`;\n\n// SELECTION LINE SPRITE FRAGMENT SHADER\nconst RECTANGLE_FRAGMENT_SHADER = /*glsl*/ `#version 300 es\n\nprecision mediump float;\n\nin vec4 vColor;\nout vec4 fragColor;\n\nvoid main()\n{\n    fragColor = vColor;\n}`;\n\n// Export all configs from a single point\nexport const SHADERS = {\n    TILE_VERTEX_SHADER,\n    TILE_FRAGMENT_SHADER,\n    SPRITE_VERTEX_SHADER,\n    SPRITE_FRAGMENT_SHADER,\n    RECTANGLE_VERTEX_SHADER,\n    RECTANGLE_FRAGMENT_SHADER,\n} as const;\n"
+  }
+}

@@ -1,14 +1,15 @@
 import * as utils from "./utils";
+import { RendererManager } from "./renderer-manager";
 import { TRectangle } from "./types";
 import { CONFIG } from './config';
 import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
-import { TileRenderer, SpriteRenderer, RectangleRenderer } from "./renderers";
 
 export class Game {
 
     inputManager: InputManager;
+    rendererManager: RendererManager;
 
     // HTML Elements
     startButtonElement: HTMLButtonElement = document.createElement("button");
@@ -41,10 +42,6 @@ export class Game {
     maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-    tileRenderer: TileRenderer | null = null;
-    spriteRenderer: SpriteRenderer | null = null;
-    rectangleRenderer: RectangleRenderer | null = null;
-    mapChanged = false;
 
     // Game state Properties
     gamemap: number[] = [];
@@ -131,6 +128,7 @@ export class Game {
         });
 
         this.inputManager = new InputManager(this);
+        this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
 
     }
 
@@ -192,18 +190,10 @@ export class Game {
             // Set the viewport to fill the canvas
             this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
             if (this.worldBuffer) {
-                this.setUboWorldTransforms();
+                this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
             }
         }
         return needResize;
-    }
-
-    setUboWorldTransforms() {
-
-        // Set ubo values for world transform
-        const worldData = new Float32Array([2 / this.gameScreenWidth, 2 / -this.gameScreenHeight]);
-        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
-        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
     }
 
     setCursor(newClass: string) {
@@ -295,40 +285,9 @@ export class Game {
     }
 
     initGameStates(): void {
-        this.tileRenderer = new TileRenderer(this.gl, this.tilesImage, this.initRangeX * this.initRangeY);
-        this.spriteRenderer = new SpriteRenderer(this.gl, this.creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
-        this.rectangleRenderer = new RectangleRenderer(this.gl, 4); // 4 rectangles make up a square selection rectangle
-
-        // Create a uniform buffer
-        this.worldBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
-        this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
-
-        // Bind the buffer to binding point 0
-        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, this.worldBuffer);
-
-        // Set the uniform block binding for both programs
-        const tileProgram = this.tileRenderer.program;
-        const spriteProgram = this.spriteRenderer.program;
-        const rectangleProgram = this.rectangleRenderer.program;
-
-        const worldIndex = 0; // Binding point 0
-
-        const tileBlockIndex = this.gl.getUniformBlockIndex(tileProgram, 'World');
-        this.gl.uniformBlockBinding(tileProgram, tileBlockIndex, worldIndex);
-
-        const spriteBlockIndex = this.gl.getUniformBlockIndex(spriteProgram, 'World');
-        this.gl.uniformBlockBinding(spriteProgram, spriteBlockIndex, worldIndex);
-
-        const rectangleBlockIndex = this.gl.getUniformBlockIndex(rectangleProgram, 'World');
-        this.gl.uniformBlockBinding(rectangleProgram, rectangleBlockIndex, worldIndex);
-
-        this.setUboWorldTransforms(); // Initial set of ubo values
 
         window.addEventListener('unload', () => {
-            this.tileRenderer?.dispose();
-            this.spriteRenderer?.dispose();
-            this.rectangleRenderer?.dispose();
+            this.rendererManager.dispose();
         });
 
         // Build entities pool
@@ -376,7 +335,6 @@ export class Game {
 
         // TODO: Instead create a 32x32 map with random tiles!
 
-        this.mapChanged = true;
     }
 
     procGame(): void {
@@ -424,76 +382,12 @@ export class Game {
 
     render(interpolation: number): void {
 
-        // Set clear color to black
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
         // Before rendering, resize canvas to display size. (in case of changing window size)
-        if (!this.resizeCanvasToDisplaySize(this.canvasElement)) {
-            // If it did not resize and call gl.viewport which clears the canvas, we need to clear it again.
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        }
+        this.resizeCanvasToDisplaySize(this.canvasElement)
 
-        // 1 Render the game map. Map states are in this.gamemap and rarely change.
-        if (this.tileRenderer) {
-            if (this.mapChanged) {
-                const backgroundTiles: any[] = [];
-
-                // Todo: This is a temporary map test render, replace with the fixed commented code below!
-                // const tileoffx = Math.floor(this.scrollx / this.tilesize);
-                // const tileoffy = Math.floor(this.scrolly / this.tilesize);
-                // let rangex = this.initrangex
-                // let rangey = this.initrangey
-                // if (this.scrollx % this.tilesize > this.tilesize - (this.screenx % this.tilesize)) {
-                //     rangex += 1;
-                // }
-                // if (this.scrolly % this.tilesize > this.tilesize - (this.screeny % this.tilesize)) {
-                //     rangey += 1;
-                // }
-                // for (let y = 0; y < rangey; y++) {
-                //     for (let x = 0; x < rangex; x++) {
-                //         const a = this.gamemap[(tileoffx + x) + ((tileoffy + y) * (this.gamemapw))];
-                //         // console.log(a);
-                //         backgroundTiles.push(
-                //             {
-                //                 sprite: "background", // bottom horizontal
-                //                 position: {
-                //                     x: x * this.tilesize - (this.scrollx % this.tilesize),
-                //                     y: y * this.tilesize - (this.scrolly % this.tilesize)
-                //                 },
-                //                 oldPosition: {
-                //                     x: x * this.tilesize - (this.scrollx % this.tilesize),
-                //                     y: y * this.tilesize - (this.scrolly % this.tilesize)
-                //                 },
-                //                 frame: { x: a % this.tileratio, y: Math.floor(a / this.tileratio) },
-                //                 flip: false,
-                //                 blendmode: Game.BLENDMODE_ALPHA,
-                //                 options: {}
-                //             }
-                //         );
-                //     }
-                // }
-                // this.tileRenderer.updateTransformData(backgroundTiles);
-
-                // Todo: replace this is a temporary map test render with the fixed commented code above!
-                this.tileRenderer.updateTransformData(this.gamemap);
-
-                this.mapChanged = false;
-            }
-            this.tileRenderer.render();
-        }
-
-        // 2 Render the game entities. Entity states are in this.entities.pool and change often.
-        if (this.spriteRenderer) {
-            this.spriteRenderer.updateTransformData(this.entities.pool);
-            this.spriteRenderer.render();
-        }
-
-        // 3 Render fog of war, if any.
-        // Todo: Implement Fog of War
-
-        // Last, Render Selection lines with four thin rectangles, if user is selecting.
+        // Selection lines with four thin rectangles, if user is selecting.
         const cursor: TRectangle[] = [];
-        if (this.rectangleRenderer && this.inputManager.isSelecting) {
+        if (this.inputManager.isSelecting) {
             // Draw selection rectangle with lines
             const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
             const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
@@ -507,12 +401,10 @@ export class Game {
                 { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
                 { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
             );
-
-            this.rectangleRenderer.updateTransformData(cursor);
-            this.rectangleRenderer.render();
         }
 
-        this.gl.flush();
+        this.rendererManager.render(this.gamemap, this.entities.pool, cursor);
+
     }
 
     update(timestamp: number, skipRender?: boolean): void {
@@ -542,7 +434,29 @@ export class Game {
 
         // 6. Render at full frame rate: Pass interpolation value for smooth movement.
         if (!skipRender) {
-            this.render(this.tickAccumulator / this.timePerTick);
+            const interpolation = this.tickAccumulator / this.timePerTick;
+            // Before rendering, resize canvas to display size. (in case of changing window size)
+            this.resizeCanvasToDisplaySize(this.canvasElement)
+
+            // Selection lines with four thin rectangles, if user is selecting.
+            const cursor: TRectangle[] = [];
+            if (this.inputManager.isSelecting) {
+                // Draw selection rectangle with lines
+                const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
+                const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
+                const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
+                const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
+
+                // Top, bottom, left, right lines
+                cursor.push(
+                    { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+                    { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
+                    { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
+                    { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
+                );
+            }
+
+            this.rendererManager.render(this.gamemap, this.entities.pool, cursor);
         }
 
         // Calculate FPS

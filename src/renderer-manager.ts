@@ -34,8 +34,6 @@ export class RendererManager {
         this.gl.uniformBlockBinding(this.spriteRenderer.program, spriteBlockIndex, worldIndex);
         const rectBlockIndex = this.gl.getUniformBlockIndex(this.rectangleRenderer.program, 'World');
         this.gl.uniformBlockBinding(this.rectangleRenderer.program, rectBlockIndex, worldIndex);
-        //console.log(gameScreenWidth, gameScreenHeight);
-        //this.setUboWorldTransforms(gameScreenWidth, gameScreenHeight);
     }
 
     setUboWorldTransforms(gameScreenWidth: number, gameScreenHeight: number): void {

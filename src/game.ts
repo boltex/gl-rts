@@ -9,7 +9,7 @@ import { Entities } from "./entities";
 export class Game {
 
     inputManager: InputManager;
-    rendererManager: RendererManager;
+    rendererManager!: RendererManager;
 
     // HTML Elements
     startButtonElement: HTMLButtonElement = document.createElement("button");
@@ -125,10 +125,10 @@ export class Game {
             this.tilesImage = images[1];
             this.resizeCanvasToDisplaySize(this.canvasElement);
             this.mainMenu();
+            this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
         });
 
         this.inputManager = new InputManager(this);
-        this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
 
     }
 
@@ -261,6 +261,7 @@ export class Game {
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
+        this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
         this.setCursor("cur-pointer");
 
         this.inputManager.init();

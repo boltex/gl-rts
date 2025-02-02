@@ -47,15 +47,6 @@ export class Game {
     entities!: Entities;
     entityBehaviors!: Behaviors;
 
-    // Mouse Cursor Properties
-    currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
-
-    // Command Acknowledged Widget Animation Properties
-    widgetAnim = 0;
-    widgetAnimTotal = 6;
-    widgetAnimX = 0;
-    widgetAnimY = 0;
-
     // Scroll Properties
     scrollX = 0; // Current scroll position 
     scrollY = 0;
@@ -446,9 +437,9 @@ export class Game {
 
         // TODO : Replace with test cursor animation with the real default action
         // TEST START WIDGET ANIMATION ON DEFAULT ACTION
-        this.widgetAnim = 1;
-        this.widgetAnimX = gamePosition.x - 32;
-        this.widgetAnimY = gamePosition.y - 32;
+        this.uiManager.widgetAnim = 1;
+        this.uiManager.widgetAnimX = gamePosition.x - 32;
+        this.uiManager.widgetAnimY = gamePosition.y - 32;
     }
 
     tryselect(): void {

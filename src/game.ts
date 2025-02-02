@@ -1,20 +1,17 @@
-import * as utils from "./utils";
 import { RendererManager } from "./renderer-manager";
-import { TRectangle } from "./types";
-import { CONFIG } from './config';
+import { UIManager } from "./ui-manager";
 import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
+import { CONFIG } from './config';
+import { TRectangle } from "./types";
 
 export class Game {
 
     // Manager classes
     inputManager: InputManager;
     rendererManager: RendererManager;
-
-    // HTML Elements
-    startButtonElement: HTMLButtonElement = document.createElement("button");
-    resolutionSelectElement: HTMLSelectElement = document.createElement("select");
+    uiManager: UIManager;
 
     // Canvas Properties
     lastDisplayWidth = 0;
@@ -22,7 +19,6 @@ export class Game {
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
     gl: WebGL2RenderingContext;
-    worldBuffer: WebGLBuffer | null = null;
 
     // Game Screen Properties
     resolution: { label: string, width: number, height: number } = CONFIG.DISPLAY.RESOLUTIONS[0];
@@ -52,7 +48,6 @@ export class Game {
     entityBehaviors!: Behaviors;
 
     // Mouse Cursor Properties
-    documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     currentCursorClass = ""; // "cur-pointer", "cur-target", "cur-select" ...
 
     // Command Acknowledged Widget Animation Properties
@@ -88,7 +83,7 @@ export class Game {
 
     constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
 
-        this.documentElementClassList = document.documentElement.classList;
+        this.uiManager = new UIManager();
 
         this.canvasElement = document.createElement('canvas');
         document.body.appendChild(this.canvasElement);
@@ -112,10 +107,12 @@ export class Game {
         this.creaturesImage = sprites;
         this.tilesImage = tiles;
         this.resizeCanvasToDisplaySize(this.canvasElement);
-        this.mainMenu();
         this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
-
         this.inputManager = new InputManager(this);
+        this.uiManager = new UIManager();
+        this.uiManager.mainMenu();
+        this.uiManager.getStartButtonElement().addEventListener("click", this.startGame.bind(this));
+
 
     }
 
@@ -176,65 +173,15 @@ export class Game {
 
             // Set the viewport to fill the canvas
             this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
-            if (this.worldBuffer) {
+            if (this.rendererManager && this.rendererManager.worldBuffer) {
                 this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
             }
         }
         return needResize;
     }
 
-    setCursor(newClass: string) {
-        if (this.currentCursorClass !== newClass) {
-            if (this.currentCursorClass) {
-                this.documentElementClassList.remove(this.currentCursorClass); // Remove from html
-            }
-            this.documentElementClassList.add(newClass); // Add to html
-            this.currentCursorClass = newClass; // Update the tracked cursor class
-        }
-    }
-
-    animateCursor(): void {
-
-        // Animate cursor at 15 FPS
-        if (this.widgetAnim) {
-            this.widgetAnim += 1;
-            if (this.widgetAnim > this.widgetAnimTotal)
-                this.widgetAnim = 0;
-        }
-    }
-
-    toggleGameMenu(): void {
-        console.log('Toggle Options Menu'); // Todo: Implement In-Game Option Menu
-    }
-
-    mainMenu(): void {
-
-        // Create the start button
-        this.startButtonElement.textContent = "Start Game";
-        this.startButtonElement.classList.add("btn-start");
-
-        document.body.appendChild(this.startButtonElement);
-
-        // Create the dropdown for screen resolution
-        this.resolutionSelectElement.classList.add("resolution-select");
-
-
-        // Populate the dropdown with options
-        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
-            const option = document.createElement("option");
-            option.value = `${width}x${height}`;
-            option.textContent = label;
-            this.resolutionSelectElement.appendChild(option);
-        }
-
-        // Use resolutionSelectElement.selectedIndex to get the selected resolution
-        document.body.appendChild(this.resolutionSelectElement);
-
-        this.startButtonElement.addEventListener("click", this.startGame.bind(this));
-    }
-
     startGame(): void {
-        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.resolutionSelectElement.selectedIndex];
+        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.uiManager.getResolutionSelectElement().selectedIndex];
 
         this.aspectRatio = this.resolution.width / this.resolution.height;
         this.gameScreenWidth = this.resolution.width;
@@ -249,12 +196,12 @@ export class Game {
         this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
 
         this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
-        this.setCursor("cur-pointer");
+        this.uiManager.setCursor("cur-pointer");
 
         this.inputManager.init();
 
-        this.startButtonElement.style.display = 'none';
-        this.resolutionSelectElement.style.display = 'none';
+        this.uiManager.getStartButtonElement().style.display = 'none';
+        this.uiManager.getResolutionSelectElement().style.display = 'none';
 
         // Start the game
         this.initGameStates();
@@ -410,7 +357,7 @@ export class Game {
 
         // 4. Update animations at 15 FPS
         while (this.animAccumulator >= this.timePerAnim) {
-            this.animateCursor();
+            this.uiManager.animateCursor();
             this.animAccumulator -= this.timePerAnim;
         }
 

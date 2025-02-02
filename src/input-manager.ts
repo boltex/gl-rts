@@ -51,7 +51,7 @@ export class InputManager {
         this.keysPressed[e.key] = true;
         if (e.key === 'F10') {
             e.preventDefault();
-            this.game.toggleGameMenu();
+            this.game.uiManager.toggleGameMenu();
         }
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();
@@ -90,7 +90,7 @@ export class InputManager {
                 this.selY = this.mouseY;
                 this.gameSelStartX = this.selX + this.game.scrollX;
                 this.gameSelStartY = this.selY + this.game.scrollY;
-                this.game.setCursor('cur-target');
+                this.game.uiManager.setCursor('cur-target');
             }
             if (event.button === 2) {
                 this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
@@ -105,7 +105,7 @@ export class InputManager {
             this.gameSelEndY = this.mouseY + this.game.scrollY;
             this.selecting = false;
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
-            this.game.setCursor('cur-pointer');
+            this.game.uiManager.setCursor('cur-pointer');
         }
     }
 

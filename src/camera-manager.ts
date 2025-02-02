@@ -20,9 +20,9 @@ export class CameraManager {
     readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
     readonly maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
 
-    constructor(initialResolution: { label: string; width: number; height: number }, zoomLevel = 1) {
-        this.resolution = initialResolution;
-        this.zoomLevel = zoomLevel;
+    constructor() {
+        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[0];
+        this.zoomLevel = 1;
         this.aspectRatio = this.resolution.width / this.resolution.height;
         this.gameScreenWidth = this.resolution.width / this.zoomLevel;
         this.gameScreenHeight = this.resolution.height / this.zoomLevel;

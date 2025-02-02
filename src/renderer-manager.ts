@@ -43,7 +43,10 @@ export class RendererManager {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
     }
 
-    render(gamemap: number[], entitiesPool: TEntity[], selectionRectangles: TRectangle[]): void {
+    render(gamemap: number[], entitiesPool: TEntity[], selectionRectangles: TRectangle[], interpolation: number): void {
+
+        // TODO : Use interpolation for smooth rendering.
+
         // Clear canvas before rendering.
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -62,7 +65,7 @@ export class RendererManager {
         }
 
         // Render fog of war, if any.
-        // Todo: Implement Fog of War at some point :)
+        // TODO: Implement Fog of War at some point :)
 
         // Render selection rectangles, if any.
         if (this.rectangleRenderer && selectionRectangles.length) {

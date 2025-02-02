@@ -6,6 +6,7 @@ import { Entities } from "./entities";
 import { CONFIG } from './config';
 import { TRectangle } from "./types";
 import { CameraManager } from "./camera-manager";
+import { TimeManager } from "./time-manager";
 
 export class Game {
 
@@ -14,6 +15,7 @@ export class Game {
     rendererManager: RendererManager;
     uiManager: UIManager;
     cameraManager: CameraManager;
+    timeManager: TimeManager;
 
     // Canvas Properties
     lastDisplayWidth = 0;
@@ -28,27 +30,6 @@ export class Game {
     gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
-
-    // Image Assets
-    creaturesImage!: HTMLImageElement;
-    tilesImage!: HTMLImageElement;
-
-    // Game-State Ticks (at 8 fps)
-    tickAccumulator = 0; // What remained in deltaTime after last update 
-    currentTick = 0;
-    timePerTick = 1000 / CONFIG.GAME.TIMING.TICK_RATE; // dt in ms (125 is 8 per second)
-    timerTriggerAccum = this.timePerTick * 3; // 3 times the timePerTick
-
-    // Graphic Animations (at 15 fps)
-    animAccumulator = 0; // What remained in deltaTime after last update 
-    currentAnim = 0;
-    timePerAnim = 1000 / CONFIG.GAME.TIMING.ANIM_RATE; // dt in ms (66.66 is 15 per second)
-
-    // FPS counter
-    lastTime = 0;
-    fps = 0;
-    fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL; // Update FPS every 1 second
-    fpsLastTime = 0;
 
     constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
 
@@ -73,10 +54,16 @@ export class Game {
         const resizeObserver = new ResizeObserver(this.handleCanvasResize.bind(this));
         resizeObserver.observe(this.canvasElement, { box: 'content-box' });
 
-        this.creaturesImage = sprites;
-        this.tilesImage = tiles;
-        this.cameraManager = new CameraManager(CONFIG.DISPLAY.RESOLUTIONS[0], 1);
-        this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
+        this.timeManager = new TimeManager(
+            CONFIG.GAME.TIMING.TICK_RATE,
+            CONFIG.GAME.TIMING.ANIM_RATE,
+            CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL
+        );
+        this.cameraManager = new CameraManager();
+        this.rendererManager = new RendererManager(this.gl, tiles, sprites);
+        window.addEventListener('unload', () => {
+            this.rendererManager.dispose();
+        });
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager();
@@ -153,17 +140,12 @@ export class Game {
 
         this.initGameStates();
         this.started = true;
-
-        // Setup timer in case RAF Skipped when minimized or not in foreground.
-        setInterval(() => { this.checkUpdate(); }, 500);
+        this.timeManager.lastTime = performance.now();
+        setInterval(() => { this.checkUpdate(); }, 500); // Setup timer in case RAF Skipped when minimized
         this.loop(0);
     }
 
     initGameStates(): void {
-
-        window.addEventListener('unload', () => {
-            this.rendererManager.dispose();
-        });
 
         // Build entities pool
         this.entities = new Entities(100);
@@ -241,32 +223,24 @@ export class Game {
 
     update(timestamp: number, skipRender?: boolean): void {
 
-        // 1. Calculate timing and delta
-        const deltaTime = timestamp - this.lastTime;
-        this.lastTime = timestamp;
+        // 1. Update time
+        const deltaTime = this.timeManager.update(timestamp);
 
-        // 2. Accumulate time for different update frequencies
-        this.tickAccumulator += deltaTime;  // For game logic (8 FPS)
-        this.animAccumulator += deltaTime;  // For animations (15 FPS)
+        // 2. Process immediate inputs/actions
+        this.procGame();
 
-        // 3. Process immediate inputs/actions
-        this.procGame();  // Handle mouse clicks, selection, etc.
-
-        // 4. Update animations at 15 FPS
-        while (this.animAccumulator >= this.timePerAnim) {
+        // 3. Update animations if needed
+        if (this.timeManager.shouldAnimUpdate()) {
             this.uiManager.animateCursor();
-            this.animAccumulator -= this.timePerAnim;
         }
 
-        // 5. Update game state at 8 FPS 
-        while (this.tickAccumulator >= this.timePerTick) {
-            this.tick(); // Updates entity positions, AI, etc.
-            this.tickAccumulator -= this.timePerTick;
+        // 4. Update game logic if needed
+        if (this.timeManager.shouldTickUpdate()) {
+            this.tick();
         }
 
-        // 6. Render at full frame rate: Pass interpolation value for smooth movement.
+        // 5. Render
         if (!skipRender) {
-            const interpolation = this.tickAccumulator / this.timePerTick;
             // Before rendering, resize canvas to display size. (in case of changing window size)
             this.resizeCanvasToDisplaySize(this.canvasElement)
 
@@ -288,26 +262,19 @@ export class Game {
                 );
             }
 
-            this.rendererManager.render(this.gamemap, this.entities.pool, cursor);
+            this.rendererManager.render(this.gamemap, this.entities.pool, cursor, this.timeManager.getInterpolation());
         }
 
-        // Calculate FPS
-        if (timestamp - this.fpsLastTime > this.fpsInterval) {
-            this.fps = Math.round(1000 / deltaTime);
-            this.fpsLastTime = timestamp;
-            // console.log('RAF FPS ', this.fps); // 30
-        }
+        // 6. FPS
+        this.timeManager.updateFps(timestamp, deltaTime);
     }
 
     checkUpdate(): void {
         // Checks for needed ticks to be computed if game is minimized
         const timestamp = performance.now();
-        const deltaTime = timestamp - this.lastTime;
-        if ((this.tickAccumulator + deltaTime) < this.timerTriggerAccum) {
-            return;
+        if (this.timeManager.needCatchUp(timestamp)) {
+            this.update(timestamp, true);
         }
-        // It's been a while, game is minimized: update without rendering.
-        this.update(timestamp, true);
     }
 
     tick(): void {
@@ -321,9 +288,6 @@ export class Game {
                 this.entityBehaviors.process(entity);
             }
         }
-
-        // Update currentTick count
-        this.currentTick += 1;
     }
 
     loop(timestamp: number): void {

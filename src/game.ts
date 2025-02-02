@@ -5,6 +5,7 @@ import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
 import { TRectangle } from "./types";
+import { CameraManager } from "./camera-manager";
 
 export class Game {
 
@@ -12,6 +13,7 @@ export class Game {
     inputManager: InputManager;
     rendererManager: RendererManager;
     uiManager: UIManager;
+    cameraManager: CameraManager;
 
     // Canvas Properties
     lastDisplayWidth = 0;
@@ -19,29 +21,6 @@ export class Game {
     canvasElement: HTMLCanvasElement;
     canvasBoundingRect: DOMRect;
     gl: WebGL2RenderingContext;
-
-    // Game Screen Properties
-    resolution: { label: string, width: number, height: number } = CONFIG.DISPLAY.RESOLUTIONS[0];
-    aspectRatio = 1; // this is display aspect ratio
-    gameScreenWidth = 0; // this is game screen size, used as uWorldX.
-    gameScreenHeight = 0; // Used as uWorldY.
-    gameWidthRatio = 0; // this is game screen ratio to the canvas size
-    gameHeightRatio = 0;
-    scrollEdgeX = 0; // constants for finding trigger zone
-    scrollEdgeY = 0;
-    zoomLevel = 1; // 1 is normal, 0.5 is zoomed out, 2 is zoomed in
-
-    // Map Tile Properties
-    readonly tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE; // Constants for tile size
-    readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1; // Constants for tile size
-    readonly maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1; // Constants for tile size
-
-    initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
-    initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
-    maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
-    maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-    scrollX = 0; // Current scroll position 
-    scrollY = 0;
 
     // Game state Properties
     gamemap: number[] = [];
@@ -96,9 +75,10 @@ export class Game {
 
         this.creaturesImage = sprites;
         this.tilesImage = tiles;
-        this.resizeCanvasToDisplaySize(this.canvasElement);
+        this.cameraManager = new CameraManager(CONFIG.DISPLAY.RESOLUTIONS[0], 1);
         this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
         this.inputManager = new InputManager(this);
+        this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager();
         this.uiManager.mainMenu();
         this.uiManager.getStartButtonElement().addEventListener("click", this.startGame.bind(this));
@@ -133,7 +113,7 @@ export class Game {
             const displayHeight = Math.round(height * dpr);
             [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
             this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
-            this.updateGameScreenProperties();
+            this.cameraManager.updateProperties(this.canvasBoundingRect);
         }
     }
 
@@ -154,19 +134,16 @@ export class Game {
             // Set the viewport to fill the canvas
             this.gl.viewport(0, 0, canvas.width, canvas.height); // This will also clear the canvas  
             if (this.rendererManager && this.rendererManager.worldBuffer) {
-                this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
+                this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
             }
         }
         return needResize;
     }
 
     startGame(): void {
-        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.uiManager.getResolutionSelectElement().selectedIndex];
-        this.aspectRatio = this.resolution.width / this.resolution.height;
-
-        this.updateGameScreenProperties();
-
-        this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
+        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[this.uiManager.getResolutionSelectElement().selectedIndex]);
+        this.cameraManager.updateProperties(this.canvasBoundingRect);
+        this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 
         this.uiManager.setCursor("cur-pointer");
         this.inputManager.init();
@@ -174,28 +151,12 @@ export class Game {
         this.uiManager.getStartButtonElement().style.display = 'none';
         this.uiManager.getResolutionSelectElement().style.display = 'none';
 
-        // Start the game
         this.initGameStates();
         this.started = true;
 
         // Setup timer in case RAF Skipped when minimized or not in foreground.
         setInterval(() => { this.checkUpdate(); }, 500);
         this.loop(0);
-    }
-
-    updateGameScreenProperties(): void {
-        // Called when the mouse-wheel zoomed in or out, or when the game is started.
-        this.gameScreenWidth = this.resolution.width / this.zoomLevel;
-        this.gameScreenHeight = this.resolution.height / this.zoomLevel;
-        this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
-        this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
-
-        this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
-        this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
-        this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
-        this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-        this.gameWidthRatio = this.gameScreenWidth / this.canvasBoundingRect.width;
-        this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;
     }
 
     initGameStates(): void {
@@ -274,24 +235,8 @@ export class Game {
 
         this.gameAction = 0; // -------------- no more game actions to do
 
-        // Scroll if not currently dragging a selection.
-        if (!this.inputManager.isSelecting) {
-            const scrollVelocity = this.inputManager.scrollVelocity;
-            this.scrollX += scrollVelocity.x;
-            this.scrollY += scrollVelocity.y;
-            if (this.scrollX > this.maxScrollX) {
-                this.scrollX = this.maxScrollX;
-            }
-            if (this.scrollX < 0) {
-                this.scrollX = 0;
-            }
-            if (this.scrollY > this.maxScrollY) {
-                this.scrollY = this.maxScrollY;
-            }
-            if (this.scrollY < 0) {
-                this.scrollY = 0;
-            }
-        }
+        this.inputManager.processInputs();
+
     }
 
     update(timestamp: number, skipRender?: boolean): void {
@@ -376,8 +321,6 @@ export class Game {
                 this.entityBehaviors.process(entity);
             }
         }
-
-        this.inputManager.processInputs();
 
         // Update currentTick count
         this.currentTick += 1;

@@ -9,7 +9,7 @@ export class Behaviors {
         this.game = game;
     }
 
-    public process(entity: TEntity): void {
+    process(entity: TEntity): void {
         switch (entity.type) {
             case 1:
                 this.alien(entity);

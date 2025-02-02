@@ -67,10 +67,10 @@ export class InputManager {
         this.scrollNowX = 0;
         this.scrollNowY = 0;
 
-        if (this.mouseX > this.game.scrollEdgeX) {
+        if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
             this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
         }
-        if (this.mouseY > this.game.scrollEdgeY) {
+        if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
             this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
         }
         if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
@@ -88,8 +88,8 @@ export class InputManager {
                 this.selecting = true;
                 this.selX = this.mouseX;
                 this.selY = this.mouseY;
-                this.gameSelStartX = this.selX + this.game.scrollX;
-                this.gameSelStartY = this.selY + this.game.scrollY;
+                this.gameSelStartX = this.selX + this.game.cameraManager.scrollX;
+                this.gameSelStartY = this.selY + this.game.cameraManager.scrollY;
                 this.game.uiManager.setCursor('cur-target');
             }
             if (event.button === 2) {
@@ -101,8 +101,8 @@ export class InputManager {
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
         if (event.button === 0) {
-            this.gameSelEndX = this.mouseX + this.game.scrollX;
-            this.gameSelEndY = this.mouseY + this.game.scrollY;
+            this.gameSelEndX = this.mouseX + this.game.cameraManager.scrollX;
+            this.gameSelEndY = this.mouseY + this.game.cameraManager.scrollY;
             this.selecting = false;
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
             this.game.uiManager.setCursor('cur-pointer');
@@ -123,10 +123,10 @@ export class InputManager {
     }
 
     private setCursorPos(event: MouseEvent): void {
-        this.mouseX = event.clientX * (this.game.gameScreenWidth / this.game.canvasBoundingRect.width);
-        this.mouseY = event.clientY * (this.game.gameScreenHeight / this.game.canvasBoundingRect.height);
-        this.gameMouseX = this.mouseX + this.game.scrollX;
-        this.gameMouseY = this.mouseY + this.game.scrollY;
+        this.mouseX = event.clientX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
+        this.mouseY = event.clientY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+        this.gameMouseX = this.mouseX + this.game.cameraManager.scrollX;
+        this.gameMouseY = this.mouseY + this.game.cameraManager.scrollY;
     }
 
     public processInputs(): void {
@@ -142,18 +142,10 @@ export class InputManager {
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
             //
         }
-        if (!this.selecting) {
-            this.updateScroll();
+        // Scroll if not currently dragging a selection.
+        if (!this.isSelecting) {
+            this.game.cameraManager.scroll(this.scrollVelocity);
         }
-    }
-
-    private updateScroll(): void {
-        this.game.scrollX += this.scrollNowX;
-        this.game.scrollY += this.scrollNowY;
-
-        // Clamp scroll values
-        this.game.scrollX = Math.max(0, Math.min(this.game.scrollX, this.game.maxScrollX));
-        this.game.scrollY = Math.max(0, Math.min(this.game.scrollY, this.game.maxScrollY));
     }
 
     public get isSelecting(): boolean {

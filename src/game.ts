@@ -32,13 +32,16 @@ export class Game {
     zoomLevel = 1; // 1 is normal, 0.5 is zoomed out, 2 is zoomed in
 
     // Map Tile Properties
-    tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE;
+    readonly tileRatio = CONFIG.GAME.TILE.BITMAP_SIZE / CONFIG.GAME.TILE.SIZE; // Constants for tile size
+    readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1; // Constants for tile size
+    readonly maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1; // Constants for tile size
+
     initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
     initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
-    maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
-    maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
     maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
     maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
+    scrollX = 0; // Current scroll position 
+    scrollY = 0;
 
     // Game state Properties
     gamemap: number[] = [];
@@ -46,10 +49,6 @@ export class Game {
     gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
-
-    // Scroll Properties
-    scrollX = 0; // Current scroll position 
-    scrollY = 0;
 
     // Image Assets
     creaturesImage!: HTMLImageElement;
@@ -103,8 +102,6 @@ export class Game {
         this.uiManager = new UIManager();
         this.uiManager.mainMenu();
         this.uiManager.getStartButtonElement().addEventListener("click", this.startGame.bind(this));
-
-
     }
 
     handleCanvasResize(entries: ResizeObserverEntry[]): void {
@@ -135,17 +132,9 @@ export class Game {
             const displayWidth = Math.round(width * dpr);
             const displayHeight = Math.round(height * dpr);
             [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
-            this.setDimensionsVars();
+            this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
+            this.updateGameScreenProperties();
         }
-    }
-
-    setDimensionsVars(): DOMRect {
-        this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
-        this.gameWidthRatio = this.gameScreenWidth / this.canvasBoundingRect.width;
-        this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;
-        this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
-        this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
-        return this.canvasBoundingRect;
     }
 
     resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {
@@ -173,22 +162,13 @@ export class Game {
 
     startGame(): void {
         this.resolution = CONFIG.DISPLAY.RESOLUTIONS[this.uiManager.getResolutionSelectElement().selectedIndex];
-
         this.aspectRatio = this.resolution.width / this.resolution.height;
-        this.gameScreenWidth = this.resolution.width;
-        this.gameScreenHeight = this.resolution.height;
-        this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
-        this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
 
-        // Re-set 
-        this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
-        this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
-        this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
-        this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
+        this.updateGameScreenProperties();
 
         this.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
-        this.uiManager.setCursor("cur-pointer");
 
+        this.uiManager.setCursor("cur-pointer");
         this.inputManager.init();
 
         this.uiManager.getStartButtonElement().style.display = 'none';
@@ -203,11 +183,19 @@ export class Game {
         this.loop(0);
     }
 
-    setGameScreenStates(): void {
-        // Set the game screen width, scroll and zoom states.
-        // Called when the window is resized, mouse-wheel zoomed in or out, or when the game is started.
-        //
+    updateGameScreenProperties(): void {
+        // Called when the mouse-wheel zoomed in or out, or when the game is started.
+        this.gameScreenWidth = this.resolution.width / this.zoomLevel;
+        this.gameScreenHeight = this.resolution.height / this.zoomLevel;
+        this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER; // constants for finding trigger zone
+        this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
 
+        this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
+        this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
+        this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;
+        this.maxScrollY = 1 + this.maxMapY - this.gameScreenHeight;
+        this.gameWidthRatio = this.gameScreenWidth / this.canvasBoundingRect.width;
+        this.gameHeightRatio = this.gameScreenHeight / this.canvasBoundingRect.height;
     }
 
     initGameStates(): void {
@@ -306,33 +294,6 @@ export class Game {
         }
     }
 
-    render(interpolation: number): void {
-
-        // Before rendering, resize canvas to display size. (in case of changing window size)
-        this.resizeCanvasToDisplaySize(this.canvasElement)
-
-        // Selection lines with four thin rectangles, if user is selecting.
-        const cursor: TRectangle[] = [];
-        if (this.inputManager.isSelecting) {
-            // Draw selection rectangle with lines
-            const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
-            const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
-            const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
-            const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
-
-            // Top, bottom, left, right lines
-            cursor.push(
-                { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
-                { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
-            );
-        }
-
-        this.rendererManager.render(this.gamemap, this.entities.pool, cursor);
-
-    }
-
     update(timestamp: number, skipRender?: boolean): void {
 
         // 1. Calculate timing and delta
@@ -404,12 +365,8 @@ export class Game {
         this.update(timestamp, true);
     }
 
-    /**
-     * Advance game states in pool from currentTick count, to the next one.
-     */
     tick(): void {
-
-        // Process Entities
+        // Advance game states in pool from currentTick count, to the next one.
         let processed = 0;
         let entity;
         for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {

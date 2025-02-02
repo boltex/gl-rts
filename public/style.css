@@ -20,9 +20,24 @@ html.cur-target {
   cursor: url("images/cursor-target32.png") 15 15, auto;
 }
 
-/* html.cur-select {
-  cursor: url('images/cursor3.png'), auto;
-} */
+html.cur-select-green1 {
+  cursor: url("images/cursor-green1-32.png") 15 15, auto;
+}
+html.cur-select-green2 {
+  cursor: url("images/cursor-green2-32.png") 15 15, auto;
+}
+html.cur-select-yellow1 {
+  cursor: url("images/cursor-yellow1-32.png") 15 15, auto;
+}
+html.cur-select-yellow2 {
+  cursor: url("images/cursor-yellow2-32.png") 15 15, auto;
+}
+html.cur-select-red1 {
+  cursor: url("images/cursor-red1-32.png") 15 15, auto;
+}
+html.cur-select-red2 {
+  cursor: url("images/cursor-red2-32.png") 15 15, auto;
+}
 
 canvas {
   background-color: #333;

@@ -8,8 +8,9 @@ import { Entities } from "./entities";
 
 export class Game {
 
+    // Manager classes
     inputManager: InputManager;
-    rendererManager!: RendererManager;
+    rendererManager: RendererManager;
 
     // HTML Elements
     startButtonElement: HTMLButtonElement = document.createElement("button");
@@ -85,8 +86,7 @@ export class Game {
     fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL; // Update FPS every 1 second
     fpsLastTime = 0;
 
-    constructor() {
-        console.log("constructing game");
+    constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
 
         this.documentElementClassList = document.documentElement.classList;
 
@@ -109,24 +109,11 @@ export class Game {
         const resizeObserver = new ResizeObserver(this.handleCanvasResize.bind(this));
         resizeObserver.observe(this.canvasElement, { box: 'content-box' });
 
-        // Create a 'loading...' text element centered on screen
-        const loadingText = document.createElement('div');
-        loadingText.classList.add("loading-text");
-        loadingText.textContent = 'Loading...';
-
-        document.body.appendChild(loadingText);
-
-        // Using promises, after both image assets have loaded, call mainMenu
-        const creaturesPromise = utils.loadImage('images/alien.png');
-        const tilesPromise = utils.loadImage('images/plancher-vertical.png');
-        Promise.all([creaturesPromise, tilesPromise]).then((images) => {
-            document.body.removeChild(loadingText);
-            this.creaturesImage = images[0];
-            this.tilesImage = images[1];
-            this.resizeCanvasToDisplaySize(this.canvasElement);
-            this.mainMenu();
-            this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
-        });
+        this.creaturesImage = sprites;
+        this.tilesImage = tiles;
+        this.resizeCanvasToDisplaySize(this.canvasElement);
+        this.mainMenu();
+        this.rendererManager = new RendererManager(this.gl, this.tilesImage, this.creaturesImage);
 
         this.inputManager = new InputManager(this);
 

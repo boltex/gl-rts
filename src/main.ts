@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (!window.game) {
             window.game = new Game(images[0], images[1]);
         } else {
-            console.log('Game instance already started');
+            console.error('Game instance already started');
         }
     });
 });

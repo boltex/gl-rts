@@ -112,13 +112,14 @@ export class InputManager {
     private handleMouseWheel(event: WheelEvent): void {
         if (event.ctrlKey) {
             event.preventDefault();
+            event.stopImmediatePropagation();
         }
         if (event.deltaY < 0) {
-            // Todo: Zoom in
-            console.log("CTRL+Scroll Up"); // You could trigger a specific game action here
+            // TODO : Implement Zoom in!
+            console.log("Scroll Up");
         } else if (event.deltaY > 0) {
-            // Todo: Zoom out
-            console.log("CTRL+Scroll Down");
+            // TODO : Implement Zoom out!
+            console.log("Scroll Down");
         }
     }
 

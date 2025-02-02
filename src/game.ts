@@ -33,8 +33,6 @@ export class Game {
 
     constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
 
-        this.uiManager = new UIManager();
-
         this.canvasElement = document.createElement('canvas');
         document.body.appendChild(this.canvasElement);
 
@@ -312,6 +310,7 @@ export class Game {
         const selectionStart = this.inputManager.selectionStart;
         const selectionEnd = this.inputManager.selectionEnd;
         console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
+        // TODO : Add selection logic here
     }
 
 

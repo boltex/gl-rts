@@ -52,7 +52,10 @@ abstract class BaseRenderer {
     }
 
     protected createShader(type: ShaderType, source: string): WebGLShader {
-        const shader = this.gl.createShader(type)!;
+        const shader = this.gl.createShader(type);
+        if (!shader) {
+            throw new Error('Failed to create shader');
+        }
         this.resources.shaders.push(shader);
         this.gl.shaderSource(shader, source);
         this.gl.compileShader(shader);

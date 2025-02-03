@@ -1,4 +1,4 @@
-import { TEntity } from "./types";
+import { EntityType, TEntity } from "./types";
 import { Game } from "./game";
 
 export class Behaviors {
@@ -11,7 +11,7 @@ export class Behaviors {
 
     process(entity: TEntity): void {
         switch (entity.type) {
-            case 1:
+            case EntityType.ALIEN:
                 this.alien(entity);
                 break;
 

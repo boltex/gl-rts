@@ -68,3 +68,8 @@ export type WebGLError = {
     message: string;
     details?: string;
 }
+
+export enum EntityType {
+    ALIEN = 1,
+    // ...
+}

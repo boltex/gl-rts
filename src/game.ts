@@ -4,7 +4,7 @@ import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
-import { TRectangle } from "./types";
+import { EntityType, TRectangle } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
 import * as utils from "./utils";
@@ -139,7 +139,7 @@ export class Game {
         // Fill Entities pool
         // EXPERIMENTAL TEST: Create 3 test Aliens
         const alien1 = this.entities.spawn();
-        alien1.type = 1;
+        alien1.type = EntityType.ALIEN;
         alien1.hitPoints = 100;
         alien1.x = 515;
         alien1.y = 100;
@@ -147,7 +147,7 @@ export class Game {
         alien1.orientation = 6;
 
         const alien2 = this.entities.spawn();
-        alien2.type = 1;
+        alien2.type = EntityType.ALIEN;
         alien2.hitPoints = 100;
         alien2.x = 0;
         alien2.y = 0;
@@ -155,7 +155,7 @@ export class Game {
         alien2.orientation = 5;
 
         const alien3 = this.entities.spawn();
-        alien3.type = 1;
+        alien3.type = EntityType.ALIEN;
         alien3.hitPoints = 100;
         alien3.x = 64;
         alien3.y = 455;

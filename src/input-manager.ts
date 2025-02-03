@@ -18,6 +18,13 @@ export class InputManager {
     private scrollNowX = 0;
     private scrollNowY = 0;
 
+    private keyDownHandler = this.handleKeyDown.bind(this);
+    private keyUpHandler = this.handleKeyUp.bind(this);
+    private mouseMoveHandler = this.handleMouseMove.bind(this);
+    private mouseDownHandler = this.handleMouseDown.bind(this);
+    private mouseUpHandler = this.handleMouseUp.bind(this);
+    private mouseWheelHandler = this.handleMouseWheel.bind(this);
+
     constructor(game: Game) {
         this.game = game;
     }
@@ -38,15 +45,24 @@ export class InputManager {
         return { x: this.scrollNowX, y: this.scrollNowY };
     }
 
-
     public init(): void {
-        window.addEventListener("keydown", this.handleKeyDown.bind(this));
-        window.addEventListener("keyup", this.handleKeyUp.bind(this));
-        window.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        window.addEventListener("mousedown", this.handleMouseDown.bind(this));
-        window.addEventListener("mouseup", this.handleMouseUp.bind(this));
-        window.addEventListener("wheel", this.handleMouseWheel.bind(this), { passive: false });
+        window.addEventListener("keydown", this.keyDownHandler);
+        window.addEventListener("keyup", this.keyUpHandler);
+        window.addEventListener("mousemove", this.mouseMoveHandler);
+        window.addEventListener("mousedown", this.mouseDownHandler);
+        window.addEventListener("mouseup", this.mouseUpHandler);
+        window.addEventListener("wheel", this.mouseWheelHandler, { passive: false });
     }
+
+    dispose(): void {
+        window.removeEventListener("keydown", this.keyDownHandler);
+        window.removeEventListener("keyup", this.keyUpHandler);
+        window.removeEventListener("mousemove", this.mouseMoveHandler);
+        window.removeEventListener("mousedown", this.mouseDownHandler);
+        window.removeEventListener("mouseup", this.mouseUpHandler);
+        window.removeEventListener("wheel", this.mouseWheelHandler);
+    }
+
     private handleKeyDown(e: KeyboardEvent): void {
         this.keysPressed[e.key] = true;
         if (e.key === 'F10') {

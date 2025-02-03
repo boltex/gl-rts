@@ -82,6 +82,7 @@ export class Game {
         this.uiManager.getStartButtonElement().removeEventListener("click", this.startGameHandler);
         this.resizeObserver.unobserve(this.canvasElement);
         this.resizeObserver.disconnect();
+        this.inputManager.dispose();
     }
 
     handleCanvasResize(entries: ResizeObserverEntry[]): void {

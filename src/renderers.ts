@@ -63,6 +63,19 @@ abstract class BaseRenderer {
         return shader;
     }
 
+    protected setupBufferWithAttributes(
+        buffer: WebGLBuffer,
+        data: BufferSource,
+        usage: number,
+        attributes: Array<[number, number, number, number, number?]>
+    ): void {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, data, usage);
+        attributes.forEach(([location, size, stride, offset, divisor = 0]) => {
+            this.setupAttribute(location, size, stride, offset, divisor);
+        });
+    }
+
     protected createBuffer(): WebGLBuffer {
         const buffer = this.gl.createBuffer()!;
         this.resources.buffers.push(buffer);
@@ -129,25 +142,21 @@ export class TileRenderer extends BaseRenderer {
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
-
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
         this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.SIZE, CONFIG.GAME.TILE.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
-        this.setupAttribute(0, 2, 16, 0);
-        this.setupAttribute(1, 2, 16, 8);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates);
-        this.setupAttribute(2, 2, 28, 0, 1);
-        this.setupAttribute(3, 1, 28, 8, 1);
-        this.setupAttribute(4, 3, 28, 12, 1);
-        this.setupAttribute(5, 1, 28, 24, 1);
-
+        this.setupBufferWithAttributes(this.modelBuffer, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW, [
+            [0, 2, 16, 0],
+            [1, 2, 16, 8]
+        ]);
+        this.setupBufferWithAttributes(this.transformBuffer, this.transformData, this.gl.DYNAMIC_DRAW, [
+            [2, 2, 28, 0, 1],
+            [3, 1, 28, 8, 1],
+            [4, 3, 28, 12, 1],
+            [5, 1, 28, 24, 1]
+        ]);
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
@@ -195,25 +204,21 @@ export class SpriteRenderer extends BaseRenderer {
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
-
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 4096, 4096, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
-        this.setupAttribute(0, 2, 16, 0);
-        this.setupAttribute(1, 2, 16, 8);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
-        this.setupAttribute(2, 2, 32, 0, 1);
-        this.setupAttribute(3, 1, 32, 8, 1);
-        this.setupAttribute(4, 3, 32, 12, 1);
-        this.setupAttribute(5, 2, 32, 24, 1);
-
+        this.setupBufferWithAttributes(this.modelBuffer, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW, [
+            [0, 2, 16, 0],
+            [1, 2, 16, 8]
+        ]);
+        this.setupBufferWithAttributes(this.transformBuffer, this.transformData, this.gl.DYNAMIC_DRAW, [
+            [2, 2, 32, 0, 1],
+            [3, 1, 32, 8, 1],
+            [4, 3, 32, 12, 1],
+            [5, 2, 32, 24, 1]
+        ]);
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
@@ -282,18 +287,15 @@ export class RectangleRenderer extends BaseRenderer {
 
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.modelBuffer); // Bind the buffer (meaning "use this buffer" for the following operations)
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW); // Put data in the buffer
-        this.setupAttribute(0, 2, 8, 0);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer); // Bind the buffer (meaning "use this buffer for the following operations")
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.transformData, this.gl.DYNAMIC_DRAW); // Change to DYNAMIC_DRAW to allow updates
-        this.setupAttribute(1, 2, 28, 0, 1);
-        this.setupAttribute(2, 1, 28, 8, 1);
-        this.setupAttribute(3, 1, 28, 12, 1);
-        this.setupAttribute(4, 3, 28, 16, 1);
-
+        this.setupBufferWithAttributes(this.modelBuffer, CONFIG.RECTANGLE_MODEL_DATA, this.gl.STATIC_DRAW, [
+            [0, 2, 8, 0]
+        ]);
+        this.setupBufferWithAttributes(this.transformBuffer, this.transformData, this.gl.DYNAMIC_DRAW, [
+            [1, 2, 28, 0, 1],
+            [2, 1, 28, 8, 1],
+            [3, 1, 28, 12, 1],
+            [4, 3, 28, 16, 1]
+        ]);
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 

@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         document.body.removeChild(loadingText);
         if (!window.game) {
             window.game = new Game(images[0], images[1]);
+
+            // Clean up on unload
+            window.addEventListener('unload', () => {
+                window.game.dispose();
+            });
         } else {
             console.error('Game instance already started');
         }

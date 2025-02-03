@@ -37,3 +37,33 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
     });
 }
 
+export function getDisplaySize(entry: ResizeObserverEntry): { width: number, height: number } {
+    let width: number, height: number;
+    let dpr = window.devicePixelRatio;
+    if (entry.devicePixelContentBoxSize) {
+        // NOTE: Only this path gives the correct answer
+        // The other 2 paths are an imperfect fallback
+        // for browsers that don't provide anyway to do this
+        [width, height] = [entry.devicePixelContentBoxSize[0].inlineSize, entry.devicePixelContentBoxSize[0].blockSize];
+        dpr = 1; // Already in device pixels
+    } else if (entry.contentBoxSize) {
+        if (entry.contentBoxSize[0]) {
+            [width, height] = [entry.contentBoxSize[0].inlineSize, entry.contentBoxSize[0].blockSize];
+        } else {
+            // @ts-expect-error legacy API
+            [width, height] = [entry.contentBoxSize.inlineSize, entry.contentBoxSize.blockSize];
+        }
+    } else {
+        // Legacy API
+        [width, height] = [entry.contentRect.width, entry.contentRect.height];
+    }
+    return { width: Math.round(width * dpr), height: Math.round(height * dpr) };
+}
+
+export function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
+    let timer: number;
+    return ((...args: any[]) => {
+        if (timer) clearTimeout(timer);
+        timer = window.setTimeout(() => func(...args), delay);
+    }) as T;
+}

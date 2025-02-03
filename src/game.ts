@@ -7,6 +7,7 @@ import { CONFIG } from './config';
 import { TRectangle } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
+import * as utils from "./utils";
 
 export class Game {
 
@@ -31,6 +32,10 @@ export class Game {
     entities!: Entities;
     entityBehaviors!: Behaviors;
 
+    private startGameHandler = this.startGame.bind(this);
+    private handleContextMenu = (event: MouseEvent) => event.preventDefault();
+    private resizeObserver: ResizeObserver;
+
     constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
 
         this.canvasElement = document.createElement('canvas');
@@ -38,19 +43,24 @@ export class Game {
 
         this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
 
-        this.gl = this.canvasElement.getContext('webgl2')!;
+        const gl = this.canvasElement.getContext('webgl2');
+        if (gl) {
+            this.gl = gl; // ok, we have a WebGL2 context
+        } else {
+            throw new Error('WebGL2 not supported in this browser'); // Error handling
+        }
+
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // transparent black
 
         // Prevent right-click context menu
-        this.canvasElement.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-        });
+        this.canvasElement.addEventListener('contextmenu', this.handleContextMenu);
 
-        // Canvas has style width: 100vw; and style height: 100vh;
-        const resizeObserver = new ResizeObserver(this.handleCanvasResize.bind(this));
-        resizeObserver.observe(this.canvasElement, { box: 'content-box' });
+        // Canvas has style width: 100vw; and style height: 100vh; so we need to handle resizes!
+        const debouncedResize = utils.debounce(this.handleCanvasResize.bind(this), 250);
+        this.resizeObserver = new ResizeObserver(debouncedResize);
+        this.resizeObserver.observe(this.canvasElement, { box: 'content-box' });
 
         this.timeManager = new TimeManager(
             CONFIG.GAME.TIMING.TICK_RATE,
@@ -59,60 +69,38 @@ export class Game {
         );
         this.cameraManager = new CameraManager();
         this.rendererManager = new RendererManager(this.gl, tiles, sprites);
-        window.addEventListener('unload', () => {
-            this.rendererManager.dispose();
-        });
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager();
         this.uiManager.mainMenu();
-        this.uiManager.getStartButtonElement().addEventListener("click", this.startGame.bind(this));
+        this.uiManager.getStartButtonElement().addEventListener("click", this.startGameHandler);
+    }
+
+    dispose(): void {
+        this.rendererManager.dispose();
+        this.canvasElement.removeEventListener('contextmenu', this.handleContextMenu);
+        this.uiManager.getStartButtonElement().removeEventListener("click", this.startGameHandler);
+        this.resizeObserver.unobserve(this.canvasElement);
+        this.resizeObserver.disconnect();
     }
 
     handleCanvasResize(entries: ResizeObserverEntry[]): void {
-
-        // Canvas has style width: 100vw; and height: 100vh; so we need to handle window resizes!
         for (const entry of entries) {
-            let width;
-            let height;
-            let dpr = window.devicePixelRatio;
-            if (entry.devicePixelContentBoxSize) {
-                // NOTE: Only this path gives the correct answer
-                // The other 2 paths are an imperfect fallback
-                // for browsers that don't provide anyway to do this
-                [width, height] = [entry.devicePixelContentBoxSize[0].inlineSize, entry.devicePixelContentBoxSize[0].blockSize];
-                dpr = 1; // it's already in width and height
-            } else if (entry.contentBoxSize) {
-                if (entry.contentBoxSize[0]) {
-                    [width, height] = [entry.contentBoxSize[0].inlineSize, entry.contentBoxSize[0].blockSize];
-                } else {
-                    // legacy mozilla impl using only contentBox
-                    // @ts-expect-error
-                    [width, height] = [entry.contentBoxSize.inlineSize, entry.contentBoxSize.blockSize];
-                }
-            } else {
-                // legacy
-                [width, height] = [entry.contentRect.width, entry.contentRect.height];
-            }
-            const displayWidth = Math.round(width * dpr);
-            const displayHeight = Math.round(height * dpr);
-            [this.lastDisplayWidth, this.lastDisplayHeight] = [displayWidth, displayHeight];
+            const { width: displayWidth, height: displayHeight } = utils.getDisplaySize(entry);
+            this.lastDisplayWidth = displayWidth;
+            this.lastDisplayHeight = displayHeight;
             this.canvasBoundingRect = this.canvasElement.getBoundingClientRect();
             this.cameraManager.updateProperties(this.canvasBoundingRect);
         }
     }
 
     resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): boolean {
+        const displayWidth = this.lastDisplayWidth;
+        const displayHeight = this.lastDisplayHeight;
 
-        // Get the size the browser is displaying the canvas in device pixels.
-        const [displayWidth, displayHeight] = [this.lastDisplayWidth, this.lastDisplayHeight];
-
-        // Check if the canvas is not the same size.
         const needResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
-
         if (needResize) {
-
-            // Make the canvas the same size
+            // Set the canvas dimensions to the display size
             canvas.width = displayWidth;
             canvas.height = displayHeight;
 
@@ -144,8 +132,6 @@ export class Game {
     }
 
     initGameStates(): void {
-
-        // Build entities pool
         this.entities = new Entities(100);
         this.entityBehaviors = new Behaviors(this);
 
@@ -309,8 +295,10 @@ export class Game {
         // Called from procGame
         const selectionStart = this.inputManager.selectionStart;
         const selectionEnd = this.inputManager.selectionEnd;
+
         console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
         // TODO : Add selection logic here
+
     }
 
 

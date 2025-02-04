@@ -30,11 +30,12 @@ const GAME = {
     TILE: {
         BITMAP_SIZE: 1024, // size of a square bitmap of tiles
         SIZE: 128, // size of an individual square TILE 
-        DEPTH: 64
+        DEPTH: 64, // Should be BITMAP_SIZE / SIZE
+        TILERATIO: 8 // Should be BITMAP_SIZE / SIZE
     },
     MAP: {
-        WIDTH: 64, // game map width in TILES 
-        HEIGHT: 64 // game map height in TILES 
+        WIDTH: 32, // game map width in TILES 
+        HEIGHT: 32 // game map height in TILES 
     },
     TIMING: {
         TICK_RATE: 8, // 8 fps for game logic

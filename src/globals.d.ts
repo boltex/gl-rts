@@ -1,4 +1,4 @@
-import { Game } from './main';
+import { Game } from './game';
 
 export { };
 

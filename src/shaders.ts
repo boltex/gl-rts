@@ -1,4 +1,3 @@
-
 // BACKGROUND MAP VERTEX SHADER
 const TILE_VERTEX_SHADER = /*glsl*/ `#version 300 es
 

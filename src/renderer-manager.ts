@@ -15,18 +15,15 @@ export class RendererManager {
     }
 
     initRenderers(tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement): void {
-        // Use your own logic to determine capacities as needed.
         this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.rectangleRenderer = new RectangleRenderer(this.gl, 4);
 
-        // Create and bind uniform buffer.
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
         this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, this.worldBuffer);
 
-        // Bind uniform blocks for each program.
         const worldIndex = 0;
         const tileBlockIndex = this.gl.getUniformBlockIndex(this.tileRenderer.program, 'World');
         this.gl.uniformBlockBinding(this.tileRenderer.program, tileBlockIndex, worldIndex);
@@ -43,7 +40,7 @@ export class RendererManager {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
     }
 
-    render(gamemap: number[], entitiesPool: TEntity[], selectionRectangles: TRectangle[], interpolation: number): void {
+    render(visibleTiles: [number, number, number][], entitiesPool: TEntity[], selectionRectangles: TRectangle[], interpolation: number): void {
 
         // TODO : Use interpolation for smooth rendering.
 
@@ -54,7 +51,7 @@ export class RendererManager {
         // Render tile layer.
         if (this.tileRenderer) {
             // Update tile transform data if needed.
-            this.tileRenderer.updateTransformData(gamemap);
+            this.tileRenderer.updateTransformData(visibleTiles);
             this.tileRenderer.render();
         }
 

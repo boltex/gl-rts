@@ -18,6 +18,11 @@ export class InputManager {
     private scrollNowX = 0;
     private scrollNowY = 0;
 
+    private keyboardUp = false;
+    private keyboardDown = false;
+    private keyboardLeft = false;
+    private keyboardRight = false;
+
     private keyDownHandler = this.handleKeyDown.bind(this);
     private keyUpHandler = this.handleKeyUp.bind(this);
     private mouseMoveHandler = this.handleMouseMove.bind(this);
@@ -78,8 +83,10 @@ export class InputManager {
         this.keysPressed[e.key] = false;
     }
 
-    private handleMouseMove(event: MouseEvent): void {
-        this.setCursorPos(event);
+    private handleMouseMove(event?: MouseEvent): void {
+        if (event) {
+            this.setCursorPos(event);
+        }
         this.scrollNowX = 0;
         this.scrollNowY = 0;
 
@@ -148,17 +155,38 @@ export class InputManager {
 
     public processInputs(): void {
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-            //
+            this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+            this.keyboardUp = true
+        } else if (this.keyboardUp) {
+            this.keyboardUp = false;
+            this.scrollNowY = 0;
+            this.handleMouseMove();
         }
         if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-            //
+            this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+            this.keyboardDown = true
+        } else if (this.keyboardDown) {
+            this.keyboardDown = false;
+            this.scrollNowY = 0;
+            this.handleMouseMove();
         }
         if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-            // 
+            this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+            this.keyboardLeft = true
+        } else if (this.keyboardLeft) {
+            this.keyboardLeft = false;
+            this.scrollNowX = 0;
+            this.handleMouseMove();
         }
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-            //
+            this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+            this.keyboardRight = true
+        } else if (this.keyboardRight) {
+            this.keyboardRight = false;
+            this.scrollNowX = 0;
+            this.handleMouseMove();
         }
+
         // Scroll if not currently dragging a selection.
         if (!this.isSelecting) {
             this.game.cameraManager.scroll(this.scrollVelocity);

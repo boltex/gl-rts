@@ -163,17 +163,19 @@ export class TileRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
-    updateTransformData(data: number[]): void {
+    updateTransformData(data: [number, number, number][] = []): void {
+        // data is Array of X, Y and Tile Index triplets
         for (let i = 0; i < data.length; i++) {
             const offset = i * 7;
-            this.transformData[offset] = (i % 9) * CONFIG.GAME.TILE.SIZE;
-            this.transformData[offset + 1] = Math.floor(i / 9) * CONFIG.GAME.TILE.SIZE;
+            this.transformData[offset] = data[i][0];
+            this.transformData[offset + 1] = data[i][1];
             this.transformData[offset + 2] = CONFIG.GAME.TILE.SIZE;
             this.transformData[offset + 3] = 1;
             this.transformData[offset + 4] = 1;
             this.transformData[offset + 5] = 1;
-            this.transformData[offset + 6] = data[i];
+            this.transformData[offset + 6] = data[i][2];
         }
+
         this.renderMax = data.length;
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);

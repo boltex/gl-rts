@@ -163,20 +163,12 @@ export class Game {
         alien3.orientation = 14;
 
         // Build Map (Will later be bigger maps loaded from file)
-        // EXPERIMENTAL TEST: temp map 9 by 9 tiles 
-        for (let temp1 = 0; temp1 < 8; temp1++) { // start with 8 ROWS 
-            this.gamemap.push(temp1 * 8); // added row total 1 width COLUMN
-            for (let temp2 = 0; temp2 < 8; temp2++) {  // + 8 COLUMNS
-                this.gamemap.push(temp2 + temp1 * 8); // here add for total of 9 width COLUMNS
-            }
+        // Use Config.GAME.MAP.WIDTH and Config.GAME.MAP.HEIGHT
+        // For now, just fill with random tiles
+        this.gamemap = []; // AS a linear array of size Config.GAME.MAP.WIDTH * Config.GAME.MAP.HEIGHT
+        for (let i = 0; i < CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT; i++) {
+            this.gamemap.push(Math.floor(Math.random() * 16));
         }
-        this.gamemap[21] = 3; // Proof CHANGE THOSE GAMEMAPS TO PROVE THEY ARE TILES
-        for (let temp = 0; temp < 9; temp++) { // add last row for total of 9 ROWS
-            this.gamemap.push(temp + 56);
-        }
-
-        // TODO: Instead create a 32x32 map with random tiles!
-
     }
 
     procGame(): void {
@@ -202,7 +194,7 @@ export class Game {
 
         this.gameAction = 0; // -------------- no more game actions to do
 
-        this.inputManager.processInputs();
+        this.inputManager.processInputs(); // So far this scrolls the map only
 
     }
 
@@ -229,6 +221,31 @@ export class Game {
             // Before rendering, resize canvas to display size. (in case of changing window size)
             this.resizeCanvasToDisplaySize(this.canvasElement)
 
+            const visibleTiles: [number, number, number][] = []; // X, Y and Tile Index
+            const tilesize = CONFIG.GAME.TILE.SIZE;
+            const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
+            const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
+            const screenx = this.cameraManager.gameScreenWidth;
+            const screeny = this.cameraManager.gameScreenHeight;
+            let rangex = (screenx / tilesize) + 1;
+            let rangey = (screeny / tilesize) + 1;
+            if (this.cameraManager.scrollX % tilesize > tilesize - (screenx % tilesize)) {
+                rangex += 1;
+            }
+            if (this.cameraManager.scrollY % tilesize > tilesize - (screeny % tilesize)) {
+                rangey += 1;
+            }
+            for (let y = 0; y < rangey; y++) {
+                for (let x = 0; x < rangex; x++) {
+                    const a = this.gamemap[(tileoffx + x) + ((tileoffy + y) * (CONFIG.GAME.MAP.WIDTH))];
+                    visibleTiles.push(
+                        [x * tilesize - (this.cameraManager.scrollX % tilesize),
+                        y * tilesize - (this.cameraManager.scrollY % tilesize),
+                            a]
+                    );
+                }
+            }
+
             // Selection lines with four thin rectangles, if user is selecting.
             const cursor: TRectangle[] = [];
             if (this.inputManager.isSelecting) {
@@ -247,7 +264,7 @@ export class Game {
                 );
             }
 
-            this.rendererManager.render(this.gamemap, this.entities.pool, cursor, this.timeManager.getInterpolation());
+            this.rendererManager.render(visibleTiles, this.entities.pool, cursor, this.timeManager.getInterpolation());
         }
 
         // 6. FPS

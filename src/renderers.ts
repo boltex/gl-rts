@@ -1,4 +1,4 @@
-import { TEntity, GLResources, ShaderType, TRectangle } from "./types";
+import { TEntity, GLResources, ShaderType, TRectangle, TSelectAnim } from "./types";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 
@@ -227,7 +227,7 @@ export class SpriteRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
-    updateTransformData(data: TEntity[]): void {
+    updateTransformData(data: Array<TEntity | TSelectAnim>): void {
         const u = (sprite: number, orientation: number) => ((sprite % 16) * 0.015625) + (orientation % 4) * 0.25;
         const v = (sprite: number, orientation: number) => (Math.floor(sprite / 16) * 0.015625) + Math.floor(orientation / 4) * 0.25;
 

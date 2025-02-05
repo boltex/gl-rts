@@ -4,7 +4,7 @@ import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
-import { EntityType, TRectangle } from "./types";
+import { EntityType, TRectangle, TSelectAnim } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
 import * as utils from "./utils";
@@ -31,6 +31,13 @@ export class Game {
     gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
+    selectAnim: [TSelectAnim] = [{
+        x: 0,
+        y: 0,
+        orientation: 0,
+        frameIndex: 0,
+        active: false
+    }];
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -180,10 +187,10 @@ export class Game {
 
             switch (this.gameAction) {
                 case CONFIG.GAME.ACTIONS.DEFAULT:
-                    this.trydefault();
+                    this.defaultAction();
                     break;
                 case CONFIG.GAME.ACTIONS.RELEASESEL:
-                    this.tryselect();
+                    this.selectUnits();
                     break;
 
                 default:
@@ -243,6 +250,7 @@ export class Game {
                         y * tilesize - (this.cameraManager.scrollY % tilesize),
                             a]
                     );
+
                 }
             }
 
@@ -264,13 +272,39 @@ export class Game {
                 );
             }
 
-            this.rendererManager.render(visibleTiles, this.entities.pool, cursor, this.timeManager.getInterpolation());
+            // Animated selection widget, if any. Uses same renderer and texture as sprites.
+            if (this.uiManager.widgetAnim > 0) {
+                this.selectAnim[0].x = this.uiManager.widgetAnimX;
+                this.selectAnim[0].y = this.uiManager.widgetAnimY;
+                this.selectAnim[0].frameIndex = 249 + this.uiManager.widgetAnim;
+                this.selectAnim[0].active = true;
+                // cursor.push(
+                //     {
+                //         sprite: "alien",
+                //         position: { x: this.curanimx - this.scrollx, y: this.curanimy - this.scrolly },
+                //         oldPosition: { x: this.curanimx - this.scrollx, y: this.curanimy - this.scrolly },
+                //         frame: { x: 25 + this.curanim, y: 15 },
+                //         flip: false,
+                //         blendmode: Game.BLENDMODE_ALPHA,
+                //         options: {}
+                //     }
+                // );
+            } else {
+                this.selectAnim[0].active = false;
+            }
+
+            this.rendererManager.render(
+                visibleTiles,
+                this.entities.pool,
+                cursor,
+                this.selectAnim,
+                this.timeManager.getInterpolation()
+            );
         }
 
         // 6. FPS
         this.timeManager.updateFps(timestamp, deltaTime);
     }
-
     checkUpdate(): void {
         // Checks for needed ticks to be computed if game is minimized
         const timestamp = performance.now();
@@ -291,24 +325,23 @@ export class Game {
             }
         }
     }
-
     loop(timestamp: number): void {
         this.update(timestamp);
         requestAnimationFrame(this.loop.bind(this));
     }
 
-    trydefault(): void {
+    defaultAction(): void {
         const gamePosition = this.inputManager.gamePosition;
         console.log('default action at: ', gamePosition.x, gamePosition.y);
 
-        // TODO : Replace with test cursor animation with the real default action
-        // TEST START WIDGET ANIMATION ON DEFAULT ACTION
+        // TODO : Replace test cursor animation with the real default action
+        // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION
         this.uiManager.widgetAnim = 1;
-        this.uiManager.widgetAnimX = gamePosition.x - 32;
-        this.uiManager.widgetAnimY = gamePosition.y - 32;
+        this.uiManager.widgetAnimX = this.inputManager.mouseX - 64;
+        this.uiManager.widgetAnimY = this.inputManager.mouseY - 64;
     }
 
-    tryselect(): void {
+    selectUnits(): void {
 
         // Called from procGame
         const selectionStart = this.inputManager.selectionStart;
@@ -318,7 +351,6 @@ export class Game {
         // TODO : Add selection logic here
 
     }
-
 
 }
 

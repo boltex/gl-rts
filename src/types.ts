@@ -29,6 +29,14 @@ export type TEntity = {
     active: boolean;
 }
 
+export type TSelectAnim = {
+    x: number;
+    y: number;
+    orientation: number;
+    frameIndex: number;
+    active: boolean;
+}
+
 export type TRectangle = {
     x: number;
     y: number;

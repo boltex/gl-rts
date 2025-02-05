@@ -1,6 +1,6 @@
 import { TileRenderer, SpriteRenderer, RectangleRenderer } from "./renderers";
 import { CONFIG } from "./config";
-import { TEntity, TRectangle } from "./types";
+import { TEntity, TRectangle, TSelectAnim } from "./types";
 
 export class RendererManager {
     private gl: WebGL2RenderingContext;
@@ -40,7 +40,13 @@ export class RendererManager {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
     }
 
-    render(visibleTiles: [number, number, number][], entitiesPool: TEntity[], selectionRectangles: TRectangle[], interpolation: number): void {
+    render(
+        visibleTiles: [number, number, number][],
+        entitiesPool: TEntity[],
+        selectionRectangles: TRectangle[],
+        selectAnimPool: TSelectAnim[],
+        interpolation: number
+    ): void {
 
         // TODO : Use interpolation for smooth rendering.
 
@@ -68,6 +74,12 @@ export class RendererManager {
         if (this.rectangleRenderer && selectionRectangles.length) {
             this.rectangleRenderer.updateTransformData(selectionRectangles);
             this.rectangleRenderer.render();
+        }
+
+        // Render cursor, if any. Uses same renderer and texture as sprites.
+        if (this.spriteRenderer && selectAnimPool[0].active) {
+            this.spriteRenderer.updateTransformData(selectAnimPool);
+            this.spriteRenderer.render();
         }
 
         this.gl.flush();

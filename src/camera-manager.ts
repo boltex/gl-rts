@@ -1,4 +1,5 @@
 import { CONFIG } from './config';
+import { Game } from './game';
 
 export class CameraManager {
     resolution: { label: string; width: number; height: number };
@@ -12,6 +13,7 @@ export class CameraManager {
     gameHeightRatio: number;
     initRangeX: number;
     initRangeY: number;
+    game: Game;
 
     scrollX = 0;
     scrollY = 0;
@@ -20,7 +22,8 @@ export class CameraManager {
     readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
     readonly maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
 
-    constructor() {
+    constructor(game: Game) {
+        this.game = game;
         this.resolution = CONFIG.DISPLAY.RESOLUTIONS[0];
         this.zoomLevel = 1;
         this.aspectRatio = this.resolution.width / this.resolution.height;
@@ -66,6 +69,27 @@ export class CameraManager {
 
     setZoom(zoomLevel: number): void {
         this.zoomLevel = zoomLevel;
+        this.updateProperties(this.game.canvasBoundingRect);
+        this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
     }
+
+    zoomIn() {
+        const factor = 1.1;
+        if (this.zoomLevel * factor <= 2) {
+            this.zoomLevel *= factor;
+        }
+        this.updateProperties(this.game.canvasBoundingRect);
+        this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
+    }
+
+    zoomOut() {
+        const factor = 1.1;
+        if (this.zoomLevel / factor >= 0.5) {
+            this.zoomLevel /= factor;
+        }
+        this.updateProperties(this.game.canvasBoundingRect);
+        this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight);
+    }
+
 
 }

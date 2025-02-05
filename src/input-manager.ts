@@ -138,11 +138,9 @@ export class InputManager {
             event.stopImmediatePropagation();
         }
         if (event.deltaY < 0) {
-            // TODO : Implement Zoom in!
-            console.log("Scroll Up");
+            this.game.cameraManager.zoomIn();
         } else if (event.deltaY > 0) {
-            // TODO : Implement Zoom out!
-            console.log("Scroll Down");
+            this.game.cameraManager.zoomOut();
         }
     }
 

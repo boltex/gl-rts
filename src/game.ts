@@ -75,7 +75,7 @@ export class Game {
             CONFIG.GAME.TIMING.ANIM_RATE,
             CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL
         );
-        this.cameraManager = new CameraManager();
+        this.cameraManager = new CameraManager(this);
         this.rendererManager = new RendererManager(this.gl, tiles, sprites);
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);

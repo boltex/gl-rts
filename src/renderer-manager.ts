@@ -1,6 +1,7 @@
 import { TileRenderer, SpriteRenderer, RectangleRenderer } from "./renderers";
 import { CONFIG } from "./config";
 import { TEntity, TRectangle, TSelectAnim } from "./types";
+import { CameraManager } from "./camera-manager";
 
 export class RendererManager {
     private gl: WebGL2RenderingContext;
@@ -45,6 +46,7 @@ export class RendererManager {
         entitiesPool: TEntity[],
         selectionRectangles: TRectangle[],
         selectAnimPool: TSelectAnim[],
+        camera: CameraManager,
         interpolation: number
     ): void {
 
@@ -63,7 +65,7 @@ export class RendererManager {
 
         // Render sprites.
         if (this.spriteRenderer) {
-            this.spriteRenderer.updateTransformData(entitiesPool);
+            this.spriteRenderer.updateTransformData(entitiesPool, camera);
             this.spriteRenderer.render();
         }
 
@@ -78,7 +80,7 @@ export class RendererManager {
 
         // Render cursor, if any. Uses same renderer and texture as sprites.
         if (this.spriteRenderer && selectAnimPool[0].active) {
-            this.spriteRenderer.updateTransformData(selectAnimPool);
+            this.spriteRenderer.updateTransformData(selectAnimPool, camera);
             this.spriteRenderer.render();
         }
 

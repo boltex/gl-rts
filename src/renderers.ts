@@ -1,6 +1,7 @@
 import { TEntity, GLResources, ShaderType, TRectangle, TSelectAnim } from "./types";
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
+import { CameraManager } from "./camera-manager";
 
 abstract class BaseRenderer {
     protected gl: WebGL2RenderingContext;
@@ -103,7 +104,7 @@ abstract class BaseRenderer {
         this.gl.vertexAttribDivisor(location, divisor);
     }
 
-    abstract updateTransformData(data: any[]): void; // This will also set dirtyTransforms to true.
+    abstract updateTransformData(data: any[], camera?: CameraManager): void; // This will also set dirtyTransforms to true.
 
     abstract render(): void; // Before rendering, update bufferData from transformData if dirtyTransforms is true.
 
@@ -227,24 +228,45 @@ export class SpriteRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
-    updateTransformData(data: Array<TEntity | TSelectAnim>): void {
-        const u = (sprite: number, orientation: number) => ((sprite % 16) * 0.015625) + (orientation % 4) * 0.25;
-        const v = (sprite: number, orientation: number) => (Math.floor(sprite / 16) * 0.015625) + Math.floor(orientation / 4) * 0.25;
-
+    updateTransformData(data: Array<TEntity | TSelectAnim>, camera: CameraManager): void {
+        const scrollX = camera.scrollX;
+        const scrollY = camera.scrollY;
+        const screenWidth = camera.gameScreenWidth;
+        const screenHeight = camera.gameScreenHeight;
         let index = 0;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].active) {
-                const offset = index * 8;
-                this.transformData[offset] = data[i].x;
-                this.transformData[offset + 1] = data[i].y;
-                this.transformData[offset + 2] = 128; // default entity size
-                this.transformData[offset + 3] = 1; // default color
-                this.transformData[offset + 4] = 1; // default color
-                this.transformData[offset + 5] = 1; // default color
-                this.transformData[offset + 6] = u(data[i].frameIndex, data[i].orientation);
-                this.transformData[offset + 7] = v(data[i].frameIndex, data[i].orientation);
-                index++;
+
+        // Inline u and v functions to avoid repeated function calls
+        for (let i = 0, len = data.length; i < len; i++) {
+            const item = data[i];
+            if (!item.active) {
+                continue;
+            };
+            const x = item.x;
+            const y = item.y;
+
+            // Early exclusion using precomputed camera bounds
+            if ((x + 128) < scrollX || x > (scrollX + screenWidth) ||
+                (y + 128) < scrollY || y > (scrollY + screenHeight)) {
+                continue;
             }
+
+            const offset = index * 8;
+            // Pre-calculate sprite and orientation values
+            const sprite = item.frameIndex;
+            const orientation = item.orientation;
+            const u = ((sprite % 16) * 0.015625) + ((orientation % 4) * 0.25);
+            const v = (Math.floor(sprite / 16) * 0.015625) + (Math.floor(orientation / 4) * 0.25);
+
+            // Adjust position with camera scroll (addition order adjusted)
+            this.transformData[offset] = x - scrollX;
+            this.transformData[offset + 1] = y - scrollY;
+            this.transformData[offset + 2] = 128; // default entity size
+            this.transformData[offset + 3] = 1;   // default color
+            this.transformData[offset + 4] = 1;   // default color
+            this.transformData[offset + 5] = 1;   // default color
+            this.transformData[offset + 6] = u;
+            this.transformData[offset + 7] = v;
+            index++;
         }
         this.renderMax = index;
 

@@ -149,8 +149,8 @@ export class Game {
         const alien1 = this.entities.spawn();
         alien1.type = EntityType.ALIEN;
         alien1.hitPoints = 100;
-        alien1.x = 515;
-        alien1.y = 100;
+        alien1.x = 1100;
+        alien1.y = 1100;
         alien1.frameIndex = 33;
         alien1.orientation = 6;
 
@@ -165,7 +165,7 @@ export class Game {
         const alien3 = this.entities.spawn();
         alien3.type = EntityType.ALIEN;
         alien3.hitPoints = 100;
-        alien3.x = 64;
+        alien3.x = 455;
         alien3.y = 455;
         alien3.frameIndex = 122;
         alien3.orientation = 14;
@@ -290,6 +290,7 @@ export class Game {
                 this.entities.pool,
                 cursor,
                 this.selectAnim,
+                this.cameraManager,
                 this.timeManager.getInterpolation()
             );
         }

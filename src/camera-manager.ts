@@ -43,15 +43,6 @@ export class CameraManager {
         if (this.scrollY < 0) { this.scrollY = 0 };
         if (this.scrollX > this.maxScrollX) { this.scrollX = this.maxScrollX };
         if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY };
-
-
-        // this.game.cameraManager.scrollX += this.scrollNowX;
-        // this.game.cameraManager.scrollY += this.scrollNowY;
-
-        // // Clamp scroll values
-        // this.game.cameraManager.scrollX = Math.max(0, Math.min(this.game.cameraManager.scrollX, this.game.cameraManager.maxScrollX));
-        // this.game.cameraManager.scrollY = Math.max(0, Math.min(this.game.cameraManager.scrollY, this.game.cameraManager.maxScrollY));
-
     }
 
     setResolution(resolution: { label: string; width: number; height: number }): void {

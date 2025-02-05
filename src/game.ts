@@ -38,6 +38,7 @@ export class Game {
         frameIndex: 0,
         active: false
     }];
+    test: boolean = false;
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -277,18 +278,9 @@ export class Game {
                 this.selectAnim[0].x = this.uiManager.widgetAnimX;
                 this.selectAnim[0].y = this.uiManager.widgetAnimY;
                 this.selectAnim[0].frameIndex = 249 + this.uiManager.widgetAnim;
+                this.selectAnim[0].orientation = 1; // 0  = thin, 1 = wide
                 this.selectAnim[0].active = true;
-                // cursor.push(
-                //     {
-                //         sprite: "alien",
-                //         position: { x: this.curanimx - this.scrollx, y: this.curanimy - this.scrolly },
-                //         oldPosition: { x: this.curanimx - this.scrollx, y: this.curanimy - this.scrolly },
-                //         frame: { x: 25 + this.curanim, y: 15 },
-                //         flip: false,
-                //         blendmode: Game.BLENDMODE_ALPHA,
-                //         options: {}
-                //     }
-                // );
+
             } else {
                 this.selectAnim[0].active = false;
             }
@@ -339,6 +331,7 @@ export class Game {
         this.uiManager.widgetAnim = 1;
         this.uiManager.widgetAnimX = this.inputManager.mouseX - 64;
         this.uiManager.widgetAnimY = this.inputManager.mouseY - 64;
+        this.test = !this.test;
     }
 
     selectUnits(): void {

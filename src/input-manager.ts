@@ -46,8 +46,8 @@ export class InputManager {
         return { x: this.gameSelEndX, y: this.gameSelEndY };
     }
 
-    public get scrollVelocity(): { x: number, y: number } {
-        return { x: this.scrollNowX, y: this.scrollNowY };
+    public get scrollVelocity(): { dx: number, dy: number } {
+        return { dx: this.scrollNowX, dy: this.scrollNowY };
     }
 
     public init(): void {
@@ -138,9 +138,9 @@ export class InputManager {
             event.stopImmediatePropagation();
         }
         if (event.deltaY < 0) {
-            this.game.cameraManager.zoomIn();
+            this.game.cameraManager.zoomIn(this.mouseX, this.mouseY);
         } else if (event.deltaY > 0) {
-            this.game.cameraManager.zoomOut();
+            this.game.cameraManager.zoomOut(this.mouseX, this.mouseY);
         }
     }
 

@@ -25,8 +25,12 @@ abstract class BaseRenderer {
     protected createProgram(vertexSource: string, fragmentSource: string): WebGLProgram {
         const program = this.gl.createProgram()!;
         let errorLog = '';
-        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexSource)!;
-        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentSource)!;
+
+        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexSource);
+        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentSource);
+        if (!vertexShader || !fragmentShader) {
+            errorLog += '\nFailed to create shaders';
+        }
 
         this.gl.attachShader(program, vertexShader);
         this.gl.attachShader(program, fragmentShader);
@@ -176,15 +180,18 @@ export class TileRenderer extends BaseRenderer {
             this.transformData[offset + 5] = 1;
             this.transformData[offset + 6] = data[i][2];
         }
-
         this.renderMax = data.length;
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
+        this.dirtyTransforms = true;
     }
 
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
+        if (this.dirtyTransforms) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
+            this.dirtyTransforms = false;
+        }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
     }
 
@@ -211,7 +218,7 @@ export class SpriteRenderer extends BaseRenderer {
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 4096, 4096, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, CONFIG.GAME.SPRITES.BITMAP_SIZE, CONFIG.GAME.SPRITES.BITMAP_SIZE, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
@@ -269,14 +276,17 @@ export class SpriteRenderer extends BaseRenderer {
             index++;
         }
         this.renderMax = index;
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);
+        this.dirtyTransforms = true;
     }
 
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
+        if (this.dirtyTransforms) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);
+            this.dirtyTransforms = false;
+        }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
     }
 
@@ -308,8 +318,7 @@ export class RectangleRenderer extends BaseRenderer {
             this.transformData[offset + 6] = data[i].b;
         }
         this.renderMax = data.length;
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
+        this.dirtyTransforms = true;
     }
 
     private setupVAO() {
@@ -329,6 +338,11 @@ export class RectangleRenderer extends BaseRenderer {
     render(): void {
         this.gl.useProgram(this.program);
         this.gl.bindVertexArray(this.vao);
+        if (this.dirtyTransforms) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
+            this.dirtyTransforms = false;
+        }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax); // Draw the model of 6 vertex that form 2 triangles, 3 times
     }
 

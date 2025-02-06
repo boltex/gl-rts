@@ -186,7 +186,7 @@ export class InputManager {
         }
 
         // Scroll if not currently dragging a selection.
-        if (!this.isSelecting) {
+        if (!this.selecting) {
             this.game.cameraManager.scroll(this.scrollVelocity);
         }
     }

@@ -28,10 +28,13 @@ const GAME = {
         RELEASESEL: 2
     },
     TILE: {
-        BITMAP_SIZE: 1024, // size of a square bitmap of tiles
+        BITMAP_SIZE: 1024, // size of the square bitmap of tiles
         SIZE: 128, // size of an individual square TILE 
-        DEPTH: 64, // Should be BITMAP_SIZE / SIZE
-        TILERATIO: 8 // Should be BITMAP_SIZE / SIZE
+        DEPTH: 64, // Total number of tiles in the bitmap
+    },
+    SPRITES: {
+        BITMAP_SIZE: 4096, // size of the square bitmap of alien sprites
+        SIZE: 64, // size of an individual square alien sprite 
     },
     MAP: {
         WIDTH: 32, // game map width in TILES 

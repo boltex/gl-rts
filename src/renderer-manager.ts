@@ -5,33 +5,42 @@ import { CameraManager } from "./camera-manager";
 
 export class RendererManager {
     private gl: WebGL2RenderingContext;
-    public worldBuffer: WebGLBuffer | null = null;
-    private tileRenderer: TileRenderer | null = null;
-    private spriteRenderer: SpriteRenderer | null = null;
-    private rectangleRenderer: RectangleRenderer | null = null;
+    public worldBuffer: WebGLBuffer;
+    private tileRenderer: TileRenderer;
+    private spriteRenderer: SpriteRenderer;
+    private rectangleRenderer: RectangleRenderer;
+    private static readonly WORLD_BINDING_POINT = 0;
 
     constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement) {
         this.gl = gl;
-        this.initRenderers(tilesImage, creaturesImage);
-    }
-
-    initRenderers(tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement): void {
         this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.rectangleRenderer = new RectangleRenderer(this.gl, 4);
-
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, 0, this.worldBuffer);
+        this.initUboBindings();
+    }
 
-        const worldIndex = 0;
-        const tileBlockIndex = this.gl.getUniformBlockIndex(this.tileRenderer.program, 'World');
-        this.gl.uniformBlockBinding(this.tileRenderer.program, tileBlockIndex, worldIndex);
-        const spriteBlockIndex = this.gl.getUniformBlockIndex(this.spriteRenderer.program, 'World');
-        this.gl.uniformBlockBinding(this.spriteRenderer.program, spriteBlockIndex, worldIndex);
-        const rectBlockIndex = this.gl.getUniformBlockIndex(this.rectangleRenderer.program, 'World');
-        this.gl.uniformBlockBinding(this.rectangleRenderer.program, rectBlockIndex, worldIndex);
+    private initUboBindings(): void {
+        // Bind all shaders to the same binding point
+        const programs = [
+            this.tileRenderer?.program,
+            this.spriteRenderer?.program,
+            this.rectangleRenderer?.program
+        ].filter((p): p is WebGLProgram => p != null);
+
+        for (const program of programs) {
+            const blockIndex = this.gl.getUniformBlockIndex(program, 'World');
+            this.gl.uniformBlockBinding(program, blockIndex, RendererManager.WORLD_BINDING_POINT);
+        }
+
+        // Bind the buffer once
+        this.gl.bindBufferBase(
+            this.gl.UNIFORM_BUFFER,
+            RendererManager.WORLD_BINDING_POINT,
+            this.worldBuffer
+        );
     }
 
     setUboWorldTransforms(gameScreenWidth: number, gameScreenHeight: number): void {

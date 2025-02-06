@@ -208,6 +208,8 @@ export class Game {
 
     update(timestamp: number, skipRender?: boolean): void {
 
+        // TODO : This mixes rendering and logic. Consider separating these concerns more clearly.
+
         // 1. Update time
         const deltaTime = this.timeManager.update(timestamp);
 

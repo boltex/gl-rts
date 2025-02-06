@@ -137,6 +137,9 @@ export class InputManager {
             event.preventDefault();
             event.stopImmediatePropagation();
         }
+        if (this.selecting) {
+            return; // Do not zoom while selecting
+        }
         if (event.deltaY < 0) {
             this.game.cameraManager.zoomIn(this.mouseX, this.mouseY);
         } else if (event.deltaY > 0) {

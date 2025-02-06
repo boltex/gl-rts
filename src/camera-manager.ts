@@ -79,11 +79,10 @@ export class CameraManager {
     zoomIn(mouseX: number, mouseY: number) {
         const oldZoom = this.zoom;
         const newZoom = Math.min(this.maxZoom, oldZoom * 1.1);
-        const zoomFactor = newZoom / oldZoom;
 
-        // * Adjust scroll so that (mouseX+scrollX, mouseY+scrollY) stays centered when zooming in.
-        // this.scrollX = mouseX + (this.scrollX - mouseX) * zoomFactor; // TODO : FIX THIS
-        // this.scrollY = mouseY + (this.scrollY - mouseY) * zoomFactor; // TODO : FIX THIS
+        // Adjust scroll so that the world coordinate under the mouse remains constant.
+        this.scrollX = this.scrollX + (mouseX / oldZoom) - (mouseX / newZoom);
+        this.scrollY = this.scrollY + (mouseY / oldZoom) - (mouseY / newZoom);
 
         this.zoom = newZoom;
         this.updateProperties(this.game.canvasBoundingRect); // Updates maxScrollX and maxScrollY
@@ -94,11 +93,10 @@ export class CameraManager {
     zoomOut(mouseX: number, mouseY: number) {
         const oldZoom = this.zoom;
         const newZoom = Math.max(this.minZoom, oldZoom / 1.1);
-        const zoomFactor = newZoom / oldZoom;
 
-        // * Adjust scroll so that (mouseX+scrollX, mouseY+scrollY) stays centered when zooming out.
-        // this.scrollX = mouseX + (this.scrollX - mouseX) * zoomFactor; // TODO : FIX THIS
-        // this.scrollY = mouseY + (this.scrollY - mouseY) * zoomFactor; // TODO : FIX THIS
+        // Adjust scroll so that the world coordinate under the mouse remains constant.
+        this.scrollX = this.scrollX + (mouseX / oldZoom) - (mouseX / newZoom);
+        this.scrollY = this.scrollY + (mouseY / oldZoom) - (mouseY / newZoom);
 
         this.zoom = newZoom;
         this.updateProperties(this.game.canvasBoundingRect); // Updates maxScrollX and maxScrollY

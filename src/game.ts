@@ -263,13 +263,13 @@ export class Game {
                 const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
                 const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
                 const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
-
-                // Top, bottom, left, right lines
+                const thicknes = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 cursor.push(
-                    { x: cx1, y: cy1, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                    { x: cx1, y: cy2, width: cx2 - cx1, height: 2, r: 0, g: 1, b: 0, },
-                    { x: cx1, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, },
-                    { x: cx2, y: cy1, width: 2, height: cy2 - cy1, r: 0, g: 1, b: 0, }
+                    // Top, bottom, left, right lines
+                    { x: cx1, y: cy1, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, },
+                    { x: cx1, y: cy2, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, },
+                    { x: cx1, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, },
+                    { x: cx2, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, }
                 );
             }
 

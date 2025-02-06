@@ -68,8 +68,10 @@ export class RendererManager {
         // Render tile layer.
         if (this.tileRenderer) {
             // Update tile transform data if needed.
-            this.tileRenderer.updateTransformData(visibleTiles);
-            this.tileRenderer.render();
+            if (visibleTiles.length) {
+                this.tileRenderer.updateTransformData(visibleTiles);
+            }
+            this.tileRenderer.render(); // Do render the last frame's tiles if no tiles are visible.
         }
 
         // Render sprites.

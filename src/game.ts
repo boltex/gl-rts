@@ -38,7 +38,10 @@ export class Game {
         frameIndex: 0,
         active: false
     }];
-    test: boolean = false;
+    lastScrollX = -1; // initialized at -1 so that we can detect first frame.
+    lastScrollY = -1;
+    lastScreenX = -1;
+    lastScreenY = -1;
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -232,28 +235,39 @@ export class Game {
             this.resizeCanvasToDisplaySize(this.canvasElement)
 
             const visibleTiles: [number, number, number][] = []; // X, Y and Tile Index
-            const tilesize = CONFIG.GAME.TILE.SIZE;
-            const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
-            const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
-            const screenx = this.cameraManager.gameScreenWidth;
-            const screeny = this.cameraManager.gameScreenHeight;
-            let rangex = (screenx / tilesize) + 1;
-            let rangey = (screeny / tilesize) + 1;
-            if (this.cameraManager.scrollX % tilesize > tilesize - (screenx % tilesize)) {
-                rangex += 1;
-            }
-            if (this.cameraManager.scrollY % tilesize > tilesize - (screeny % tilesize)) {
-                rangey += 1;
-            }
-            for (let y = 0; y < rangey; y++) {
-                for (let x = 0; x < rangex; x++) {
-                    const a = this.gamemap[(tileoffx + x) + ((tileoffy + y) * (CONFIG.GAME.MAP.WIDTH))];
-                    visibleTiles.push(
-                        [x * tilesize - (this.cameraManager.scrollX % tilesize),
-                        y * tilesize - (this.cameraManager.scrollY % tilesize),
-                            a]
-                    );
+            // If camera did not move nor zoom, we can reuse the last visible tiles by leaving visibleTiles empty.
+            if (
+                this.cameraManager.scrollX !== this.lastScrollX ||
+                this.cameraManager.scrollY !== this.lastScrollY ||
+                this.cameraManager.gameScreenWidth !== this.lastScreenX ||
+                this.cameraManager.gameScreenHeight !== this.lastScreenY
+            ) {
+                // Save for next frame to check if camera moved.
+                this.lastScreenX = this.cameraManager.gameScreenWidth;
+                this.lastScreenY = this.cameraManager.gameScreenHeight;
+                this.lastScrollX = this.cameraManager.scrollX;
+                this.lastScrollY = this.cameraManager.scrollY;
+                const tilesize = CONFIG.GAME.TILE.SIZE;
+                const tileoffx = Math.floor(this.lastScrollX / tilesize);
+                const tileoffy = Math.floor(this.lastScrollY / tilesize);
+                let rangex = (this.lastScreenX / tilesize) + 1;
+                let rangey = (this.lastScreenY / tilesize) + 1;
+                if (this.lastScrollX % tilesize > tilesize - (this.lastScreenX % tilesize)) {
+                    rangex += 1;
+                }
+                if (this.lastScrollY % tilesize > tilesize - (this.lastScreenY % tilesize)) {
+                    rangey += 1;
+                }
+                for (let y = 0; y < rangey; y++) {
+                    for (let x = 0; x < rangex; x++) {
+                        const a = this.gamemap[(tileoffx + x) + ((tileoffy + y) * (CONFIG.GAME.MAP.WIDTH))];
+                        visibleTiles.push(
+                            [x * tilesize - (this.lastScrollX % tilesize),
+                            y * tilesize - (this.lastScrollY % tilesize),
+                                a]
+                        );
 
+                    }
                 }
             }
 
@@ -334,7 +348,6 @@ export class Game {
         this.uiManager.widgetAnim = 1;
         this.uiManager.widgetAnimX = this.inputManager.mouseX - 64;
         this.uiManager.widgetAnimY = this.inputManager.mouseY - 64;
-        this.test = !this.test;
     }
 
     selectUnits(): void {

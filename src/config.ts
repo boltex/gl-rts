@@ -37,8 +37,8 @@ const GAME = {
         SIZE: 64, // size of an individual square alien sprite 
     },
     MAP: {
-        WIDTH: 32, // game map width in TILES 
-        HEIGHT: 32 // game map height in TILES 
+        WIDTH: 64, // game map width in TILES 
+        HEIGHT: 64 // game map height in TILES 
     },
     TIMING: {
         TICK_RATE: 8, // 8 fps for game logic

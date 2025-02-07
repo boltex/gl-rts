@@ -5,9 +5,10 @@ import { TEntity } from "./types";
  */
 export class Entities {
 
-    public total: number;
-    public active: number = 0;
-    public pool: Array<TEntity> = [];
+    total: number;
+    active: number = 0;
+    pool: Array<TEntity> = [];
+
     private lastId = 0;
 
     constructor(initialPoolSize: number) {

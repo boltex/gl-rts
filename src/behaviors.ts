@@ -3,7 +3,7 @@ import { Game } from "./game";
 
 export class Behaviors {
 
-    public game: Game;
+    game: Game;
 
     constructor(game: Game) {
         this.game = game;

@@ -34,23 +34,23 @@ export class InputManager {
         this.game = game;
     }
 
-    public get gamePosition(): { x: number, y: number } {
+    get gamePosition(): { x: number, y: number } {
         return { x: this.gameMouseX, y: this.gameMouseY };
     }
 
-    public get selectionStart(): { x: number, y: number } {
+    get selectionStart(): { x: number, y: number } {
         return { x: this.gameSelStartX, y: this.gameSelStartY };
     }
 
-    public get selectionEnd(): { x: number, y: number } {
+    get selectionEnd(): { x: number, y: number } {
         return { x: this.gameSelEndX, y: this.gameSelEndY };
     }
 
-    public get scrollVelocity(): { dx: number, dy: number } {
+    get scrollVelocity(): { dx: number, dy: number } {
         return { dx: this.scrollNowX, dy: this.scrollNowY };
     }
 
-    public init(): void {
+    init(): void {
         window.addEventListener("keydown", this.keyDownHandler);
         window.addEventListener("keyup", this.keyUpHandler);
         window.addEventListener("mousemove", this.mouseMoveHandler);
@@ -154,7 +154,7 @@ export class InputManager {
         this.gameMouseY = this.mouseY + this.game.cameraManager.scrollY;
     }
 
-    public processInputs(): void {
+    processInputs(): void {
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
             this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
             this.keyboardUp = true
@@ -194,7 +194,7 @@ export class InputManager {
         }
     }
 
-    public get isSelecting(): boolean {
+    get isSelecting(): boolean {
         return this.selecting;
     }
 

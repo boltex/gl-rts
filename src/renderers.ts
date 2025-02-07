@@ -4,8 +4,10 @@ import { SHADERS } from './shaders';
 import { CameraManager } from "./camera-manager";
 
 abstract class BaseRenderer {
+
+    program: WebGLProgram;
+    
     protected gl: WebGL2RenderingContext;
-    public program: WebGLProgram;
     protected vao: WebGLVertexArrayObject;
     protected dirtyTransforms: boolean; // Flag to update bufferData from transformData in the render method.
     protected resources: GLResources = {

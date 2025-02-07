@@ -1,16 +1,17 @@
 import { CONFIG } from "./config";
 
 export class UIManager {
+
+    // Command Acknowledged Widget Animation Properties
+    widgetAnim: number = 0;
+    widgetAnimTotal: number = 6;
+    widgetAnimX: number = 0;
+    widgetAnimY: number = 0;
+
     private startButtonElement: HTMLButtonElement;
     private resolutionSelectElement: HTMLSelectElement;
     private documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
-
-    // Command Acknowledged Widget Animation Properties
-    public widgetAnim: number = 0;
-    public widgetAnimTotal: number = 6;
-    public widgetAnimX: number = 0;
-    public widgetAnimY: number = 0;
 
     constructor() {
         this.documentElementClassList = document.documentElement.classList;
@@ -18,7 +19,7 @@ export class UIManager {
         this.resolutionSelectElement = document.createElement("select");
     }
 
-    public mainMenu(): void {
+    mainMenu(): void {
         // Create the start button
         this.startButtonElement.textContent = "Start Game";
         this.startButtonElement.classList.add("btn-start");
@@ -37,7 +38,7 @@ export class UIManager {
         document.body.appendChild(this.resolutionSelectElement);
     }
 
-    public setCursor(newClass: string): void {
+    setCursor(newClass: string): void {
         if (this.currentCursorClass !== newClass) {
             if (this.currentCursorClass) {
                 this.documentElementClassList.remove(this.currentCursorClass);
@@ -47,12 +48,12 @@ export class UIManager {
         }
     }
 
-    public toggleGameMenu(): void {
+    toggleGameMenu(): void {
         console.log('Toggle Options Menu');
         // Further implementation for an in-game options menu.
     }
 
-    public animateCursor(): void {
+    animateCursor(): void {
         if (this.widgetAnim) {
             this.widgetAnim += 1;
             if (this.widgetAnim > this.widgetAnimTotal) {
@@ -61,11 +62,11 @@ export class UIManager {
         }
     }
 
-    public getStartButtonElement(): HTMLButtonElement {
+    getStartButtonElement(): HTMLButtonElement {
         return this.startButtonElement;
     }
 
-    public getResolutionSelectElement(): HTMLSelectElement {
+    getResolutionSelectElement(): HTMLSelectElement {
         return this.resolutionSelectElement;
     }
 

@@ -4,8 +4,10 @@ import { TEntity, TRectangle, TSelectAnim } from "./types";
 import { CameraManager } from "./camera-manager";
 
 export class RendererManager {
+    
+    worldBuffer: WebGLBuffer;
+
     private gl: WebGL2RenderingContext;
-    public worldBuffer: WebGLBuffer;
     private tileRenderer: TileRenderer;
     private spriteRenderer: SpriteRenderer;
     private rectangleRenderer: RectangleRenderer;

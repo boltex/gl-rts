@@ -59,7 +59,7 @@ export class RendererManager {
         visibleTiles: [number, number, number][],
         entitiesPool: TEntity[],
         selectionRectangles: TRectangle[],
-        visibleWidgets: [number, number, number][],
+        visibleWidgets: [number, number, number, number][],
         camera: CameraManager,
         interpolation: number
     ): void {

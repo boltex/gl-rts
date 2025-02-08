@@ -290,9 +290,14 @@ export class Game {
             }
 
             // Animated selection widget, if any. Uses same renderer and texture as sprites.
-            const visibleWidgets: [number, number, number][] = []; // X, Y and Tile Index
+            const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
             if (this.uiManager.widgetAnim > 0) {
-                visibleWidgets.push([this.uiManager.widgetAnimX, this.uiManager.widgetAnimY, this.uiManager.widgetAnim]);
+                visibleWidgets.push([
+                    this.uiManager.widgetAnimX - (64 / this.cameraManager.zoom),
+                    this.uiManager.widgetAnimY - (64 / this.cameraManager.zoom),
+                    this.uiManager.widgetAnim,
+                    (CONFIG.GAME.WIDGETS.SIZE * 2) / this.cameraManager.zoom
+                ]);
             } else {
                 // this.selectAnim[0].active = false;
             }
@@ -342,8 +347,8 @@ export class Game {
         // TODO : Replace test cursor animation with the real default action
         // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION
         this.uiManager.widgetAnim = 1;
-        this.uiManager.widgetAnimX = this.inputManager.mouseX - 64;
-        this.uiManager.widgetAnimY = this.inputManager.mouseY - 64;
+        this.uiManager.widgetAnimX = this.inputManager.mouseX;
+        this.uiManager.widgetAnimY = this.inputManager.mouseY;
     }
 
     selectUnits(): void {

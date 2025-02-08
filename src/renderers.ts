@@ -241,13 +241,13 @@ export class WidgetRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
-    updateTransformData(data: [number, number, number][] = []): void {
+    updateTransformData(data: [number, number, number, number][] = []): void {
         // data is Array of X, Y and Tile Index triplets
         for (let i = 0; i < data.length; i++) {
             const offset = i * 7;
             this.transformData[offset] = data[i][0];
             this.transformData[offset + 1] = data[i][1];
-            this.transformData[offset + 2] = CONFIG.GAME.WIDGETS.SIZE;
+            this.transformData[offset + 2] = data[i][3];
             this.transformData[offset + 3] = 1;
             this.transformData[offset + 4] = 1;
             this.transformData[offset + 5] = 1;

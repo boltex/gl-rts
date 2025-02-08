@@ -47,7 +47,7 @@ export class Game {
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
     private resizeObserver: ResizeObserver;
 
-    constructor(sprites: HTMLImageElement, tiles: HTMLImageElement) {
+    constructor(sprites: HTMLImageElement, tiles: HTMLImageElement, widgets: HTMLImageElement) {
 
         this.canvasElement = document.createElement('canvas');
         document.body.appendChild(this.canvasElement);
@@ -79,7 +79,7 @@ export class Game {
             CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL
         );
         this.cameraManager = new CameraManager(this);
-        this.rendererManager = new RendererManager(this.gl, tiles, sprites);
+        this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager();
@@ -290,22 +290,18 @@ export class Game {
             }
 
             // Animated selection widget, if any. Uses same renderer and texture as sprites.
+            const visibleWidgets: [number, number, number][] = []; // X, Y and Tile Index
             if (this.uiManager.widgetAnim > 0) {
-                this.selectAnim[0].x = this.uiManager.widgetAnimX;
-                this.selectAnim[0].y = this.uiManager.widgetAnimY;
-                this.selectAnim[0].frameIndex = 249 + this.uiManager.widgetAnim;
-                this.selectAnim[0].orientation = 1; // 0  = thin, 1 = wide
-                this.selectAnim[0].active = true;
-
+                visibleWidgets.push([this.uiManager.widgetAnimX, this.uiManager.widgetAnimY, this.uiManager.widgetAnim]);
             } else {
-                this.selectAnim[0].active = false;
+                // this.selectAnim[0].active = false;
             }
 
             this.rendererManager.render(
                 visibleTiles,
                 this.entities.pool,
                 cursor,
-                this.selectAnim,
+                visibleWidgets,
                 this.cameraManager,
                 this.timeManager.getInterpolation()
             );

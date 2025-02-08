@@ -1,21 +1,23 @@
-import { TileRenderer, SpriteRenderer, RectangleRenderer } from "./renderers";
+import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer } from "./renderers";
 import { CONFIG } from "./config";
 import { TEntity, TRectangle, TSelectAnim } from "./types";
 import { CameraManager } from "./camera-manager";
 
 export class RendererManager {
-    
+
     worldBuffer: WebGLBuffer;
 
     private gl: WebGL2RenderingContext;
     private tileRenderer: TileRenderer;
+    private widgetRenderer: WidgetRenderer;
     private spriteRenderer: SpriteRenderer;
     private rectangleRenderer: RectangleRenderer;
     private static readonly WORLD_BINDING_POINT = 0;
 
-    constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement) {
+    constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement) {
         this.gl = gl;
         this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);
+        this.widgetRenderer = new WidgetRenderer(this.gl, widgetsImage, CONFIG.GAME.WIDGETS.DEPTH);
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.rectangleRenderer = new RectangleRenderer(this.gl, 4);
         this.worldBuffer = this.gl.createBuffer();
@@ -27,9 +29,10 @@ export class RendererManager {
     private initUboBindings(): void {
         // Bind all shaders to the same binding point
         const programs = [
-            this.tileRenderer?.program,
-            this.spriteRenderer?.program,
-            this.rectangleRenderer?.program
+            this.tileRenderer.program,
+            this.widgetRenderer.program,
+            this.spriteRenderer.program,
+            this.rectangleRenderer.program
         ].filter((p): p is WebGLProgram => p != null);
 
         for (const program of programs) {
@@ -56,7 +59,7 @@ export class RendererManager {
         visibleTiles: [number, number, number][],
         entitiesPool: TEntity[],
         selectionRectangles: TRectangle[],
-        selectAnimPool: TSelectAnim[],
+        visibleWidgets: [number, number, number][],
         camera: CameraManager,
         interpolation: number
     ): void {
@@ -68,42 +71,40 @@ export class RendererManager {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         // Render tile layer.
-        if (this.tileRenderer) {
+        if (visibleTiles.length) {
             // Update tile transform data if needed.
-            if (visibleTiles.length) {
-                this.tileRenderer.updateTransformData(visibleTiles);
-            }
-            this.tileRenderer.render(); // Do render the last frame's tiles if no tiles are visible.
+            this.tileRenderer.updateTransformData(visibleTiles);
         }
+        this.tileRenderer.render(); // Do render the last frame's tiles if no tiles are visible.
 
         // Render sprites.
-        if (this.spriteRenderer) {
-            this.spriteRenderer.updateTransformData(entitiesPool, camera);
-            this.spriteRenderer.render();
-        }
+        this.spriteRenderer.updateTransformData(entitiesPool, camera);
+        this.spriteRenderer.render();
 
         // Render fog of war, if any.
         // TODO: Implement Fog of War at some point :)
 
         // Render selection rectangles, if any.
-        if (this.rectangleRenderer && selectionRectangles.length) {
+        if (selectionRectangles.length) {
             this.rectangleRenderer.updateTransformData(selectionRectangles);
             this.rectangleRenderer.render();
         }
 
-        // Render cursor, if any. Uses same renderer and texture as sprites.
-        if (this.spriteRenderer && selectAnimPool[0].active) {
-            this.spriteRenderer.updateTransformData(selectAnimPool, camera);
-            this.spriteRenderer.render();
+        // Render selection animations, if any.
+        if (visibleWidgets.length) {
+            // Update tile transform data if needed.
+            this.widgetRenderer.updateTransformData(visibleWidgets);
+            this.widgetRenderer.render();
         }
 
         this.gl.flush();
     }
 
     dispose(): void {
-        this.tileRenderer?.dispose();
-        this.spriteRenderer?.dispose();
-        this.rectangleRenderer?.dispose();
+        this.tileRenderer.dispose();
+        this.spriteRenderer.dispose();
+        this.rectangleRenderer.dispose();
+        this.widgetRenderer.dispose();
     }
 
 }

@@ -293,10 +293,10 @@ export class Game {
             const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
             if (this.uiManager.widgetAnim > 0) {
                 visibleWidgets.push([
-                    this.uiManager.widgetAnimX - (64 / this.cameraManager.zoom),
-                    this.uiManager.widgetAnimY - (64 / this.cameraManager.zoom),
-                    this.uiManager.widgetAnim,
-                    (CONFIG.GAME.WIDGETS.SIZE * 2) / this.cameraManager.zoom
+                    this.uiManager.widgetAnimX - (32 / this.cameraManager.zoom),
+                    this.uiManager.widgetAnimY - (32 / this.cameraManager.zoom),
+                    this.uiManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
+                    CONFIG.GAME.WIDGETS.SIZE / this.cameraManager.zoom
                 ]);
             } else {
                 // this.selectAnim[0].active = false;
@@ -315,6 +315,7 @@ export class Game {
         // 6. FPS
         this.timeManager.updateFps(timestamp, deltaTime);
     }
+
     checkUpdate(): void {
         // Checks for needed ticks to be computed if game is minimized
         const timestamp = performance.now();
@@ -335,6 +336,7 @@ export class Game {
             }
         }
     }
+
     loop(timestamp: number): void {
         this.update(timestamp);
         requestAnimationFrame(this.loop.bind(this));

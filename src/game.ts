@@ -293,8 +293,8 @@ export class Game {
             const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
             if (this.uiManager.widgetAnim > 0) {
                 visibleWidgets.push([
-                    this.uiManager.widgetAnimX - (32 / this.cameraManager.zoom),
-                    this.uiManager.widgetAnimY - (32 / this.cameraManager.zoom),
+                    this.uiManager.widgetAnimX - this.cameraManager.scrollX,
+                    this.uiManager.widgetAnimY - this.cameraManager.scrollY,
                     this.uiManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
                     CONFIG.GAME.WIDGETS.SIZE / this.cameraManager.zoom
                 ]);
@@ -344,13 +344,12 @@ export class Game {
 
     defaultAction(): void {
         const gamePosition = this.inputManager.gamePosition;
-        console.log('default action at: ', gamePosition.x, gamePosition.y);
 
         // TODO : Replace test cursor animation with the real default action
         // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION
         this.uiManager.widgetAnim = 1;
-        this.uiManager.widgetAnimX = this.inputManager.mouseX;
-        this.uiManager.widgetAnimY = this.inputManager.mouseY;
+        this.uiManager.widgetAnimX = gamePosition.x - (32 / this.cameraManager.zoom);
+        this.uiManager.widgetAnimY = gamePosition.y - (32 / this.cameraManager.zoom);
     }
 
     selectUnits(): void {

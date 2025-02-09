@@ -1,4 +1,5 @@
 import { CONFIG } from "./config";
+import { Game } from "./game";
 
 export class UIManager {
 
@@ -8,6 +9,7 @@ export class UIManager {
     widgetAnimX: number = 0;
     widgetAnimY: number = 0;
 
+    private game: Game;
     private startButtonElement: HTMLButtonElement;
     private resolutionSelectElement: HTMLSelectElement;
     private documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
@@ -19,7 +21,8 @@ export class UIManager {
     private tileInput: HTMLInputElement | null = null;
     private currentTileIndex: number = 0; // between 0 and 63
 
-    constructor() {
+    constructor(game: Game) {
+        this.game = game;
         this.documentElementClassList = document.documentElement.classList;
         this.startButtonElement = document.createElement("button");
         this.resolutionSelectElement = document.createElement("select");
@@ -107,7 +110,7 @@ export class UIManager {
             top: "10px",
             right: "10px",
             width: "130px",
-            height: "160px",
+            height: "180px",
             textAlign: "center",
             backgroundColor: "#ccc",
             border: "1px solid #333",
@@ -168,11 +171,27 @@ export class UIManager {
             }
         });
 
+        // Create open and Save buttons
+        const openButton = document.createElement("button");
+        openButton.textContent = "Open";
+        openButton.addEventListener("click", () => {
+            this.game.openMap();
+        });
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.addEventListener("click", () => {
+            this.game.saveMap();
+        });
+
         // Append elements to map editor container
         this.mapEditorElement.appendChild(this.tilePreview);
         this.mapEditorElement.appendChild(upButton);
         this.mapEditorElement.appendChild(downButton);
         this.mapEditorElement.appendChild(this.tileInput);
+        // Insert newline
+        this.mapEditorElement.appendChild(document.createElement("br"));
+        this.mapEditorElement.appendChild(openButton);
+        this.mapEditorElement.appendChild(saveButton);
 
         // Append the map editor container to the document body
         document.body.appendChild(this.mapEditorElement);

@@ -83,7 +83,7 @@ export class Game {
         this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);
-        this.uiManager = new UIManager();
+        this.uiManager = new UIManager(this);
         this.uiManager.mainMenu();
         this.uiManager.getStartButtonElement().addEventListener("click", this.startGameHandler);
     }
@@ -412,6 +412,17 @@ export class Game {
         const y = Math.floor((gameMouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
         const index = x + (y * CONFIG.GAME.MAP.WIDTH);
         this.uiManager.setTileSelectIndex(this.gamemap[index]);
+    }
+
+    saveMap() {
+        //
+        console.log('Save Map');
+    }
+
+
+    openMap() {
+        //
+        console.log('Open Map');
     }
 
 

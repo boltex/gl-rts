@@ -75,7 +75,7 @@ export class InputManager {
             // For now, open the map editor instead of the options menu.
             this.game.uiManager.toggleMapEditor();
             // this.game.uiManager.toggleGameMenu();
-            return
+            return;
         }
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();

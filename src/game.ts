@@ -27,6 +27,7 @@ export class Game {
 
     // Game state Properties
     gamemap: number[] = [];
+    gameMapChanged = false;
     started = false;
     gameAction = 0;    // 0 = none
     entities!: Entities;
@@ -237,6 +238,7 @@ export class Game {
             const visibleTiles: [number, number, number][] = []; // X, Y and Tile Index
             // If camera did not move nor zoom, we can reuse the last visible tiles by leaving visibleTiles empty.
             if (
+                this.gameMapChanged ||
                 this.cameraManager.scrollX !== this.lastScrollX ||
                 this.cameraManager.scrollY !== this.lastScrollY ||
                 this.cameraManager.gameScreenWidth !== this.lastScreenX ||
@@ -247,6 +249,7 @@ export class Game {
                 this.lastScreenY = this.cameraManager.gameScreenHeight;
                 this.lastScrollX = this.cameraManager.scrollX;
                 this.lastScrollY = this.cameraManager.scrollY;
+                this.gameMapChanged = false;
                 const tilesize = CONFIG.GAME.TILE.SIZE;
                 const tileoffx = Math.floor(this.lastScrollX / tilesize);
                 const tileoffy = Math.floor(this.lastScrollY / tilesize);
@@ -362,6 +365,33 @@ export class Game {
         // TODO : Add selection logic here
 
     }
+
+    setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {
+        // Replace tile in gameMap at gameMouseX, gameMouseY with tileIndex
+        // First, convert the gameMouseX, gameMouseY to tile index in the gameMap array, its a single linear array.
+        // So we need to know the tile size, and the scroll position.
+        const tilesize = CONFIG.GAME.TILE.SIZE;
+        const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
+        const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
+        const x = Math.floor((gameMouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
+        const y = Math.floor((gameMouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
+        const index = x + (y * CONFIG.GAME.MAP.WIDTH);
+        this.gamemap[index] = tileIndex;
+        this.gameMapChanged = true;
+    }
+
+    sampleTileAt(gameMouseX: number, gameMouseY: number): void {
+        // This is the opposite of setTileAt, it samples the tile at gameMouseX, gameMouseY
+        // and sets the UI to the selected tile.
+        const tilesize = CONFIG.GAME.TILE.SIZE;
+        const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
+        const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
+        const x = Math.floor((gameMouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
+        const y = Math.floor((gameMouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
+        const index = x + (y * CONFIG.GAME.MAP.WIDTH);
+        this.uiManager.setTileSelectIndex(this.gamemap[index]);
+    }
+
 
 }
 

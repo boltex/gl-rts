@@ -72,7 +72,10 @@ export class InputManager {
         this.keysPressed[e.key] = true;
         if (e.key === 'F10') {
             e.preventDefault();
-            this.game.uiManager.toggleGameMenu();
+            // For now, open the map editor instead of the options menu.
+            this.game.uiManager.toggleMapEditor();
+            // this.game.uiManager.toggleGameMenu();
+            return
         }
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();
@@ -106,6 +109,21 @@ export class InputManager {
 
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
+        if (this.game.uiManager.isMapEditorVisible()) {
+
+            if (event.button === 0) {
+                // left
+                // Replace the clicked tile on the map with the selected tile in the map editor.
+                const tileIndex = this.game.uiManager.getSelectedTileIndex();
+                this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
+            }
+            if (event.button === 2) {
+                // right mouse is like the eyedropper tool.
+                // Sample the tile index at the clicked position to select it in the map editor.
+                this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
+            }
+            return;
+        }
         if (!this.selecting) {
             if (event.button === 0) {
                 this.selecting = true;
@@ -123,6 +141,10 @@ export class InputManager {
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
+        if (this.game.uiManager.isMapEditorVisible()) {
+            // Specific to when the map editor is visible.
+            return;
+        }
         if (event.button === 0) {
             this.gameSelEndX = this.mouseX + this.game.cameraManager.scrollX;
             this.gameSelEndY = this.mouseY + this.game.cameraManager.scrollY;

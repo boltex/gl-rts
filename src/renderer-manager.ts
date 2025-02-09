@@ -17,9 +17,9 @@ export class RendererManager {
     constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement) {
         this.gl = gl;
         this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);
-        this.widgetRenderer = new WidgetRenderer(this.gl, widgetsImage, CONFIG.GAME.WIDGETS.DEPTH);
+        this.widgetRenderer = new WidgetRenderer(this.gl, widgetsImage, CONFIG.GAME.WIDGETS.MAX);
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
-        this.rectangleRenderer = new RectangleRenderer(this.gl, 4);
+        this.rectangleRenderer = new RectangleRenderer(this.gl, CONFIG.GAME.RECTANGLES.MAX);
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);

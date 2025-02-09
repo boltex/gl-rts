@@ -192,7 +192,7 @@ export class TileRenderer extends BaseRenderer {
         this.gl.bindVertexArray(this.vao);
         if (this.dirtyTransforms) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
             this.dirtyTransforms = false;
         }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);
@@ -263,7 +263,7 @@ export class WidgetRenderer extends BaseRenderer {
         this.gl.bindVertexArray(this.vao);
         if (this.dirtyTransforms) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
             this.dirtyTransforms = false;
         }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax);

@@ -34,6 +34,10 @@ const GAME = {
     WIDGETS: {
         SIZE: 64, // size of an individual square TILE 
         DEPTH: 10, // Total number of tiles in the bitmap
+        MAX: 100 // Maximum number of widgets
+    },
+    RECTANGLES: {
+        MAX: 256 // Maximum number of rectangles
     },
     SPRITES: {
         BITMAP_SIZE: 4096, // size of the square bitmap of alien sprites

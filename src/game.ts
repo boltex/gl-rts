@@ -292,6 +292,28 @@ export class Game {
                 );
             }
 
+            // If the map Editor is toggled, add a grid to the visible tiles, vertical and horizontal lines.
+            if (this.uiManager.isMapEditorVisible()) {
+                const thicknes = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
+                const tilesize = CONFIG.GAME.TILE.SIZE;
+
+                // Draw horizontal grid lines
+                for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
+                    const lineY = y * tilesize - (this.lastScrollY % tilesize);
+                    cursor.push(
+                        { x: 0, y: lineY, width: this.lastScreenX, height: thicknes, r: 1, g: 1, b: 1 }
+                    );
+                }
+
+                // Draw vertical grid lines
+                for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
+                    const lineX = x * tilesize - (this.lastScrollX % tilesize);
+                    cursor.push(
+                        { x: lineX, y: 0, width: thicknes, height: this.lastScreenY, r: 1, g: 1, b: 1 }
+                    );
+                }
+            }
+
             // Animated selection widget, if any. Uses same renderer and texture as sprites.
             const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
             if (this.uiManager.widgetAnim > 0) {

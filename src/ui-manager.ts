@@ -232,7 +232,9 @@ export class UIManager {
     }
     setTileSelectIndex(index: number): void {
         this.currentTileIndex = index;
-
+        if (this.tileInput) {
+            this.tileInput.value = index.toString();
+        }
         this.updateTilePreview();
     }
 

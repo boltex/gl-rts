@@ -282,26 +282,26 @@ export class Game {
                 const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
                 const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
                 const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
-                const thicknes = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
+                const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 cursor.push(
                     // Top, bottom, left, right lines
-                    { x: cx1, y: cy1, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, a: 1 },
-                    { x: cx1, y: cy2, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, a: 1 },
-                    { x: cx1, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 },
-                    { x: cx2, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 }
+                    { x: cx1, y: cy1, width: cx2 - cx1, height: thickness, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx1, y: cy2, width: cx2 - cx1, height: thickness, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx1, y: cy1, width: thickness, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx2, y: cy1, width: thickness, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 }
                 );
             }
 
             // If the map Editor is toggled, add a grid to the visible tiles, vertical and horizontal lines.
             if (this.uiManager.isMapEditorVisible()) {
-                const thicknes = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
+                const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
                 // Draw horizontal grid lines
                 for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
                     const lineY = y * tilesize - (this.lastScrollY % tilesize);
                     cursor.push(
-                        { x: 0, y: lineY, width: this.lastScreenX, height: thicknes, r: 1, g: 1, b: 1, a: 1 }
+                        { x: 0, y: lineY, width: this.lastScreenX, height: thickness, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
 
@@ -309,7 +309,7 @@ export class Game {
                 for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
                     const lineX = x * tilesize - (this.lastScrollX % tilesize);
                     cursor.push(
-                        { x: lineX, y: 0, width: thicknes, height: this.lastScreenY, r: 1, g: 1, b: 1, a: 1 }
+                        { x: lineX, y: 0, width: thickness, height: this.lastScreenY, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
 
@@ -403,13 +403,20 @@ export class Game {
     setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {
         // Replace tile in gameMap at gameMouseX, gameMouseY with tileIndex
         // First, convert the gameMouseX, gameMouseY to tile index in the gameMap array, its a single linear array.
-        // So we need to know the tile size, and the scroll position.
+        // So we need to know the tile size, and the scroll position. Also set gameMapChanged.
+
         const tilesize = CONFIG.GAME.TILE.SIZE;
-        const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
-        const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
-        const x = Math.floor((gameMouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
-        const y = Math.floor((gameMouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
-        const index = x + (y * CONFIG.GAME.MAP.WIDTH);
+        // Convert game coordinates to tile grid coordinates
+        const tileX = Math.floor(gameMouseX / tilesize);
+        const tileY = Math.floor(gameMouseY / tilesize);
+        // Compute the tile index for the linear gamemap array
+        const index = tileX + (tileY * CONFIG.GAME.MAP.WIDTH);
+
+        if (index < 0 || index >= this.gamemap.length) {
+            console.warn(`Tile position out of bounds: (${tileX}, ${tileY})`);
+            return;
+        }
+
         this.gamemap[index] = tileIndex;
         this.gameMapChanged = true;
     }
@@ -418,12 +425,20 @@ export class Game {
         // This is the opposite of setTileAt, it samples the tile at gameMouseX, gameMouseY
         // and sets the UI to the selected tile.
         const tilesize = CONFIG.GAME.TILE.SIZE;
-        const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
-        const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
-        const x = Math.floor((gameMouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
-        const y = Math.floor((gameMouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
-        const index = x + (y * CONFIG.GAME.MAP.WIDTH);
-        this.uiManager.setTileSelectIndex(this.gamemap[index]);
+        // Convert game coordinates to tile grid coordinates
+        const tileX = Math.floor(gameMouseX / tilesize);
+        const tileY = Math.floor(gameMouseY / tilesize);
+        // Compute the tile index in the gamemap
+        const index = tileX + (tileY * CONFIG.GAME.MAP.WIDTH);
+
+        if (index < 0 || index >= this.gamemap.length) {
+            console.warn(`Tile position out of bounds: (${tileX}, ${tileY})`);
+            return;
+        }
+
+        const sampledTile = this.gamemap[index];
+
+        this.uiManager.setTileSelectIndex(sampledTile);
     }
 
     saveMap() {

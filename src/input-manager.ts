@@ -5,9 +5,9 @@ export class InputManager {
     private game: Game;
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
-    public mouseX = 0;
+    public mouseX = 0;  // in gameScreen coordinates.
     public mouseY = 0;
-    private gameMouseX = 0;
+    private gameMouseX = 0; // In game coordinates. with zoom factor applied.
     private gameMouseY = 0;
     public selX = 0;
     public selY = 0;
@@ -172,6 +172,7 @@ export class InputManager {
     private setCursorPos(event: MouseEvent): void {
         this.mouseX = event.clientX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
         this.mouseY = event.clientY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+        // Convert to game coordinates into gameMouseX and gameMouseY.
         this.gameMouseX = this.mouseX + this.game.cameraManager.scrollX;
         this.gameMouseY = this.mouseY + this.game.cameraManager.scrollY;
     }

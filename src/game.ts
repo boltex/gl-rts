@@ -312,6 +312,18 @@ export class Game {
                         { x: lineX, y: 0, width: thicknes, height: this.lastScreenY, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
+
+                // Draw a full rectangle over the tile which contains the current mouse pointer.
+                const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
+                const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
+                const x = Math.floor((this.inputManager.mouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
+                const y = Math.floor((this.inputManager.mouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
+                const index = x + (y * CONFIG.GAME.MAP.WIDTH);
+                cursor.push(
+                    { x: x * tilesize - (this.lastScrollX % tilesize), y: y * tilesize - (this.lastScrollY % tilesize), width: tilesize, height: tilesize, r: 1, g: 1, b: 1, a: 0.2 }
+                );
+
+
             }
 
             // Animated selection widget, if any. Uses same renderer and texture as sprites.

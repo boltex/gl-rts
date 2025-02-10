@@ -285,10 +285,10 @@ export class Game {
                 const thicknes = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 cursor.push(
                     // Top, bottom, left, right lines
-                    { x: cx1, y: cy1, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, },
-                    { x: cx1, y: cy2, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, },
-                    { x: cx1, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, },
-                    { x: cx2, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, }
+                    { x: cx1, y: cy1, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx1, y: cy2, width: cx2 - cx1, height: thicknes, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx1, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 },
+                    { x: cx2, y: cy1, width: thicknes, height: cy2 - cy1, r: 0, g: 1, b: 0, a: 1 }
                 );
             }
 
@@ -301,7 +301,7 @@ export class Game {
                 for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
                     const lineY = y * tilesize - (this.lastScrollY % tilesize);
                     cursor.push(
-                        { x: 0, y: lineY, width: this.lastScreenX, height: thicknes, r: 1, g: 1, b: 1 }
+                        { x: 0, y: lineY, width: this.lastScreenX, height: thicknes, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
 
@@ -309,7 +309,7 @@ export class Game {
                 for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
                     const lineX = x * tilesize - (this.lastScrollX % tilesize);
                     cursor.push(
-                        { x: lineX, y: 0, width: thicknes, height: this.lastScreenY, r: 1, g: 1, b: 1 }
+                        { x: lineX, y: 0, width: thicknes, height: this.lastScreenY, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
             }

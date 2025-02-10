@@ -376,13 +376,13 @@ export class RectangleRenderer extends BaseRenderer {
         super(gl, SHADERS.RECTANGLE_VERTEX_SHADER, SHADERS.RECTANGLE_FRAGMENT_SHADER);
         this.modelBuffer = this.createBuffer(); // Create a buffer
         this.transformBuffer = this.createBuffer()!;
-        this.transformData = new Float32Array(size * 7); // Init with 0s
+        this.transformData = new Float32Array(size * 8); // Init with 0s
         this.setupVAO();
     }
 
     updateTransformData(data: TRectangle[]): void {
         for (let i = 0; i < data.length; i++) {
-            const offset = i * 7;
+            const offset = i * 8;
             this.transformData[offset] = data[i].x;
             this.transformData[offset + 1] = data[i].y;
             this.transformData[offset + 2] = data[i].width;
@@ -390,6 +390,7 @@ export class RectangleRenderer extends BaseRenderer {
             this.transformData[offset + 4] = data[i].r;
             this.transformData[offset + 5] = data[i].g;
             this.transformData[offset + 6] = data[i].b;
+            this.transformData[offset + 7] = data[i].a;
         }
         this.renderMax = data.length;
         this.dirtyTransforms = true;
@@ -401,10 +402,10 @@ export class RectangleRenderer extends BaseRenderer {
             [0, 2, 8, 0]
         ]);
         this.setupBufferWithAttributes(this.transformBuffer, this.transformData, this.gl.DYNAMIC_DRAW, [
-            [1, 2, 28, 0, 1],
-            [2, 1, 28, 8, 1],
-            [3, 1, 28, 12, 1],
-            [4, 3, 28, 16, 1]
+            [1, 2, 32, 0, 1],
+            [2, 1, 32, 8, 1],
+            [3, 1, 32, 12, 1],
+            [4, 4, 32, 16, 1]
         ]);
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
@@ -414,7 +415,7 @@ export class RectangleRenderer extends BaseRenderer {
         this.gl.bindVertexArray(this.vao);
         if (this.dirtyTransforms) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
-            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 7 * this.renderMax);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData, 0, 8 * this.renderMax);
             this.dirtyTransforms = false;
         }
         this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.renderMax); // Draw the model of 6 vertex that form 2 triangles, 3 times

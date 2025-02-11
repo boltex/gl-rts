@@ -136,22 +136,17 @@ export class UIManager {
         // Create Up and Down buttons
         const upButton = document.createElement("button");
         upButton.textContent = "▲";
+        upButton.title = "Next tile (or press '+' key)";
         upButton.addEventListener("click", () => {
-            this.currentTileIndex = (this.currentTileIndex + 1) % 64;
-            this.updateTilePreview();
-            if (this.tileInput) {
-                this.tileInput.value = this.currentTileIndex.toString();  // sync with input
-            }
+            this.incrementMapTile();
+
         });
 
         const downButton = document.createElement("button");
         downButton.textContent = "▼";
+        downButton.title = "Previous tile (or press '-' key)";
         downButton.addEventListener("click", () => {
-            this.currentTileIndex = (this.currentTileIndex - 1 + 64) % 64;
-            this.updateTilePreview();
-            if (this.tileInput) {
-                this.tileInput.value = this.currentTileIndex.toString();  // sync with input
-            }
+            this.decrementMapTile();
         });
 
         // Create number input to manually select tile index
@@ -240,6 +235,23 @@ export class UIManager {
             document.removeEventListener("mousemove", elementDrag);
         }
     }
+
+    incrementMapTile() {
+        this.currentTileIndex = (this.currentTileIndex + 1) % 64;
+        this.updateTilePreview();
+        if (this.tileInput) {
+            this.tileInput.value = this.currentTileIndex.toString();
+        }
+    }
+
+    decrementMapTile(): void {
+        this.currentTileIndex = (this.currentTileIndex - 1 + 64) % 64;
+        this.updateTilePreview();
+        if (this.tileInput) {
+            this.tileInput.value = this.currentTileIndex.toString();
+        }
+    }
+
     private updateTilePreview(): void {
         if (this.tilePreview) {
             // Calculate background position so that the preview shows only the selected tile.
@@ -249,6 +261,7 @@ export class UIManager {
             this.tilePreview.style.backgroundSize = "128px 8192px";
         }
     }
+
     setTileSelectIndex(index: number): void {
         this.currentTileIndex = index;
         if (this.tileInput) {

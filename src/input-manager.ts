@@ -69,6 +69,19 @@ export class InputManager {
     }
 
     private handleKeyDown(e: KeyboardEvent): void {
+        // Add tile increment/decrement when map editor is visible.
+        if (this.game.uiManager.isMapEditorVisible()) {
+            if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
+                e.preventDefault();
+                this.game.uiManager.incrementMapTile();
+                return;
+            }
+            if (e.key === 'NumPad-' || e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                this.game.uiManager.decrementMapTile();
+                return;
+            }
+        }
         this.keysPressed[e.key] = true;
         if (e.key === 'F10') {
             e.preventDefault();
@@ -92,6 +105,22 @@ export class InputManager {
         }
         this.scrollNowX = 0;
         this.scrollNowY = 0;
+
+        if (this.game.uiManager.isMapEditorVisible()) {
+            console.log(event?.button);
+            if (event && event.buttons === 1) {
+                // left
+                // Replace the clicked tile on the map with the selected tile in the map editor.
+                const tileIndex = this.game.uiManager.getSelectedTileIndex();
+                this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
+            }
+            if (event && event.buttons === 2) {
+                // right mouse is like the eyedropper tool.
+                // Sample the tile index at the clicked position to select it in the map editor.
+                this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
+            }
+            return;
+        }
 
         if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
             this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;

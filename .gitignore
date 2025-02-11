@@ -1,9 +1,9 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-docs/
+# Build outputs are not ignored for gh-pages
+# dist/
+# docs/
 
 # Logs
 logs

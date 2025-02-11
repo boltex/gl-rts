@@ -20,6 +20,7 @@ export class UIManager {
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
     private fileInput: HTMLInputElement | null = null;
+    private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
     private currentTileIndex: number = 0; // between 0 and 63
 
     constructor(game: Game) {
@@ -302,6 +303,7 @@ export class UIManager {
     openMapFile(): void {
         // Use a file picker dialog to select a map file.
         if (this.fileInput) {
+            this.fileInputFor = 'map';
             this.fileInput.click();  // This opens the file picker dialog
         }
     }
@@ -311,6 +313,31 @@ export class UIManager {
         this.game.saveMap(); // No param is default to save the current map.
     }
 
+    openEntityListFile(): void {
+        if (this.fileInput) {
+            this.fileInputFor = 'entity';
+            this.fileInput.click();  // This opens the file picker dialog
+        }
+    }
+
+
+    saveEntityListFile(): void {
+        // No need for a file picker dialog, just save the active entities
+        this.game.saveEntities();
+    }
+
+
+    openAnimationListFile(): void {
+        if (this.fileInput) {
+            this.fileInputFor = 'animation';
+            this.fileInput.click();  // This opens the file picker dialog
+        }
+    }
+
+    saveAnimationListFile(): void {
+        // No need for a file picker dialog, just save the active entities
+        this.game.saveAnimationList();
+    }
 
 }
 

@@ -468,6 +468,27 @@ export class Game {
         this.gameMapChanged = true;
     }
 
+    saveEntities(): void {
+        // Todo: save the entities list (only for active, not all pool)
+        //
+    }
+
+    openEntities(): void {
+        // Open an entities list from file, replacing the current entities list
+        // The file is a JSON file containing an array of entities
+        // TODO : implement
+    }
+
+    saveAnimationList(): void {
+        // Todo: save the animations dictionary to a file
+        //
+    }
+
+    openAnimationList(): void {
+        // Open a json animation dictionary file
+        // TODO : Implement
+    }
+
 
 }
 

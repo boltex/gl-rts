@@ -89,7 +89,6 @@ export class InputManager {
             if (e.ctrlKey && e.key === 'o') {
                 e.preventDefault();  // Prevent the default open behavior
                 this.game.uiManager.openMapFile();
-
             }
         }
         if (e.key === 'F10') {

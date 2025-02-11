@@ -441,15 +441,31 @@ export class Game {
         this.uiManager.setTileSelectIndex(sampledTile);
     }
 
-    saveMap() {
-        //
-        console.log('Save Map');
+    saveMap(mapData?: number[], filename?: string) {
+        if (!mapData) {
+            mapData = this.gamemap;
+        }
+        if (!filename) {
+            filename = `map_${CONFIG.GAME.MAP.WIDTH}_${CONFIG.GAME.MAP.HEIGHT}.json`;
+
+        }
+        const jsonString = JSON.stringify(mapData, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
 
-    openMap() {
-        //
-        console.log('Open Map');
+    openMap(jsonData: number[]) {
+        // Load the map from a JSON file
+        this.gamemap = jsonData;
+        this.gameMapChanged = true;
     }
 
 

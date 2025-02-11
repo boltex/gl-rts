@@ -19,6 +19,7 @@ export class UIManager {
     private mapEditorElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
+    private fileInput: HTMLInputElement | null = null;
     private currentTileIndex: number = 0; // between 0 and 63
 
     constructor(game: Game) {
@@ -157,7 +158,6 @@ export class UIManager {
         this.tileInput.value = this.currentTileIndex.toString();
         this.tileInput.addEventListener("change", () => {
             if (this.tileInput) {
-                console.log('digit changed', this.tileInput.value);
                 const newValue = parseInt(this.tileInput.value, 10);
                 if (!isNaN(newValue) && newValue >= 0 && newValue < 64) {
                     this.currentTileIndex = newValue;
@@ -166,23 +166,52 @@ export class UIManager {
             }
         });
 
+        // Create file input for loading and saving maps
+        this.fileInput = document.createElement('input');
+        this.fileInput.type = 'file';
+        this.fileInput.accept = '.json';
+        this.fileInput.style.display = 'none';  // Hide the input from view
+        this.fileInput.addEventListener('change', (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            const file = target.files?.[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    try {
+                        const jsonData = JSON.parse(e.target?.result as string);
+                        // Check that the map data is valid before opening it.
+                        // it should be an array of numbers totalling the product of the map dimensions.
+                        if (!Array.isArray(jsonData) || jsonData.length !== CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT) {
+                            throw new Error('Invalid map data');
+                        }
+                        this.game.openMap(jsonData);
+                    } catch (err) {
+                        console.error('Error parsing JSON file:', err);
+                    }
+                };
+
+                reader.readAsText(file);
+            }
+        });
+
         // Create open and Save buttons
         const openButton = document.createElement("button");
         openButton.textContent = "Open";
         openButton.addEventListener("click", () => {
-            this.game.openMap();
+            this.openMapFile();
         });
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
         saveButton.addEventListener("click", () => {
-            this.game.saveMap();
+            this.saveMapFile();
         });
-
         // Append elements to map editor container
         this.mapEditorElement.appendChild(this.tilePreview);
         this.mapEditorElement.appendChild(upButton);
         this.mapEditorElement.appendChild(downButton);
         this.mapEditorElement.appendChild(this.tileInput);
+        this.mapEditorElement.appendChild(this.fileInput);
         // Insert newline
         this.mapEditorElement.appendChild(document.createElement("br"));
         this.mapEditorElement.appendChild(openButton);
@@ -268,6 +297,18 @@ export class UIManager {
             this.tileInput.value = index.toString();
         }
         this.updateTilePreview();
+    }
+
+    openMapFile(): void {
+        // Use a file picker dialog to select a map file.
+        if (this.fileInput) {
+            this.fileInput.click();  // This opens the file picker dialog
+        }
+    }
+
+    saveMapFile(): void {
+        // No need for a file picker dialog, just save the map data to a file.
+        this.game.saveMap(); // No param is default to save the current map.
     }
 
 

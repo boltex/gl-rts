@@ -81,8 +81,17 @@ export class InputManager {
                 this.game.uiManager.decrementMapTile();
                 return;
             }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();  // Prevent the default save behavior
+                this.game.uiManager.saveMapFile();
+            }
+
+            if (e.ctrlKey && e.key === 'o') {
+                e.preventDefault();  // Prevent the default open behavior
+                this.game.uiManager.openMapFile();
+
+            }
         }
-        this.keysPressed[e.key] = true;
         if (e.key === 'F10') {
             e.preventDefault();
             // For now, open the map editor instead of the options menu.
@@ -90,6 +99,7 @@ export class InputManager {
             // this.game.uiManager.toggleGameMenu();
             return;
         }
+        this.keysPressed[e.key] = true;
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();
         }
@@ -107,7 +117,6 @@ export class InputManager {
         this.scrollNowY = 0;
 
         if (this.game.uiManager.isMapEditorVisible()) {
-            console.log(event?.button);
             if (event && event.buttons === 1) {
                 // left
                 // Replace the clicked tile on the map with the selected tile in the map editor.

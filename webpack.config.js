@@ -6,7 +6,7 @@ module.exports = {
     entry: './src/main.ts',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'docs'),
         clean: true, // Clean the dist folder before each build
     },
     resolve: {

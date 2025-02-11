@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.body.appendChild(loadingText);
 
     const creaturesPromise = utils.loadImage('images/alien.png');
-    const tilesPromise = utils.loadImage('images/plancher-vertical.png');
+    const tilesPromise = utils.loadImage('images/map-tiles-vertical.png');
     const widgetsPromise = utils.loadImage('images/animated-widget.png');
 
     Promise.all([creaturesPromise, tilesPromise, widgetsPromise]).then((images) => {

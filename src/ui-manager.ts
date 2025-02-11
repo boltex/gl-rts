@@ -127,7 +127,7 @@ export class UIManager {
         Object.assign(this.tilePreview.style, {
             width: "128px",
             height: "128px",
-            backgroundImage: "url('images/plancher-vertical.png')",
+            backgroundImage: "url('images/map-tiles-vertical.png')",
             backgroundRepeat: "no-repeat",
             cursor: "default",
             marginBottom: "10px",

@@ -402,7 +402,6 @@ export class Game {
 
     setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {
         // Replace tile in gameMap at gameMouseX, gameMouseY with tileIndex
-        // First, convert the gameMouseX, gameMouseY to tile index in the gameMap array, its a single linear array.
         // So we need to know the tile size, and the scroll position. Also set gameMapChanged.
 
         const tilesize = CONFIG.GAME.TILE.SIZE;

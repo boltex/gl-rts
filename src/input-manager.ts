@@ -116,6 +116,10 @@ export class InputManager {
         this.scrollNowY = 0;
 
         if (this.game.uiManager.isMapEditorVisible()) {
+            // Make sure the event click is over the canvas, not the map editor.
+            if (event && event.target !== this.game.canvasElement) {
+                return;
+            }
             if (event && event.buttons === 1) {
                 // left
                 // Replace the clicked tile on the map with the selected tile in the map editor.
@@ -147,6 +151,11 @@ export class InputManager {
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
         if (this.game.uiManager.isMapEditorVisible()) {
+
+            // Make sure the event click is over the canvas, not the map editor.
+            if (event.target !== this.game.canvasElement) {
+                return;
+            }
 
             if (event.button === 0) {
                 // left

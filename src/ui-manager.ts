@@ -21,7 +21,7 @@ export class UIManager {
     private tileInput: HTMLInputElement | null = null;
     private fileInput: HTMLInputElement | null = null;
     private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
-    private currentTileIndex: number = 0; // between 0 and 63
+    private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
 
     constructor(game: Game) {
         this.game = game;
@@ -125,8 +125,8 @@ export class UIManager {
         // Create tile preview element using the atlas (using background positioning)
         this.tilePreview = document.createElement("div");
         Object.assign(this.tilePreview.style, {
-            width: "128px",
-            height: "128px",
+            width: `${CONFIG.GAME.TILE.SIZE}px`,
+            height: `${CONFIG.GAME.TILE.SIZE}px`,
             backgroundImage: "url('images/map-tiles-vertical.png')",
             backgroundRepeat: "no-repeat",
             cursor: "default",
@@ -155,12 +155,12 @@ export class UIManager {
         this.tileInput = document.createElement("input");
         this.tileInput.type = "number";
         this.tileInput.min = "0";
-        this.tileInput.max = "63";
+        this.tileInput.max = (CONFIG.GAME.TILE.DEPTH - 1).toString();
         this.tileInput.value = this.currentTileIndex.toString();
         this.tileInput.addEventListener("change", () => {
             if (this.tileInput) {
                 const newValue = parseInt(this.tileInput.value, 10);
-                if (!isNaN(newValue) && newValue >= 0 && newValue < 64) {
+                if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
                     this.currentTileIndex = newValue;
                     this.updateTilePreview();
                 }
@@ -267,7 +267,7 @@ export class UIManager {
     }
 
     incrementMapTile() {
-        this.currentTileIndex = (this.currentTileIndex + 1) % 64;
+        this.currentTileIndex = (this.currentTileIndex + 1) % CONFIG.GAME.TILE.DEPTH;
         this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
@@ -275,7 +275,7 @@ export class UIManager {
     }
 
     decrementMapTile(): void {
-        this.currentTileIndex = (this.currentTileIndex - 1 + 64) % 64;
+        this.currentTileIndex = (this.currentTileIndex - 1 + CONFIG.GAME.TILE.DEPTH) % CONFIG.GAME.TILE.DEPTH;
         this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
@@ -286,9 +286,10 @@ export class UIManager {
         if (this.tilePreview) {
             // Calculate background position so that the preview shows only the selected tile.
             // Assuming vertical stacking: the Y offset is negative (tileIndex * 128)
-            this.tilePreview.style.backgroundPosition = `0px -${this.currentTileIndex * 128}px`;
-            // Optionally adjust background size if your atlas image size differs.
-            this.tilePreview.style.backgroundSize = "128px 8192px";
+            this.tilePreview.style.backgroundPosition = `0px -${this.currentTileIndex * CONFIG.GAME.TILE.SIZE}px`;
+
+            // CONFIG.GAME.TILE.SIZE is 128 and CONFIG.GAME.TILE.DEPTH is 64 so background size is 128 * 64
+            this.tilePreview.style.backgroundSize = `${CONFIG.GAME.TILE.SIZE}px ${CONFIG.GAME.TILE.SIZE * CONFIG.GAME.TILE.DEPTH}px`;
         }
     }
 

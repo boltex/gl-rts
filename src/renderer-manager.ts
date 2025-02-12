@@ -22,7 +22,8 @@ export class RendererManager {
         this.rectangleRenderer = new RectangleRenderer(this.gl, CONFIG.GAME.RECTANGLES.MAX);
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
-        this.gl.bufferData(this.gl.UNIFORM_BUFFER, 2 * Float32Array.BYTES_PER_ELEMENT, this.gl.DYNAMIC_DRAW);
+        // Here bind 16 even though we only need 8 bytes, because the minimum size of a UBO is 16 bytes.
+        this.gl.bufferData(this.gl.UNIFORM_BUFFER, 16, this.gl.DYNAMIC_DRAW);
         this.initUboBindings();
     }
 

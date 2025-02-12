@@ -181,12 +181,30 @@ export class UIManager {
                 reader.onload = (e) => {
                     try {
                         const jsonData = JSON.parse(e.target?.result as string);
-                        // Check that the map data is valid before opening it.
-                        // it should be an array of numbers totalling the product of the map dimensions.
-                        if (!Array.isArray(jsonData) || jsonData.length !== CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT) {
-                            throw new Error('Invalid map data');
+
+                        switch (this.fileInputFor) {
+                            case 'map':
+                                // Check that the map data is valid before opening it.
+                                // it should be an array of numbers totalling the product of the map dimensions.
+                                if (!Array.isArray(jsonData) || jsonData.length !== CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT) {
+                                    throw new Error('Invalid map data');
+                                }
+                                this.game.openMap(jsonData);
+                                break;
+                            case 'entity':
+                                console.log('Opening entity list file:', jsonData);
+                                // todo
+                                break;
+                            case 'animation':
+                                console.log('Opening animation list file:', jsonData);
+                                // todo
+                                break;
+                            default:
+                                console.log('unknown file input type');
+                                break;
                         }
-                        this.game.openMap(jsonData);
+
+
                     } catch (err) {
                         console.error('Error parsing JSON file:', err);
                     }

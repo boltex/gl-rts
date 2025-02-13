@@ -21,7 +21,11 @@ export class UIManager {
     private tileInput: HTMLInputElement | null = null;
     private fileInput: HTMLInputElement | null = null;
     private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
-    private currentTileIndex: number = 0; // between 0 and 63
+    private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
+
+    private animInput: HTMLInputElement | null = null;
+    private animListText: HTMLInputElement | null = null;
+    private currentAnimIndex: number = 0;
 
     constructor(game: Game) {
         this.game = game;
@@ -112,7 +116,7 @@ export class UIManager {
             top: "10px",
             right: "10px",
             width: "130px",
-            height: "180px",
+            height: "280px",
             textAlign: "center",
             backgroundColor: "#ccc",
             border: "1px solid #333",
@@ -125,8 +129,8 @@ export class UIManager {
         // Create tile preview element using the atlas (using background positioning)
         this.tilePreview = document.createElement("div");
         Object.assign(this.tilePreview.style, {
-            width: "128px",
-            height: "128px",
+            width: `${CONFIG.GAME.TILE.SIZE}px`,
+            height: `${CONFIG.GAME.TILE.SIZE}px`,
             backgroundImage: "url('images/map-tiles-vertical.png')",
             backgroundRepeat: "no-repeat",
             cursor: "default",
@@ -136,18 +140,18 @@ export class UIManager {
         this.updateTilePreview();
 
         // Create Up and Down buttons
-        const upButton = document.createElement("button");
-        upButton.textContent = "▲";
-        upButton.title = "Next tile (or press '+' key)";
-        upButton.addEventListener("click", () => {
+        const upTileButton = document.createElement("button");
+        upTileButton.textContent = "▲";
+        upTileButton.title = "Next tile (or press '+' key)";
+        upTileButton.addEventListener("click", () => {
             this.incrementMapTile();
 
         });
 
-        const downButton = document.createElement("button");
-        downButton.textContent = "▼";
-        downButton.title = "Previous tile (or press '-' key)";
-        downButton.addEventListener("click", () => {
+        const downTileButton = document.createElement("button");
+        downTileButton.textContent = "▼";
+        downTileButton.title = "Previous tile (or press '-' key)";
+        downTileButton.addEventListener("click", () => {
             this.decrementMapTile();
         });
 
@@ -155,12 +159,12 @@ export class UIManager {
         this.tileInput = document.createElement("input");
         this.tileInput.type = "number";
         this.tileInput.min = "0";
-        this.tileInput.max = "63";
+        this.tileInput.max = (CONFIG.GAME.TILE.DEPTH - 1).toString();
         this.tileInput.value = this.currentTileIndex.toString();
         this.tileInput.addEventListener("change", () => {
             if (this.tileInput) {
                 const newValue = parseInt(this.tileInput.value, 10);
-                if (!isNaN(newValue) && newValue >= 0 && newValue < 64) {
+                if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
                     this.currentTileIndex = newValue;
                     this.updateTilePreview();
                 }
@@ -181,12 +185,31 @@ export class UIManager {
                 reader.onload = (e) => {
                     try {
                         const jsonData = JSON.parse(e.target?.result as string);
-                        // Check that the map data is valid before opening it.
-                        // it should be an array of numbers totalling the product of the map dimensions.
-                        if (!Array.isArray(jsonData) || jsonData.length !== CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT) {
-                            throw new Error('Invalid map data');
+
+                        // Check which 'open' button was clicked to determine how to handle the file data.
+                        switch (this.fileInputFor) {
+                            case 'map':
+                                // Check that the map data is valid before opening it.
+                                // it should be an array of numbers totalling the product of the map dimensions.
+                                if (!Array.isArray(jsonData) || jsonData.length !== CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT) {
+                                    throw new Error('Invalid map data');
+                                }
+                                this.game.openMap(jsonData);
+                                break;
+                            case 'entity':
+                                console.log('Opening entity list file:', jsonData);
+                                // todo
+                                break;
+                            case 'animation':
+                                console.log('Opening animation list file:', jsonData);
+                                // todo
+                                break;
+                            default:
+                                console.log('unknown file input type');
+                                break;
                         }
-                        this.game.openMap(jsonData);
+
+
                     } catch (err) {
                         console.error('Error parsing JSON file:', err);
                     }
@@ -196,27 +219,92 @@ export class UIManager {
             }
         });
 
-        // Create open and Save buttons
-        const openButton = document.createElement("button");
-        openButton.textContent = "Open";
-        openButton.addEventListener("click", () => {
+        // Create open and Save map buttons
+        const openMapButton = document.createElement("button");
+        openMapButton.textContent = "Open";
+        openMapButton.addEventListener("click", () => {
             this.openMapFile();
         });
-        const saveButton = document.createElement("button");
-        saveButton.textContent = "Save";
-        saveButton.addEventListener("click", () => {
+        const saveMapButton = document.createElement("button");
+        saveMapButton.textContent = "Save";
+        saveMapButton.addEventListener("click", () => {
             this.saveMapFile();
         });
         // Append elements to map editor container
         this.mapEditorElement.appendChild(this.tilePreview);
-        this.mapEditorElement.appendChild(upButton);
-        this.mapEditorElement.appendChild(downButton);
+        this.mapEditorElement.appendChild(upTileButton);
+        this.mapEditorElement.appendChild(downTileButton);
         this.mapEditorElement.appendChild(this.tileInput);
         this.mapEditorElement.appendChild(this.fileInput);
         // Insert newline
         this.mapEditorElement.appendChild(document.createElement("br"));
-        this.mapEditorElement.appendChild(openButton);
-        this.mapEditorElement.appendChild(saveButton);
+        this.mapEditorElement.appendChild(openMapButton);
+        this.mapEditorElement.appendChild(saveMapButton);
+
+        this.mapEditorElement.appendChild(document.createElement("br"));
+        this.mapEditorElement.appendChild(document.createElement("br"));
+        // Create Up and Down buttons
+        const upAnimButton = document.createElement("button");
+        upAnimButton.textContent = "▲";
+        upAnimButton.title = "Next animation (or press '+' key)";
+        upAnimButton.addEventListener("click", () => {
+            this.incrementAnimation();
+
+        });
+
+        const downAnimButton = document.createElement("button");
+        downAnimButton.textContent = "▼";
+        downAnimButton.title = "Previous animation (or press '-' key)";
+        downAnimButton.addEventListener("click", () => {
+            this.decrementAnimation();
+        });
+
+        // Create number input to manually select anim index
+        this.animInput = document.createElement("input");
+        this.animInput.type = "number";
+        this.animInput.min = "0";
+        this.animInput.max = (CONFIG.GAME.TILE.DEPTH - 1).toString();
+        this.animInput.value = this.currentAnimIndex.toString();
+        this.animInput.addEventListener("change", () => {
+            if (this.animInput) {
+                const newValue = parseInt(this.animInput.value, 10);
+                if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
+                    this.currentAnimIndex = newValue;
+                    // this.updateAnimPreview();
+                    // todo
+                }
+            }
+        });
+        // Create text input for animation lists to be parsed like: "[0,1,2,22,33,255]"
+        this.animListText = document.createElement("input");
+        this.animListText.type = "text";
+        this.animListText.style.width = "120px";
+        this.animListText.value = "";
+        this.animListText.addEventListener("change", () => {
+            if (this.animListText) {
+                console.log("animListText changed to:", this.animListText.value);
+            }
+        });
+
+
+        // Create open and Save buttons
+        const openAnimationsButton = document.createElement("button");
+        openAnimationsButton.textContent = "Open";
+        openAnimationsButton.addEventListener("click", () => {
+            this.openAnimationsFile();
+        });
+        const saveAnimationsButton = document.createElement("button");
+        saveAnimationsButton.textContent = "Save";
+        saveAnimationsButton.addEventListener("click", () => {
+            this.saveAnimationsFile();
+        });
+
+        this.mapEditorElement.appendChild(upAnimButton);
+        this.mapEditorElement.appendChild(downAnimButton);
+        this.mapEditorElement.appendChild(this.animInput);
+        this.mapEditorElement.appendChild(this.animListText);
+        this.mapEditorElement.appendChild(openAnimationsButton);
+        this.mapEditorElement.appendChild(saveAnimationsButton);
 
         // Append the map editor container to the document body
         document.body.appendChild(this.mapEditorElement);
@@ -267,7 +355,7 @@ export class UIManager {
     }
 
     incrementMapTile() {
-        this.currentTileIndex = (this.currentTileIndex + 1) % 64;
+        this.currentTileIndex = (this.currentTileIndex + 1) % CONFIG.GAME.TILE.DEPTH;
         this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
@@ -275,20 +363,33 @@ export class UIManager {
     }
 
     decrementMapTile(): void {
-        this.currentTileIndex = (this.currentTileIndex - 1 + 64) % 64;
+        this.currentTileIndex = (this.currentTileIndex - 1 + CONFIG.GAME.TILE.DEPTH) % CONFIG.GAME.TILE.DEPTH;
         this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
         }
     }
 
+    incrementAnimation(): void {
+        //
+        // TODO
+        console.log("todo incrementAnimation");
+    }
+
+    decrementAnimation(): void {
+        //
+        // TODO
+        console.log("todo decrementAnimation");
+    }
+
     private updateTilePreview(): void {
         if (this.tilePreview) {
             // Calculate background position so that the preview shows only the selected tile.
             // Assuming vertical stacking: the Y offset is negative (tileIndex * 128)
-            this.tilePreview.style.backgroundPosition = `0px -${this.currentTileIndex * 128}px`;
-            // Optionally adjust background size if your atlas image size differs.
-            this.tilePreview.style.backgroundSize = "128px 8192px";
+            this.tilePreview.style.backgroundPosition = `0px -${this.currentTileIndex * CONFIG.GAME.TILE.SIZE}px`;
+
+            // CONFIG.GAME.TILE.SIZE is 128 and CONFIG.GAME.TILE.DEPTH is 64 so background size is 128 * 64
+            this.tilePreview.style.backgroundSize = `${CONFIG.GAME.TILE.SIZE}px ${CONFIG.GAME.TILE.SIZE * CONFIG.GAME.TILE.DEPTH}px`;
         }
     }
 
@@ -311,6 +412,18 @@ export class UIManager {
     saveMapFile(): void {
         // No need for a file picker dialog, just save the map data to a file.
         this.game.saveMap(); // No param is default to save the current map.
+    }
+
+    openAnimationsFile(): void {
+        //
+        // Todo
+        console.log("todo openAnimationsFile");
+    }
+
+    saveAnimationsFile(): void {
+        //
+        // Todo
+        console.log("todo saveAnimationsFile");
     }
 
     openEntityListFile(): void {

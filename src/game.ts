@@ -218,6 +218,7 @@ export class Game {
         const deltaTime = this.timeManager.update(timestamp);
 
         // 2. Process immediate inputs/actions
+        this.cameraManager.animateZoom();
         this.procGame();
 
         // 3. Update animations if needed

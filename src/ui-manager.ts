@@ -112,7 +112,7 @@ export class UIManager {
             top: "10px",
             right: "10px",
             width: "130px",
-            height: "180px",
+            height: "280px",
             textAlign: "center",
             backgroundColor: "#ccc",
             border: "1px solid #333",
@@ -216,14 +216,14 @@ export class UIManager {
         });
 
         // Create open and Save buttons
-        const openButton = document.createElement("button");
-        openButton.textContent = "Open";
-        openButton.addEventListener("click", () => {
+        const openMapButton = document.createElement("button");
+        openMapButton.textContent = "Open";
+        openMapButton.addEventListener("click", () => {
             this.openMapFile();
         });
-        const saveButton = document.createElement("button");
-        saveButton.textContent = "Save";
-        saveButton.addEventListener("click", () => {
+        const saveMapButton = document.createElement("button");
+        saveMapButton.textContent = "Save";
+        saveMapButton.addEventListener("click", () => {
             this.saveMapFile();
         });
         // Append elements to map editor container
@@ -234,8 +234,8 @@ export class UIManager {
         this.mapEditorElement.appendChild(this.fileInput);
         // Insert newline
         this.mapEditorElement.appendChild(document.createElement("br"));
-        this.mapEditorElement.appendChild(openButton);
-        this.mapEditorElement.appendChild(saveButton);
+        this.mapEditorElement.appendChild(openMapButton);
+        this.mapEditorElement.appendChild(saveMapButton);
 
         // Append the map editor container to the document body
         document.body.appendChild(this.mapEditorElement);

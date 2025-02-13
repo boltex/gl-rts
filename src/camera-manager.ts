@@ -99,6 +99,7 @@ export class CameraManager {
         this.zoom = newZoom;
         this.updateProperties(this.game.canvasBoundingRect); // Updates maxScrollX and maxScrollY
         this.scroll({ dx: 0, dy: 0 }); // This 'null' scroll just limits the scroll values to the maxScroll.
+        this.game.inputManager.setCursorPos(); // Update mouse and gameMouse coords
         this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight); // update world coords
     }
 

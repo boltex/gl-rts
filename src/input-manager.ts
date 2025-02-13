@@ -17,6 +17,8 @@ export class InputManager {
     private gameSelEndY = 0;
     private scrollNowX = 0;
     private scrollNowY = 0;
+    private lastMouseX = 0
+    private lastMouseY = 0;
 
     private keyboardUp = false;
     private keyboardDown = false;
@@ -131,13 +133,14 @@ export class InputManager {
                 // Replace the clicked tile on the map with the selected tile in the map editor.
                 const tileIndex = this.game.uiManager.getSelectedTileIndex();
                 this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
+                return;
             }
             if (event && event.buttons === 2) {
                 // right mouse is like the eyedropper tool.
                 // Sample the tile index at the clicked position to select it in the map editor.
                 this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
+                return;
             }
-            return;
         }
 
         if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
@@ -221,9 +224,19 @@ export class InputManager {
         }
     }
 
-    private setCursorPos(event: MouseEvent): void {
-        this.mouseX = event.clientX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
-        this.mouseY = event.clientY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+    setCursorPos(event?: MouseEvent): void {
+        let x, y;
+        if (event) {
+            x = event.clientX;
+            y = event.clientY;
+            this.lastMouseX = x;
+            this.lastMouseY = y;
+        } else {
+            x = this.lastMouseX;
+            y = this.lastMouseY;
+        }
+        this.mouseX = x * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
+        this.mouseY = y * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
         // Convert to game coordinates into gameMouseX and gameMouseY.
         this.gameMouseX = this.mouseX + this.game.cameraManager.scrollX;
         this.gameMouseY = this.mouseY + this.game.cameraManager.scrollY;

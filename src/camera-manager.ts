@@ -9,6 +9,7 @@ export class CameraManager {
     scrollEdgeX: number;
     scrollEdgeY: number;
     zoom: number;
+    zoomTarget: number; // Used for smooth zooming
     gameWidthRatio: number;
     gameHeightRatio: number;
     initRangeX: number;
@@ -19,6 +20,7 @@ export class CameraManager {
     scrollY = 0;
     maxScrollX: number;
     maxScrollY: number;
+    zoomFactor = Math.pow(2, 1 / 4) // 4 steps to double the zoom
     minZoom = 0.5;
     maxZoom = 2;
     readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
@@ -28,6 +30,7 @@ export class CameraManager {
         this.game = game;
         this.resolution = CONFIG.DISPLAY.RESOLUTIONS[0];
         this.zoom = 1;
+        this.zoomTarget = 1;
         this.aspectRatio = this.resolution.width / this.resolution.height;
         this.gameScreenWidth = this.resolution.width / this.zoom;
         this.gameScreenHeight = this.resolution.height / this.zoom;
@@ -69,16 +72,25 @@ export class CameraManager {
         this.gameHeightRatio = this.gameScreenHeight / canvasBoundingRect.height;
     }
 
-    setZoom(zoomLevel: number): void {
-        this.zoom = zoomLevel;
-        this.updateProperties(this.game.canvasBoundingRect); // Updates maxScrollX and maxScrollY
-        this.scroll({ dx: 0, dy: 0 }); // This scroll of 0,0 just limits the scroll values to the maxScroll.
-        this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight); // update world coords
-    }
+    animateZoom(): void {
+        if (this.zoom === this.zoomTarget) {
+            return;
+        }
 
-    zoomIn(mouseX: number, mouseY: number) {
         const oldZoom = this.zoom;
-        const newZoom = Math.min(this.maxZoom, oldZoom * 1.1);
+        let newZoom = oldZoom;
+
+        if (newZoom < this.zoomTarget) {
+            newZoom = oldZoom * this.zoomFactor; // Zoom in
+        } else if (newZoom > this.zoomTarget) {
+            newZoom = oldZoom / this.zoomFactor; // Zoom out
+        }
+
+        if (newZoom > this.maxZoom || newZoom < this.minZoom) {
+            return;
+        }
+        const mouseX = this.game.inputManager.mouseX;
+        const mouseY = this.game.inputManager.mouseY;
 
         // Adjust scroll so that the world coordinate under the mouse remains constant.
         this.scrollX = this.scrollX + (mouseX / oldZoom) - (mouseX / newZoom);
@@ -90,18 +102,28 @@ export class CameraManager {
         this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight); // update world coords
     }
 
-    zoomOut(mouseX: number, mouseY: number) {
+    resetZoom(): void {
+        this.zoomTarget = 1;
+    }
+
+    zoomIn() {
         const oldZoom = this.zoom;
-        const newZoom = Math.max(this.minZoom, oldZoom / 1.1);
+        const newZoom = oldZoom * this.zoomFactor;
 
-        // Adjust scroll so that the world coordinate under the mouse remains constant.
-        this.scrollX = this.scrollX + (mouseX / oldZoom) - (mouseX / newZoom);
-        this.scrollY = this.scrollY + (mouseY / oldZoom) - (mouseY / newZoom);
+        if (newZoom > this.maxZoom) {
+            return;
+        }
+        this.zoomTarget = newZoom;
+    }
 
-        this.zoom = newZoom;
-        this.updateProperties(this.game.canvasBoundingRect); // Updates maxScrollX and maxScrollY
-        this.scroll({ dx: 0, dy: 0 }); // This scroll of 0,0 just limits the scroll values to the maxScroll.
-        this.game.rendererManager.setUboWorldTransforms(this.gameScreenWidth, this.gameScreenHeight); // update world coords
+    zoomOut() {
+        const oldZoom = this.zoom;
+        const newZoom = oldZoom / this.zoomFactor;
+
+        if (newZoom < this.minZoom) {
+            return;
+        }
+        this.zoomTarget = newZoom;
     }
 
 

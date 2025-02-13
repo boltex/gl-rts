@@ -98,6 +98,12 @@ export class InputManager {
             // this.game.uiManager.toggleGameMenu();
             return;
         }
+        if (e.key === 'F6') {
+            e.preventDefault();
+            // Reset zoom to 1.
+            this.game.cameraManager.resetZoom();
+            return;
+        }
         this.keysPressed[e.key] = true;
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();
@@ -209,9 +215,9 @@ export class InputManager {
             return; // Do not zoom while selecting
         }
         if (event.deltaY < 0) {
-            this.game.cameraManager.zoomIn(this.mouseX, this.mouseY);
+            this.game.cameraManager.zoomIn();
         } else if (event.deltaY > 0) {
-            this.game.cameraManager.zoomOut(this.mouseX, this.mouseY);
+            this.game.cameraManager.zoomOut();
         }
     }
 

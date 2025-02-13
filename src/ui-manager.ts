@@ -182,6 +182,7 @@ export class UIManager {
                     try {
                         const jsonData = JSON.parse(e.target?.result as string);
 
+                        // Check which 'open' button was clicked to determine how to handle the file data.
                         switch (this.fileInputFor) {
                             case 'map':
                                 // Check that the map data is valid before opening it.

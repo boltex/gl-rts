@@ -146,7 +146,7 @@ export class Game {
     }
 
     initGameStates(): void {
-        this.entities = new Entities(100);
+        this.entities = new Entities(CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.entityBehaviors = new Behaviors(this);
         // Prepare 64 animations of 10 frames going from 1 to 10.
         for (let i = 0; i < 64; i++) {

@@ -5,7 +5,7 @@ export class UIManager {
 
     // Command Acknowledged Widget Animation Properties
     widgetAnim: number = 0;
-    widgetAnimTotal: number = 6;
+    widgetAnimTotal: number = CONFIG.UI.WIDGET.ANIMATION_FRAMES;
     widgetAnimX: number = 0;
     widgetAnimY: number = 0;
 
@@ -113,10 +113,10 @@ export class UIManager {
         this.mapEditorElement.id = "map-editor";
         Object.assign(this.mapEditorElement.style, {
             position: "absolute",
-            top: "10px",
-            right: "10px",
-            width: "130px",
-            height: "280px",
+            top: `${CONFIG.UI.MAP_EDITOR.TOP}px`,
+            right: `${CONFIG.UI.MAP_EDITOR.RIGHT}px`,
+            width: `${CONFIG.UI.MAP_EDITOR.WIDTH}px`,
+            height: `${CONFIG.UI.MAP_EDITOR.HEIGHT}px`,
             textAlign: "center",
             backgroundColor: "#ccc",
             border: "1px solid #333",

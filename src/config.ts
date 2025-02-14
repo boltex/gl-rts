@@ -70,6 +70,27 @@ const GAME = {
     }
 } as const;
 
+const CAMERA = {
+    ZOOM: {
+        MIN: 0.5,
+        MAX: 2.0,
+        STEPS: 4, // Steps to double zoom
+        FACTOR: Math.pow(2, 1 / 4)
+    }
+} as const;
+
+const UI = {
+    MAP_EDITOR: {
+        WIDTH: 130,
+        HEIGHT: 280,
+        TOP: 10,
+        RIGHT: 10,
+    },
+    WIDGET: {
+        ANIMATION_FRAMES: 6
+    }
+} as const;
+
 const TEXTURE_MODEL_DATA = new Float32Array([
     // XY Coords, UV Offset 
     1, 0, 1, 0,
@@ -95,5 +116,8 @@ export const CONFIG = {
     TEXTURE_MODEL_DATA,
     RECTANGLE_MODEL_DATA,
     DISPLAY,
-    GAME
+    GAME,
+    CAMERA,
+    UI
 } as const;
+

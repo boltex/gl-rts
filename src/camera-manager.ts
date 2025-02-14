@@ -20,9 +20,9 @@ export class CameraManager {
     scrollY = 0;
     maxScrollX: number;
     maxScrollY: number;
-    zoomFactor = Math.pow(2, 1 / 4) // 4 steps to double the zoom
-    minZoom = 0.5;
-    maxZoom = 2;
+    zoomFactor = CONFIG.CAMERA.ZOOM.FACTOR;
+    minZoom = CONFIG.CAMERA.ZOOM.MIN;
+    maxZoom = CONFIG.CAMERA.ZOOM.MAX;
     readonly maxMapX = (CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE) - 1;
     readonly maxMapY = (CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE) - 1;
 

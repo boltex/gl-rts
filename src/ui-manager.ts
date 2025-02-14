@@ -5,7 +5,7 @@ export class UIManager {
 
     // Command Acknowledged Widget Animation Properties
     widgetAnim: number = 0;
-    widgetAnimTotal: number = 6;
+    widgetAnimTotal: number = CONFIG.UI.WIDGET.ANIMATION_FRAMES;
     widgetAnimX: number = 0;
     widgetAnimY: number = 0;
 
@@ -113,10 +113,10 @@ export class UIManager {
         this.mapEditorElement.id = "map-editor";
         Object.assign(this.mapEditorElement.style, {
             position: "absolute",
-            top: "10px",
-            right: "10px",
-            width: "130px",
-            height: "280px",
+            top: `${CONFIG.UI.MAP_EDITOR.TOP}px`,
+            right: `${CONFIG.UI.MAP_EDITOR.RIGHT}px`,
+            width: `${CONFIG.UI.MAP_EDITOR.WIDTH}px`,
+            height: `${CONFIG.UI.MAP_EDITOR.HEIGHT}px`,
             textAlign: "center",
             backgroundColor: "#ccc",
             border: "1px solid #333",
@@ -136,6 +136,7 @@ export class UIManager {
             cursor: "default",
             marginBottom: "10px",
             border: "1px solid #333",
+            pointerEvents: "none"
         });
         this.updateTilePreview();
 
@@ -271,7 +272,8 @@ export class UIManager {
                 if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
                     this.currentAnimIndex = newValue;
                     // this.updateAnimPreview();
-                    // todo
+                    console.log('currentAnimIndex', newValue);
+
                 }
             }
         });
@@ -279,10 +281,21 @@ export class UIManager {
         this.animListText = document.createElement("input");
         this.animListText.type = "text";
         this.animListText.style.width = "120px";
-        this.animListText.value = "";
+        this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         this.animListText.addEventListener("change", () => {
             if (this.animListText) {
                 console.log("animListText changed to:", this.animListText.value);
+                // parse the input value into an array of numbers, checking that it is valid.
+                try {
+                    const animList = JSON.parse(this.animListText.value);
+                    if (Array.isArray(animList) && animList.every((val: any) => typeof val === 'number')) {
+                        this.game.animations[this.currentAnimIndex] = animList;
+                    } else {
+                        throw new Error('Invalid animation list');
+                    }
+                } catch (err) {
+                    console.error('Error parsing animation list:', err);
+                }
             }
         });
 
@@ -371,15 +384,19 @@ export class UIManager {
     }
 
     incrementAnimation(): void {
-        //
-        // TODO
-        console.log("todo incrementAnimation");
+        this.currentAnimIndex = (this.currentAnimIndex + 1) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        if (this.animInput) {
+            this.animInput.value = this.currentAnimIndex.toString();
+        }
+        this.updateAnimationPreview();
     }
 
     decrementAnimation(): void {
-        //
-        // TODO
-        console.log("todo decrementAnimation");
+        this.currentAnimIndex = (this.currentAnimIndex - 1 + CONFIG.GAME.ANIMATIONS.TOTAL) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        if (this.animInput) {
+            this.animInput.value = this.currentAnimIndex.toString();
+        }
+        this.updateAnimationPreview();
     }
 
     private updateTilePreview(): void {
@@ -439,6 +456,16 @@ export class UIManager {
         this.game.saveEntities();
     }
 
+
+    updateAnimationPreview(): void {
+        // Put the content of the current animation list into the animListText input.
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex);
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).toString();
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).join(',');
+        if (this.animListText) {
+            this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
+        }
+    }
 
     openAnimationListFile(): void {
         if (this.fileInput) {

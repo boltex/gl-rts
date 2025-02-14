@@ -51,6 +51,16 @@ const GAME = {
         TICK_RATE: 8, // 8 fps for game logic
         ANIM_RATE: 15, // 15 fps for animations
         FPS_UPDATE_INTERVAL: 1000 // Update FPS display every second
+        // todo: use those values for inspiration or modifications
+        /*
+            Slowest: 1000ms/s ÷ 167ms/frame = 5.99 FPS
+            Slower: 1000ms/s ÷ 111ms/frame = 9.01 FPS
+            Slow: 1000ms/s ÷ 83ms/frame = 12.05 FPS
+            Normal: 1000ms/s ÷ 67ms/frame = 14.93 FPS
+            Fast: 1000ms/s ÷ 56ms/frame = 17.86 FPS
+            Faster: 1000ms/s ÷ 48ms/frame = 20.83 FPS
+            Fastest: 1000ms/s ÷ 42ms/frame = 23.81 FPS
+        */
     },
     ENTITY: {
         INITIAL_POOL_SIZE: 100

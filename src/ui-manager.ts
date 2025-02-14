@@ -373,7 +373,6 @@ export class UIManager {
     }
 
     incrementAnimation(): void {
-        //
         this.currentAnimIndex = (this.currentAnimIndex + 1) % CONFIG.GAME.ANIMATIONS.TOTAL;
         if (this.animInput) {
             this.animInput.value = this.currentAnimIndex.toString();
@@ -382,7 +381,6 @@ export class UIManager {
     }
 
     decrementAnimation(): void {
-        //
         this.currentAnimIndex = (this.currentAnimIndex - 1 + CONFIG.GAME.ANIMATIONS.TOTAL) % CONFIG.GAME.ANIMATIONS.TOTAL;
         if (this.animInput) {
             this.animInput.value = this.currentAnimIndex.toString();

@@ -43,6 +43,7 @@ export class Game {
     lastScrollY = -1;
     lastScreenX = -1;
     lastScreenY = -1;
+    animations: number[][] = [];
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -147,6 +148,13 @@ export class Game {
     initGameStates(): void {
         this.entities = new Entities(100);
         this.entityBehaviors = new Behaviors(this);
+        // Prepare 64 animations of 10 frames going from 1 to 10.
+        for (let i = 0; i < 64; i++) {
+            this.animations.push([]);
+            for (let j = 0; j < 10; j++) {
+                this.animations[i].push(j + 1);
+            }
+        }
 
         // Fill Entities pool
         // EXPERIMENTAL TEST: Create 3 test Aliens

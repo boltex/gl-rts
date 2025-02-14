@@ -136,6 +136,7 @@ export class UIManager {
             cursor: "default",
             marginBottom: "10px",
             border: "1px solid #333",
+            pointerEvents: "none"
         });
         this.updateTilePreview();
 
@@ -271,6 +272,7 @@ export class UIManager {
                 if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
                     this.currentAnimIndex = newValue;
                     // this.updateAnimPreview();
+                    console.log('currentAnimIndex', newValue);
                     // todo
                 }
             }
@@ -372,14 +374,20 @@ export class UIManager {
 
     incrementAnimation(): void {
         //
-        // TODO
-        console.log("todo incrementAnimation");
+        this.currentAnimIndex = (this.currentAnimIndex + 1) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        if (this.animInput) {
+            this.animInput.value = this.currentAnimIndex.toString();
+        }
+        this.updateAnimationPreview();
     }
 
     decrementAnimation(): void {
         //
-        // TODO
-        console.log("todo decrementAnimation");
+        this.currentAnimIndex = (this.currentAnimIndex - 1 + CONFIG.GAME.ANIMATIONS.TOTAL) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        if (this.animInput) {
+            this.animInput.value = this.currentAnimIndex.toString();
+        }
+        this.updateAnimationPreview();
     }
 
     private updateTilePreview(): void {
@@ -439,6 +447,11 @@ export class UIManager {
         this.game.saveEntities();
     }
 
+
+    updateAnimationPreview(): void {
+        //
+        //
+    }
 
     openAnimationListFile(): void {
         if (this.fileInput) {

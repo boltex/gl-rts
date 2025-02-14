@@ -273,7 +273,7 @@ export class UIManager {
                     this.currentAnimIndex = newValue;
                     // this.updateAnimPreview();
                     console.log('currentAnimIndex', newValue);
-                    // todo
+
                 }
             }
         });
@@ -281,10 +281,21 @@ export class UIManager {
         this.animListText = document.createElement("input");
         this.animListText.type = "text";
         this.animListText.style.width = "120px";
-        this.animListText.value = "";
+        this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         this.animListText.addEventListener("change", () => {
             if (this.animListText) {
                 console.log("animListText changed to:", this.animListText.value);
+                // parse the input value into an array of numbers, checking that it is valid.
+                try {
+                    const animList = JSON.parse(this.animListText.value);
+                    if (Array.isArray(animList) && animList.every((val: any) => typeof val === 'number')) {
+                        this.game.animations[this.currentAnimIndex] = animList;
+                    } else {
+                        throw new Error('Invalid animation list');
+                    }
+                } catch (err) {
+                    console.error('Error parsing animation list:', err);
+                }
             }
         });
 
@@ -447,8 +458,13 @@ export class UIManager {
 
 
     updateAnimationPreview(): void {
-        //
-        //
+        // Put the content of the current animation list into the animListText input.
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex);
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).toString();
+        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).join(',');
+        if (this.animListText) {
+            this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
+        }
     }
 
     openAnimationListFile(): void {

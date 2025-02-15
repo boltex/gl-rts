@@ -48,19 +48,20 @@ const GAME = {
         HEIGHT: 64 // game map height in TILES 
     },
     TIMING: {
-        TICK_RATE: 8, // 8 fps for game logic
-        ANIM_RATE: 15, // 15 fps for animations
-        FPS_UPDATE_INTERVAL: 1000 // Update FPS display every second
-        // todo: use those values for inspiration or modifications
-        /*
-            Slowest: 1000ms/s ÷ 167ms/frame = 5.99 FPS
-            Slower: 1000ms/s ÷ 111ms/frame = 9.01 FPS
-            Slow: 1000ms/s ÷ 83ms/frame = 12.05 FPS
-            Normal: 1000ms/s ÷ 67ms/frame = 14.93 FPS
-            Fast: 1000ms/s ÷ 56ms/frame = 17.86 FPS
-            Faster: 1000ms/s ÷ 48ms/frame = 20.83 FPS
-            Fastest: 1000ms/s ÷ 42ms/frame = 23.81 FPS
-        */
+        FPS_UPDATE_INTERVAL: 1000, // Update FPS display every second
+        // Cursor, Hud, and other animations
+        CONSTANT_TIME_PER_ANIM: 67, // 1000ms/s ÷ 67ms/frame = 14.93 FPS
+        DEFAULT_SPEED: 3,
+        GAME_SPEEDS: [
+            // Game logic timing (Variable in single player, fixed in multiplayer)
+            { label: "Slowest", value: 167 }, // 0 
+            { label: "Slower", value: 111 }, // 1
+            { label: "Slow", value: 83 }, // 2
+            { label: "Normal", value: 67 }, // 3
+            { label: "Fast", value: 56 }, // 4
+            { label: "Faster", value: 48 }, // 5
+            { label: "Fastest", value: 42 }, // 6
+        ],
     },
     ENTITY: {
         INITIAL_POOL_SIZE: 100

@@ -26,9 +26,10 @@ export class Game {
     gl: WebGL2RenderingContext;
 
     // Game state Properties
+    started = false;
+    gameSpeed = CONFIG.GAME.TIMING.DEFAULT_SPEED;
     gamemap: number[] = [];
     gameMapChanged = false;
-    started = false;
     gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
@@ -75,11 +76,7 @@ export class Game {
         this.resizeObserver = new ResizeObserver(debouncedResize);
         this.resizeObserver.observe(this.canvasElement, { box: 'content-box' });
 
-        this.timeManager = new TimeManager(
-            CONFIG.GAME.TIMING.TICK_RATE,
-            CONFIG.GAME.TIMING.ANIM_RATE,
-            CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL
-        );
+        this.timeManager = new TimeManager();
         this.cameraManager = new CameraManager(this);
         this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
         this.inputManager = new InputManager(this);
@@ -220,22 +217,24 @@ export class Game {
 
     update(timestamp: number, skipRender?: boolean): void {
 
-        // TODO : This mixes rendering and logic. Consider separating these concerns more clearly.
-
         // 1. Update time
         const deltaTime = this.timeManager.update(timestamp);
 
-        // 2. Process immediate inputs/actions
+        // 2. Process immediate user input actions
         this.cameraManager.animateZoom();
         this.procGame();
 
-        // 3. Update animations if needed
+        // 3. Update constant speed animations if needed
         while (this.timeManager.shouldAnimUpdate()) {
+            // Animate cursor and UI hud, minimap, etc. at specific constant speed
             this.uiManager.animateCursor();
         }
 
-        // 4. Update game logic if needed
+        // 4. Update game logic at specific game-speed if needed
         while (this.timeManager.shouldTickUpdate()) {
+            // Advance game states in pool from currentTick count, to the next one.
+            // This is the game logic update, at chosen game speed:
+            // slowest, slower, slow, normal, fast, faster, fastest.
             this.tick();
         }
 

@@ -19,11 +19,12 @@ export class TimeManager {
     fpsInterval: number;
     fpsLastTime = 0;
 
-    constructor(tickRate: number, animRate: number, fpsInterval: number) {
-        this.timePerTick = 1000 / tickRate;
+    constructor() {
+        // tickRate: number, animRate: number, fpsInterval: number
+        this.timePerTick = CONFIG.GAME.TIMING.GAME_SPEEDS[CONFIG.GAME.TIMING.DEFAULT_SPEED].value;
+        this.timePerAnim = CONFIG.GAME.TIMING.CONSTANT_TIME_PER_ANIM;
+        this.fpsInterval = CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL;
         this.timerTriggerAccum = this.timePerTick * 3; // 3 ticks behind
-        this.timePerAnim = 1000 / animRate;
-        this.fpsInterval = fpsInterval;
     }
 
     update(timestamp: number) {

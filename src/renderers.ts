@@ -224,7 +224,7 @@ export class WidgetRenderer extends BaseRenderer {
     private setupVAO() {
         this.gl.bindVertexArray(this.vao);
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
-        this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.WIDGETS.SIZE, CONFIG.GAME.WIDGETS.SIZE, CONFIG.GAME.WIDGETS.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image); // 64 textures of 128x128 pixels
+        this.gl.texImage3D(this.gl.TEXTURE_2D_ARRAY, 0, this.gl.RGBA, CONFIG.GAME.WIDGETS.SIZE, CONFIG.GAME.WIDGETS.SIZE, CONFIG.GAME.WIDGETS.DEPTH, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // TODO : TRY MORE FILTERS ?
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);

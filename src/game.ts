@@ -230,12 +230,12 @@ export class Game {
         this.procGame();
 
         // 3. Update animations if needed
-        if (this.timeManager.shouldAnimUpdate()) {
+        while (this.timeManager.shouldAnimUpdate()) {
             this.uiManager.animateCursor();
         }
 
         // 4. Update game logic if needed
-        if (this.timeManager.shouldTickUpdate()) {
+        while (this.timeManager.shouldTickUpdate()) {
             this.tick();
         }
 

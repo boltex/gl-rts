@@ -164,11 +164,14 @@ export class UIManager {
         this.tileInput.value = this.currentTileIndex.toString();
         this.tileInput.addEventListener("change", () => {
             if (this.tileInput) {
-                const newValue = parseInt(this.tileInput.value, 10);
-                if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
-                    this.currentTileIndex = newValue;
-                    this.updateTilePreview();
-                }
+                let newValue = parseInt(this.tileInput.value, 10);
+                if (isNaN(newValue)) newValue = 0;
+                const min = 0;
+                const max = CONFIG.GAME.TILE.DEPTH - 1;
+                newValue = Math.max(min, Math.min(newValue, max));
+                this.currentTileIndex = newValue;
+                this.tileInput.value = newValue.toString();
+                this.updateTilePreview();
             }
         });
 
@@ -268,15 +271,18 @@ export class UIManager {
         this.animInput.value = this.currentAnimIndex.toString();
         this.animInput.addEventListener("change", () => {
             if (this.animInput) {
-                const newValue = parseInt(this.animInput.value, 10);
-                if (!isNaN(newValue) && newValue >= 0 && newValue < CONFIG.GAME.TILE.DEPTH) {
-                    this.currentAnimIndex = newValue;
-                    // this.updateAnimPreview();
-                    console.log('currentAnimIndex', newValue);
-
-                }
+                let newValue = parseInt(this.animInput.value, 10);
+                if (isNaN(newValue)) newValue = 0;
+                const min = 0;
+                const max = CONFIG.GAME.TILE.DEPTH - 1;
+                newValue = Math.max(min, Math.min(newValue, max));
+                this.currentAnimIndex = newValue;
+                this.animInput.value = newValue.toString();
+                console.log('currentAnimIndex', newValue);
+                this.updateAnimationPreview();
             }
         });
+
         // Create text input for animation lists to be parsed like: "[0,1,2,22,33,255]"
         this.animListText = document.createElement("input");
         this.animListText.type = "text";
@@ -298,7 +304,6 @@ export class UIManager {
                 }
             }
         });
-
 
         // Create open and Save buttons
         const openAnimationsButton = document.createElement("button");

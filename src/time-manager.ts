@@ -21,7 +21,7 @@ export class TimeManager {
 
     constructor(tickRate: number, animRate: number, fpsInterval: number) {
         this.timePerTick = 1000 / tickRate;
-        this.timerTriggerAccum = this.timePerTick * 3;
+        this.timerTriggerAccum = this.timePerTick * 3; // 3 ticks behind
         this.timePerAnim = 1000 / animRate;
         this.fpsInterval = fpsInterval;
     }

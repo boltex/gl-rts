@@ -26,9 +26,11 @@ export class Game {
     gl: WebGL2RenderingContext;
 
     // Game state Properties
+    started = false;
+    isMultiplayer = false;
+    gameSpeed: number = CONFIG.GAME.TIMING.DEFAULT_SPEED;
     gamemap: number[] = [];
     gameMapChanged = false;
-    started = false;
     gameAction = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
@@ -75,11 +77,7 @@ export class Game {
         this.resizeObserver = new ResizeObserver(debouncedResize);
         this.resizeObserver.observe(this.canvasElement, { box: 'content-box' });
 
-        this.timeManager = new TimeManager(
-            CONFIG.GAME.TIMING.TICK_RATE,
-            CONFIG.GAME.TIMING.ANIM_RATE,
-            CONFIG.GAME.TIMING.FPS_UPDATE_INTERVAL
-        );
+        this.timeManager = new TimeManager();
         this.cameraManager = new CameraManager(this);
         this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
         this.inputManager = new InputManager(this);
@@ -141,7 +139,7 @@ export class Game {
         this.initGameStates();
         this.started = true;
         this.timeManager.lastTime = performance.now();
-        setInterval(() => { this.checkUpdate(); }, 500); // Setup timer in case RAF Skipped when minimized
+        setInterval(() => { this.checkUpdate(); }, CONFIG.GAME.TIMING.CHECK_UPDATE_INTERVAL); // Setup timer in case RAF Skipped when minimized
         this.loop(0);
     }
 
@@ -191,6 +189,30 @@ export class Game {
         }
     }
 
+    incrementGameSpeed(): void {
+        // Single player only. Prevent if multiplayer.
+        if (this.isMultiplayer) {
+            return;
+        }
+        this.gameSpeed += 1;
+        if (this.gameSpeed >= CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
+            this.gameSpeed = CONFIG.GAME.TIMING.GAME_SPEEDS.length - 1;
+        }
+        this.timeManager.setGameSpeed(this.gameSpeed);
+    }
+
+    decrementGameSpeed(): void {
+        // Single player only. Prevent if multiplayer.
+        if (this.isMultiplayer) {
+            return;
+        }
+        this.gameSpeed -= 1;
+        if (this.gameSpeed < 0) {
+            this.gameSpeed = 0;
+        }
+        this.timeManager.setGameSpeed(this.gameSpeed);
+    }
+
     procGame(): void {
 
         // procgame processes a game frame, animating each RAF.
@@ -220,22 +242,24 @@ export class Game {
 
     update(timestamp: number, skipRender?: boolean): void {
 
-        // TODO : This mixes rendering and logic. Consider separating these concerns more clearly.
-
         // 1. Update time
         const deltaTime = this.timeManager.update(timestamp);
 
-        // 2. Process immediate inputs/actions
+        // 2. Process immediate user input actions
         this.cameraManager.animateZoom();
         this.procGame();
 
-        // 3. Update animations if needed
+        // 3. Update constant speed animations if needed
         while (this.timeManager.shouldAnimUpdate()) {
+            // Animate cursor and UI hud, minimap, etc. at specific constant speed
             this.uiManager.animateCursor();
         }
 
-        // 4. Update game logic if needed
+        // 4. Update game logic at specific game-speed if needed
         while (this.timeManager.shouldTickUpdate()) {
+            // Advance game states in pool from currentTick count, to the next one.
+            // This is the game logic update, at chosen game speed:
+            // slowest, slower, slow, normal, fast, faster, fastest.
             this.tick();
         }
 

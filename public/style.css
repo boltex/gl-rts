@@ -12,14 +12,15 @@ body {
   user-select: none;
 }
 
+html.cur-none {
+  cursor: none;
+}
 html.cur-pointer {
   cursor: url("images/cursor-pointer32.png"), auto;
 }
-
 html.cur-target {
   cursor: url("images/cursor-target32.png") 15 15, auto;
 }
-
 html.cur-select-green1 {
   cursor: url("images/cursor-green1-32.png") 15 15, auto;
 }

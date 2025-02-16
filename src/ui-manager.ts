@@ -23,6 +23,18 @@ export class UIManager {
     private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
     private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
 
+    // Game Menu properties
+    /*
+        Options:
+        - Screen Size (Radio buttons)
+        - Game Speed (Range input)
+        - Keyboard Scroll Speed (Range input)
+        - Scroll Speed (Range input)
+        - Drag Speed (Range input)
+        - Invert Drag (Checkbox)
+    */
+    private gameMenuElement: HTMLDivElement | null = null;
+
     private animInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
     private currentAnimIndex: number = 0;
@@ -64,8 +76,26 @@ export class UIManager {
     }
 
     toggleGameMenu(): void {
-        console.log('Toggle Options Menu');
-        // Further implementation for an in-game options menu.
+        // Create the game menu elements
+        if (!this.gameMenuElement) {
+            this.buildGameMenu();
+        } else {
+            // Toggle visibility
+            if (this.gameMenuElement.style.display === "none" || this.gameMenuElement.style.display === "") {
+                this.gameMenuElement.style.display = "block";
+                // Get values from the game and update the UI
+                // this.screenSizeRadios.value = this.game.getScreenSize().toString();
+                // this.gameSpeedInput.value = this.game.getGameSpeed().toString();
+                // this.keyboardScrollSpeedInput.value = this.game.getKeyboardScrollSpeed().toString();
+                // this.scrollSpeedInput.value = this.game.getScrollSpeed().toString();
+                // this.dragSpeedInput.value = this.game.getDragSpeed().toString();
+                // this.invertDragCheckbox.checked = this.game.getInvertDrag();
+
+
+            } else {
+                this.gameMenuElement.style.display = "none";
+            }
+        }
     }
 
     animateCursor(): void {
@@ -331,20 +361,45 @@ export class UIManager {
         this.addDragElement(this.mapEditorElement);
     }
 
+    buildGameMenu(): void {
+        this.gameMenuElement = document.createElement("div");
+        this.gameMenuElement.id = "game-menu";
+        Object.assign(this.gameMenuElement.style, {
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: "400px",
+            transform: "translate(-50%, -50%)",
+            // height: "50%",
+            textAlign: "center",
+            // backgroundColor: "#ccc",
+            background: "rgba(0, 0, 0, 0.8)",
+            border: "1px solid #333",
+            padding: "20px",
+            zIndex: "11",
+            display: "block",
+        });
+        // 'Option' heading
+        const heading = document.createElement("h2");
+        heading.textContent = "Options";
+        heading.style.color = "#fff";
+        this.gameMenuElement.appendChild(heading);
+
+
+        // Append the game menu container to the document body
+        document.body.appendChild(this.gameMenuElement);
+    }
+
     private addDragElement(elm: HTMLElement): void {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
         elm.addEventListener("mousedown", dragMouseDown);
-
-        const self = this; // if needed for future reference
 
         function dragMouseDown(e: MouseEvent): void {
             // Only drad if mouse event is directly on the mapEditorElement, not on the buttons or input.
             if (e.target !== elm) {
                 return;
             }
-
-
             e.preventDefault();
             // get the mouse cursor position at startup:
             pos3 = e.clientX;
@@ -437,13 +492,11 @@ export class UIManager {
     }
 
     openAnimationsFile(): void {
-        //
         // Todo
         console.log("todo openAnimationsFile");
     }
 
     saveAnimationsFile(): void {
-        //
         // Todo
         console.log("todo saveAnimationsFile");
     }
@@ -455,7 +508,6 @@ export class UIManager {
         }
     }
 
-
     saveEntityListFile(): void {
         // No need for a file picker dialog, just save the active entities
         this.game.saveEntities();
@@ -464,9 +516,6 @@ export class UIManager {
 
     updateAnimationPreview(): void {
         // Put the content of the current animation list into the animListText input.
-        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex);
-        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).toString();
-        // this.animListText.value = this.game.getAnimationList(this.currentAnimIndex).join(',');
         if (this.animListText) {
             this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         }

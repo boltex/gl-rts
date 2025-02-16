@@ -92,6 +92,18 @@ export class InputManager {
                 e.preventDefault();  // Prevent the default open behavior
                 this.game.uiManager.openMapFile();
             }
+        } else {
+            // Only when not in map editor.
+            if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
+                e.preventDefault();
+                this.game.incrementGameSpeed();
+                return;
+            }
+            if (e.key === 'NumPad-' || e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                this.game.decrementGameSpeed();
+                return;
+            }
         }
         if (e.key === 'F10') {
             e.preventDefault();
@@ -106,7 +118,11 @@ export class InputManager {
             this.game.cameraManager.resetZoom();
             return;
         }
+
+        // To keep track of which keys are currently pressed.
         this.keysPressed[e.key] = true;
+
+        // If Ctrl + + or Ctrl + - is pressed, prevent the browser from zooming in or out.
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
             e.preventDefault();
         }

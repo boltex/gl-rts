@@ -49,6 +49,7 @@ const GAME = {
     },
     TIMING: {
         FPS_UPDATE_INTERVAL: 1000, // Update FPS display every second
+        CHECK_UPDATE_INTERVAL: 250, // For needed ticks to be computed if game is minimized
         // Cursor, Hud, and other animations
         CONSTANT_TIME_PER_ANIM: 67, // 1000ms/s ÷ 67ms/frame = 14.93 FPS
         DEFAULT_SPEED: 3,

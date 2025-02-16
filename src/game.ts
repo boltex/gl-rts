@@ -27,7 +27,8 @@ export class Game {
 
     // Game state Properties
     started = false;
-    gameSpeed = CONFIG.GAME.TIMING.DEFAULT_SPEED;
+    isMultiplayer = false;
+    gameSpeed: number = CONFIG.GAME.TIMING.DEFAULT_SPEED;
     gamemap: number[] = [];
     gameMapChanged = false;
     gameAction = 0;    // 0 = none
@@ -138,7 +139,7 @@ export class Game {
         this.initGameStates();
         this.started = true;
         this.timeManager.lastTime = performance.now();
-        setInterval(() => { this.checkUpdate(); }, 500); // Setup timer in case RAF Skipped when minimized
+        setInterval(() => { this.checkUpdate(); }, CONFIG.GAME.TIMING.CHECK_UPDATE_INTERVAL); // Setup timer in case RAF Skipped when minimized
         this.loop(0);
     }
 
@@ -186,6 +187,30 @@ export class Game {
         for (let i = 0; i < CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT; i++) {
             this.gamemap.push(Math.floor(Math.random() * 16));
         }
+    }
+
+    incrementGameSpeed(): void {
+        // Single player only. Prevent if multiplayer.
+        if (this.isMultiplayer) {
+            return;
+        }
+        this.gameSpeed += 1;
+        if (this.gameSpeed >= CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
+            this.gameSpeed = CONFIG.GAME.TIMING.GAME_SPEEDS.length - 1;
+        }
+        this.timeManager.setGameSpeed(this.gameSpeed);
+    }
+
+    decrementGameSpeed(): void {
+        // Single player only. Prevent if multiplayer.
+        if (this.isMultiplayer) {
+            return;
+        }
+        this.gameSpeed -= 1;
+        if (this.gameSpeed < 0) {
+            this.gameSpeed = 0;
+        }
+        this.timeManager.setGameSpeed(this.gameSpeed);
     }
 
     procGame(): void {

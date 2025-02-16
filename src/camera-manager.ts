@@ -110,7 +110,6 @@ export class CameraManager {
     zoomIn() {
         const oldZoom = this.zoom;
         const newZoom = oldZoom * this.zoomFactor;
-
         if (newZoom > this.maxZoom) {
             return;
         }
@@ -120,7 +119,6 @@ export class CameraManager {
     zoomOut() {
         const oldZoom = this.zoom;
         const newZoom = oldZoom / this.zoomFactor;
-
         if (newZoom < this.minZoom) {
             return;
         }

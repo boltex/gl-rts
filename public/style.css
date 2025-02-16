@@ -12,9 +12,9 @@ body {
   user-select: none;
 }
 
-/* html.cur-none {
+html.cur-none {
   cursor: none;
-} */
+}
 html.cur-pointer {
   cursor: url("images/cursor-pointer32.png"), auto;
 }

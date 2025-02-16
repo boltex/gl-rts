@@ -5,6 +5,7 @@ export class InputManager {
     private game: Game;
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
+    private dragScrolling: boolean = false;
     public mouseX = 0;  // in gameScreen coordinates.
     public mouseY = 0;
     private gameMouseX = 0; // In game coordinates. with zoom factor applied.
@@ -133,11 +134,19 @@ export class InputManager {
     }
 
     private handleMouseMove(event?: MouseEvent): void {
+
         if (event) {
+            if (this.dragScrolling) {
+                // first, calculate the difference between the last mouse position and the current one.
+                const dragX = this.lastMouseX - event.clientX;
+                const dragY = this.lastMouseY - event.clientY;
+
+                // Then, convert the difference to game coordinates.
+                this.scrollNowX = dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
+                this.scrollNowY = dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+            }
             this.setCursorPos(event);
         }
-        this.scrollNowX = 0;
-        this.scrollNowY = 0;
 
         if (this.game.uiManager.isMapEditorVisible()) {
             // Make sure the event click is over the canvas, not the map editor.
@@ -158,23 +167,39 @@ export class InputManager {
                 return;
             }
         }
+        if (!this.dragScrolling) {
+            this.scrollNowX = 0;
+            this.scrollNowY = 0;
+            // normal mouse move, check if near the edge of the screen to scroll.
+            if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
+                this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+            }
+            if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
+                this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+            }
+            if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
+                this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+            }
+            if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
+                this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+            }
+        }
 
-        if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
-            this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
-        }
-        if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
-            this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
-        }
-        if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
-            this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
-        }
-        if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
-            this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
-        }
+
     }
 
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
+        // for both game and map editor.
+        if (event.button === 1) {
+            // middle mouse is drag-scroll.
+            if (!this.dragScrolling) {
+                this.dragScrolling = true;
+                // No cursor when dragging.
+                this.game.uiManager.setCursor('cur-none');
+            }
+        }
+
         if (this.game.uiManager.isMapEditorVisible()) {
 
             // Make sure the event click is over the canvas, not the map editor.
@@ -222,6 +247,15 @@ export class InputManager {
             this.selecting = false;
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
             this.game.uiManager.setCursor('cur-pointer');
+        }
+        if (event.button === 1) {
+            this.dragScrolling = false;
+            // Set cursor back to normal. target if selecting, pointer otherwise.
+            this.game.uiManager.setCursor('cur-target');
+            if (this.selecting) {
+            } else {
+                this.game.uiManager.setCursor('cur-pointer');
+            }
         }
     }
 
@@ -295,6 +329,11 @@ export class InputManager {
         // Scroll if not currently dragging a selection.
         if (!this.selecting) {
             this.game.cameraManager.scroll(this.scrollVelocity);
+            if (this.dragScrolling) {
+                // Reset veolcity to 0 after scrolling.
+                this.scrollNowX = 0;
+                this.scrollNowY = 0;
+            }
         }
     }
 

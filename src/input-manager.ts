@@ -84,14 +84,8 @@ export class InputManager {
                 this.game.uiManager.decrementMapTile();
                 return;
             }
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();  // Prevent the default save behavior
-                this.game.uiManager.saveMapFile();
-            }
-
-            if (e.ctrlKey && e.key === 'o') {
-                e.preventDefault();  // Prevent the default open behavior
-                this.game.uiManager.openMapFile();
+            if (e.ctrlKey && (e.key === 's' || e.key === 'o')) {
+                e.preventDefault();  // Prevent the default save/open behavior
             }
         } else {
             // Only when not in map editor.
@@ -106,16 +100,22 @@ export class InputManager {
                 return;
             }
         }
+        if (e.key === 'F5' || e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            return;
+        }
+        if (e.key === 'F9') {
+            e.preventDefault();
+            this.game.uiManager.toggleMapEditor();
+            return;
+        }
         if (e.key === 'F10') {
             e.preventDefault();
-            // For now, open the map editor instead of the options menu.
-            this.game.uiManager.toggleMapEditor();
-            // this.game.uiManager.toggleGameMenu();
+            this.game.uiManager.toggleGameMenu();
             return;
         }
         if (e.key === 'F6') {
             e.preventDefault();
-            // Reset zoom to 1.
             this.game.cameraManager.resetZoom();
             return;
         }

@@ -62,8 +62,8 @@ export class CameraManager {
         // Called when the mouse-wheel zoomed in or out, or when the game is started.
         this.gameScreenWidth = this.resolution.width / this.zoom;
         this.gameScreenHeight = this.resolution.height / this.zoom;
-        this.scrollEdgeX = this.gameScreenWidth - CONFIG.DISPLAY.SCROLL.BORDER;
-        this.scrollEdgeY = this.gameScreenHeight - CONFIG.DISPLAY.SCROLL.BORDER;
+        this.scrollEdgeX = this.gameScreenWidth - CONFIG.CAMERA.SCROLL.BORDER;
+        this.scrollEdgeY = this.gameScreenHeight - CONFIG.CAMERA.SCROLL.BORDER;
         this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
         this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;

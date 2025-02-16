@@ -167,24 +167,24 @@ export class InputManager {
                 return;
             }
         }
+
         if (!this.dragScrolling) {
             this.scrollNowX = 0;
             this.scrollNowY = 0;
             // normal mouse move, check if near the edge of the screen to scroll.
             if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
-                this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+                this.scrollNowX = CONFIG.CAMERA.SCROLL.SPEED;
             }
             if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
-                this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+                this.scrollNowY = CONFIG.CAMERA.SCROLL.SPEED;
             }
-            if (this.mouseX < CONFIG.DISPLAY.SCROLL.BORDER) {
-                this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+            if (this.mouseX < CONFIG.CAMERA.SCROLL.BORDER) {
+                this.scrollNowX = -CONFIG.CAMERA.SCROLL.SPEED;
             }
-            if (this.mouseY < CONFIG.DISPLAY.SCROLL.BORDER) {
-                this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+            if (this.mouseY < CONFIG.CAMERA.SCROLL.BORDER) {
+                this.scrollNowY = -CONFIG.CAMERA.SCROLL.SPEED;
             }
         }
-
 
     }
 
@@ -294,7 +294,7 @@ export class InputManager {
 
     processInputs(): void {
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-            this.scrollNowY = -CONFIG.DISPLAY.SCROLL.SPEED;
+            this.scrollNowY = -CONFIG.CAMERA.SCROLL.SPEED;
             this.keyboardUp = true
         } else if (this.keyboardUp) {
             this.keyboardUp = false;
@@ -302,7 +302,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-            this.scrollNowY = CONFIG.DISPLAY.SCROLL.SPEED;
+            this.scrollNowY = CONFIG.CAMERA.SCROLL.SPEED;
             this.keyboardDown = true
         } else if (this.keyboardDown) {
             this.keyboardDown = false;
@@ -310,7 +310,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-            this.scrollNowX = -CONFIG.DISPLAY.SCROLL.SPEED;
+            this.scrollNowX = -CONFIG.CAMERA.SCROLL.SPEED;
             this.keyboardLeft = true
         } else if (this.keyboardLeft) {
             this.keyboardLeft = false;
@@ -318,7 +318,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-            this.scrollNowX = CONFIG.DISPLAY.SCROLL.SPEED;
+            this.scrollNowX = CONFIG.CAMERA.SCROLL.SPEED;
             this.keyboardRight = true
         } else if (this.keyboardRight) {
             this.keyboardRight = false;

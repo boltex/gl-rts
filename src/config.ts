@@ -1,25 +1,21 @@
 const DISPLAY = {
     RESOLUTIONS: [
         {
-            label: "16:9 (1920x1080)",
+            label: "16:9",
             width: 1920,
             height: 1080
         },
         {
-            label: "16:10 (1920x1200)",
+            label: "16:10",
             width: 1920,
             height: 1200
         },
         {
-            label: "4:3 (1440x1080)",
+            label: "4:3",
             width: 1440,
             height: 1080
         },
-    ],
-    SCROLL: {
-        SPEED: 50, // speed in pixels for scrolling
-        BORDER: 10 // pixels from screen to trigger scrolling
-    }
+    ]
 } as const;
 
 const GAME = {
@@ -78,6 +74,10 @@ const CAMERA = {
         MAX: 2.0,
         STEPS: 4, // Steps to double zoom
         FACTOR: Math.pow(2, 1 / 4)
+    },
+    SCROLL: {
+        BORDER: 10, // pixels from screen to trigger scrolling
+        SPEED: 50, // speed in pixels for scrolling
     }
 } as const;
 
@@ -88,6 +88,7 @@ const UI = {
         TOP: 10,
         RIGHT: 10,
     },
+
     WIDGET: {
         ANIMATION_FRAMES: 6
     }

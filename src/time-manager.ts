@@ -27,8 +27,8 @@ export class TimeManager {
         this.timerTriggerAccum = this.timePerTick * 3; // 3 ticks behind
     }
 
-    setGameSpeed(speedIndex: number): void {
-        this.timePerTick = CONFIG.GAME.TIMING.GAME_SPEEDS[speedIndex].value;
+    setGameSpeed(speed: number): void {
+        this.timePerTick = speed;
         this.timerTriggerAccum = this.timePerTick * 3; // 3 ticks behind
     }
 

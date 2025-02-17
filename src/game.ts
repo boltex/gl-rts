@@ -133,7 +133,7 @@ export class Game {
     }
 
     startGame(): void {
-        this.cameraManager.setResolution(this.uiManager.getResolutionSelectElement().selectedIndex);
+        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[CONFIG.DISPLAY.DEFAULT_RESOLUTION]);
         this.cameraManager.updateProperties(this.canvasBoundingRect);
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 
@@ -141,7 +141,6 @@ export class Game {
         this.inputManager.init();
 
         this.uiManager.getStartButtonElement().style.display = 'none';
-        this.uiManager.getResolutionSelectElement().style.display = 'none';
 
         this.initGameStates();
         this.started = true;
@@ -198,7 +197,7 @@ export class Game {
 
     setResolution(resolutionIndex: number): void {
         this.resolutionIndex = resolutionIndex;
-        this.cameraManager.setResolution(this.resolutionIndex);
+        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[this.resolutionIndex]);
         this.cameraManager.updateProperties(this.canvasBoundingRect);
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
     }
@@ -212,7 +211,7 @@ export class Game {
         if (this.gameSpeedIndex >= CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
             this.gameSpeedIndex = CONFIG.GAME.TIMING.GAME_SPEEDS.length - 1;
         }
-        this.timeManager.setGameSpeed(this.gameSpeedIndex);
+        this.timeManager.setGameSpeed(CONFIG.GAME.TIMING.GAME_SPEEDS[this.gameSpeedIndex].value);
     }
 
     decrementGameSpeed(): void {
@@ -224,7 +223,7 @@ export class Game {
         if (this.gameSpeedIndex < 0) {
             this.gameSpeedIndex = 0;
         }
-        this.timeManager.setGameSpeed(this.gameSpeedIndex);
+        this.timeManager.setGameSpeed(CONFIG.GAME.TIMING.GAME_SPEEDS[this.gameSpeedIndex].value);
     }
 
     incrementKeyboardSpeed(): void {

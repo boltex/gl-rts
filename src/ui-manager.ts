@@ -37,13 +37,17 @@ export class UIManager {
         - Invert Drag (Checkbox)
     */
     private gameMenuElement: HTMLDivElement | null = null;
-    private resolutionSelectElement: HTMLSelectElement;
+    private resolutionSelectElement: HTMLSelectElement | null = null;
+    private gameSpeedRange: HTMLInputElement | null = null;
+    private keyboardScrollSpeedRange: HTMLInputElement | null = null;
+    private scrollSpeedRange: HTMLInputElement | null = null;
+    private dragSpeedRange: HTMLInputElement | null = null;
+    private invertDragCheckbox: HTMLInputElement | null = null;
 
     constructor(game: Game) {
         this.game = game;
         this.documentElementClassList = document.documentElement.classList;
         this.startButtonElement = document.createElement("button");
-        this.resolutionSelectElement = document.createElement("select");
     }
 
     mainMenu(): void {
@@ -51,19 +55,6 @@ export class UIManager {
         this.startButtonElement.textContent = "Start Game";
         this.startButtonElement.classList.add("btn-start");
         document.body.appendChild(this.startButtonElement);
-
-        // Create the dropdown for screen resolution
-        this.resolutionSelectElement.classList.add("resolution-select");
-
-        // Populate the dropdown with options
-        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
-            const option = document.createElement("option");
-            option.value = `${width}x${height}`;
-            option.textContent = label;
-            this.resolutionSelectElement.appendChild(option);
-        }
-        this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
-        document.body.appendChild(this.resolutionSelectElement);
     }
 
     setCursor(newClass: string): void {
@@ -107,7 +98,7 @@ export class UIManager {
         return this.startButtonElement;
     }
 
-    getResolutionSelectElement(): HTMLSelectElement {
+    getResolutionSelectElement(): HTMLSelectElement | null {
         return this.resolutionSelectElement;
     }
 
@@ -380,6 +371,76 @@ export class UIManager {
         heading.textContent = "Options";
         heading.style.color = "#fff";
         this.gameMenuElement.appendChild(heading);
+
+        // Create the dropdown for screen resolution
+        this.resolutionSelectElement = document.createElement("select");
+        this.resolutionSelectElement.classList.add("resolution-select");
+
+        // Populate the dropdown with options
+        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
+            const option = document.createElement("option");
+            option.value = `${width}x${height}`;
+            option.textContent = label;
+            this.resolutionSelectElement.appendChild(option);
+        }
+        this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
+        this.gameMenuElement.appendChild(this.resolutionSelectElement);
+
+        // Create the game speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const gameSpeedLabel = document.createElement("label");
+        gameSpeedLabel.textContent = "Game Speed";
+        gameSpeedLabel.style.color = "#fff";
+        this.gameMenuElement.appendChild(gameSpeedLabel);
+
+        const gameSpeedDecrement = document.createElement("button");
+        gameSpeedDecrement.textContent = "-";
+        gameSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementGameSpeed();
+        });
+        this.gameMenuElement.appendChild(gameSpeedDecrement);
+        this.gameSpeedRange = document.createElement("input");
+        this.gameSpeedRange.type = "range";
+        this.gameSpeedRange.min = "0";
+        this.gameSpeedRange.max = "6";
+        this.gameSpeedRange.step = "1";
+        this.gameSpeedRange.value = "1";
+        this.gameSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.gameSpeedRange);
+        const gameSpeedIncrement = document.createElement("button");
+        gameSpeedIncrement.textContent = "+";
+        gameSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementGameSpeed();
+        });
+        this.gameMenuElement.appendChild(gameSpeedIncrement);
+
+        // Create game scroll speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const scrollSpeedLabel = document.createElement("label");
+        scrollSpeedLabel.textContent = "Scroll Speed";
+        scrollSpeedLabel.style.color = "#fff";
+        this.gameMenuElement.appendChild(scrollSpeedLabel);
+
+        const scrollSpeedDecrement = document.createElement("button");
+        scrollSpeedDecrement.textContent = "-";
+        scrollSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementScrollSpeed();
+        });
+        this.gameMenuElement.appendChild(scrollSpeedDecrement);
+        this.scrollSpeedRange = document.createElement("input");
+        this.scrollSpeedRange.type = "range";
+        this.scrollSpeedRange.min = "0";
+        this.scrollSpeedRange.max = "6";
+        this.scrollSpeedRange.step = "1";
+        this.scrollSpeedRange.value = "1";
+        this.scrollSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.scrollSpeedRange);
+        const scrollSpeedIncrement = document.createElement("button");
+        scrollSpeedIncrement.textContent = "+";
+        scrollSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementScrollSpeed();
+        });
+        this.gameMenuElement.appendChild(scrollSpeedIncrement);
 
 
         // Append the game menu container to the document body

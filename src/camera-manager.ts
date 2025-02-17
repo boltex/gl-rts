@@ -57,8 +57,12 @@ export class CameraManager {
         if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY };
     }
 
-    setResolution(resolutionIndex: number): void {
-        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[resolutionIndex];
+    setResolution(resolution: {
+        label: string;
+        width: number;
+        height: number;
+    }): void {
+        this.resolution = resolution;
         this.aspectRatio = this.resolution.width / this.resolution.height;
     }
 

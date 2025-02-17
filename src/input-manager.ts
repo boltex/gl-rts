@@ -46,16 +46,16 @@ export class InputManager {
         this.invertDrag = false;
     }
 
-    setKeyboardSpeed(keyboardSpeedIndex: number): void {
-        this.keyboardSpeed = CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[keyboardSpeedIndex].value;
+    setKeyboardSpeed(keyboardSpeed: number): void {
+        this.keyboardSpeed = keyboardSpeed;
     }
 
-    setScrollSpeed(scrollSpeedIndex: number): void {
-        this.scrollSpeed = CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[scrollSpeedIndex].value;
+    setScrollSpeed(scrollSpeed: number): void {
+        this.scrollSpeed = scrollSpeed;
     }
 
-    setDragSpeed(dragSpeedIndex: number, invertDrag: boolean): void {
-        this.dragSpeed = CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[dragSpeedIndex].value;
+    setDragSpeed(dragSpeed: number, invertDrag: boolean): void {
+        this.dragSpeed = dragSpeed;
         this.invertDrag = invertDrag;
     }
 

@@ -1,4 +1,5 @@
 const DISPLAY = {
+    DEFAULT_RESOLUTION: 0, // index for RESOLUTIONS
     RESOLUTIONS: [
         {
             label: "16:9",
@@ -48,7 +49,7 @@ const GAME = {
         CHECK_UPDATE_INTERVAL: 250, // For needed ticks to be computed if game is minimized
         // Cursor, Hud, and other animations
         CONSTANT_TIME_PER_ANIM: 67, // 1000ms/s ÷ 67ms/frame = 14.93 FPS
-        DEFAULT_SPEED: 3,
+        DEFAULT_SPEED: 3, // index for GAME_SPEEDS
         GAME_SPEEDS: [
             // Game logic timing (Variable in single player, fixed in multiplayer)
             { label: "Slowest", value: 167 }, // 0 
@@ -77,7 +78,39 @@ const CAMERA = {
     },
     SCROLL: {
         BORDER: 10, // pixels from screen to trigger scrolling
-        SPEED: 50, // speed in pixels for scrolling
+        DEFAULT_KEYBOARD_SPEED: 3, // speed index for KEYBOARD_SPEEDS
+        KEYBOARD_SPEEDS: [
+            // Keyboard scroll speed in game-pixels for moving the map with arrow keys
+            { label: "Slowest", value: 25 }, // 0 
+            { label: "Slower", value: 45 }, // 1
+            { label: "Slow", value: 65 }, // 2
+            { label: "Normal", value: 85 }, // 3
+            { label: "Fast", value: 115 }, // 4
+            { label: "Faster", value: 145 }, // 5
+            { label: "Fastest", value: 175 }, // 6  
+        ],
+        DEFAULT_SCROLL_SPEED: 3, // speed index for SCROLL_SPEEDS
+        SCROLL_SPEEDS: [
+            // Mouse scroll speed in game-pixels for being near the edge of the screen
+            { label: "Slowest", value: 25 }, // 0 
+            { label: "Slower", value: 45 }, // 1
+            { label: "Slow", value: 65 }, // 2
+            { label: "Normal", value: 85 }, // 3
+            { label: "Fast", value: 115 }, // 4
+            { label: "Faster", value: 145 }, // 5
+            { label: "Fastest", value: 175 }, // 6   
+        ],
+        DEFAULT_DRAG_SPEED: 3, // speed index for DRAG_SPEEDS
+        DRAG_SPEEDS: [
+            // Mouse drag speed multipliers for moving the map with middle mouse button
+            { label: "Slowest", value: 1 }, // 0 
+            { label: "Slower", value: 2 }, // 1
+            { label: "Slow", value: 4 }, // 2
+            { label: "Normal", value: 8 }, // 3
+            { label: "Fast", value: 16 }, // 4
+            { label: "Faster", value: 32 }, // 5
+            { label: "Fastest", value: 64 }, // 6  
+        ]
     }
 } as const;
 

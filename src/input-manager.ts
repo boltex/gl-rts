@@ -3,6 +3,11 @@ import { CONFIG } from './config';
 
 export class InputManager {
     private game: Game;
+    private keyboardSpeed: number;
+    private scrollSpeed: number;
+    private dragSpeed: number;
+    private invertDrag: boolean = false;
+
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
     private dragScrolling: boolean = false;
@@ -35,6 +40,23 @@ export class InputManager {
 
     constructor(game: Game) {
         this.game = game;
+        this.keyboardSpeed = CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_KEYBOARD_SPEED].value;
+        this.scrollSpeed = CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_SCROLL_SPEED].value;
+        this.dragSpeed = CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_SPEED].value;
+        this.invertDrag = false;
+    }
+
+    setKeyboardSpeed(keyboardSpeedIndex: number): void {
+        this.keyboardSpeed = CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[keyboardSpeedIndex].value;
+    }
+
+    setScrollSpeed(scrollSpeedIndex: number): void {
+        this.scrollSpeed = CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[scrollSpeedIndex].value;
+    }
+
+    setDragSpeed(dragSpeedIndex: number, invertDrag: boolean): void {
+        this.dragSpeed = CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[dragSpeedIndex].value;
+        this.invertDrag = invertDrag;
     }
 
     get gamePosition(): { x: number, y: number } {
@@ -138,12 +160,18 @@ export class InputManager {
         if (event) {
             if (this.dragScrolling) {
                 // first, calculate the difference between the last mouse position and the current one.
-                const dragX = this.lastMouseX - event.clientX;
-                const dragY = this.lastMouseY - event.clientY;
+                let dragX = this.lastMouseX - event.clientX;
+                let dragY = this.lastMouseY - event.clientY;
+
+                // Already 'inverted' so flip it if not inverted.
+                if (!this.invertDrag) {
+                    dragX = -dragX;
+                    dragY = -dragY;
+                }
 
                 // Then, convert the difference to game coordinates.
-                this.scrollNowX = dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
-                this.scrollNowY = dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+                this.scrollNowX = this.dragSpeed * dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
+                this.scrollNowY = this.dragSpeed * dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
             }
             this.setCursorPos(event);
         }
@@ -173,16 +201,16 @@ export class InputManager {
             this.scrollNowY = 0;
             // normal mouse move, check if near the edge of the screen to scroll.
             if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
-                this.scrollNowX = CONFIG.CAMERA.SCROLL.SPEED;
+                this.scrollNowX = this.scrollSpeed;
             }
             if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
-                this.scrollNowY = CONFIG.CAMERA.SCROLL.SPEED;
+                this.scrollNowY = this.scrollSpeed;
             }
             if (this.mouseX < CONFIG.CAMERA.SCROLL.BORDER) {
-                this.scrollNowX = -CONFIG.CAMERA.SCROLL.SPEED;
+                this.scrollNowX = -this.scrollSpeed;
             }
             if (this.mouseY < CONFIG.CAMERA.SCROLL.BORDER) {
-                this.scrollNowY = -CONFIG.CAMERA.SCROLL.SPEED;
+                this.scrollNowY = -this.scrollSpeed;
             }
         }
 
@@ -294,7 +322,7 @@ export class InputManager {
 
     processInputs(): void {
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-            this.scrollNowY = -CONFIG.CAMERA.SCROLL.SPEED;
+            this.scrollNowY = -this.keyboardSpeed;
             this.keyboardUp = true
         } else if (this.keyboardUp) {
             this.keyboardUp = false;
@@ -302,7 +330,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-            this.scrollNowY = CONFIG.CAMERA.SCROLL.SPEED;
+            this.scrollNowY = this.keyboardSpeed;
             this.keyboardDown = true
         } else if (this.keyboardDown) {
             this.keyboardDown = false;
@@ -310,7 +338,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-            this.scrollNowX = -CONFIG.CAMERA.SCROLL.SPEED;
+            this.scrollNowX = -this.keyboardSpeed;
             this.keyboardLeft = true
         } else if (this.keyboardLeft) {
             this.keyboardLeft = false;
@@ -318,7 +346,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-            this.scrollNowX = CONFIG.CAMERA.SCROLL.SPEED;
+            this.scrollNowX = this.keyboardSpeed;
             this.keyboardRight = true
         } else if (this.keyboardRight) {
             this.keyboardRight = false;

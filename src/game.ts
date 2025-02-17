@@ -4,7 +4,7 @@ import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
-import { EntityType, TRectangle, TSelectAnim } from "./types";
+import { EntityType, TRectangle, TSelectAnim, Settings } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
 import * as utils from "./utils";
@@ -25,10 +25,17 @@ export class Game {
     canvasBoundingRect: DOMRect;
     gl: WebGL2RenderingContext;
 
+    // Game options
+    resolutionIndex: number = CONFIG.DISPLAY.DEFAULT_RESOLUTION; // Affects cameraManager.resolution
+    gameSpeedIndex: number = CONFIG.GAME.TIMING.DEFAULT_SPEED; // Affects timeManager.timePerTick
+    keyboardSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_KEYBOARD_SPEED; // Affects inputManager.keyboardSpeed
+    scrollSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_SCROLL_SPEED; // Affects inputManager.scrollSpeed
+    dragSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_SPEED; // Affects inputManager.dragSpeed
+    invertDrag: boolean = false; // Affects inputManager.invertDrag
+
     // Game state Properties
     started = false;
     isMultiplayer = false;
-    gameSpeed: number = CONFIG.GAME.TIMING.DEFAULT_SPEED;
     gamemap: number[] = [];
     gameMapChanged = false;
     gameAction = 0;    // 0 = none
@@ -126,7 +133,7 @@ export class Game {
     }
 
     startGame(): void {
-        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[this.uiManager.getResolutionSelectElement().selectedIndex]);
+        this.cameraManager.setResolution(this.uiManager.getResolutionSelectElement().selectedIndex);
         this.cameraManager.updateProperties(this.canvasBoundingRect);
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 
@@ -189,16 +196,23 @@ export class Game {
         }
     }
 
+    setResolution(resolutionIndex: number): void {
+        this.resolutionIndex = resolutionIndex;
+        this.cameraManager.setResolution(this.resolutionIndex);
+        this.cameraManager.updateProperties(this.canvasBoundingRect);
+        this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
+    }
+
     incrementGameSpeed(): void {
         // Single player only. Prevent if multiplayer.
         if (this.isMultiplayer) {
             return;
         }
-        this.gameSpeed += 1;
-        if (this.gameSpeed >= CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
-            this.gameSpeed = CONFIG.GAME.TIMING.GAME_SPEEDS.length - 1;
+        this.gameSpeedIndex += 1;
+        if (this.gameSpeedIndex >= CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
+            this.gameSpeedIndex = CONFIG.GAME.TIMING.GAME_SPEEDS.length - 1;
         }
-        this.timeManager.setGameSpeed(this.gameSpeed);
+        this.timeManager.setGameSpeed(this.gameSpeedIndex);
     }
 
     decrementGameSpeed(): void {
@@ -206,11 +220,64 @@ export class Game {
         if (this.isMultiplayer) {
             return;
         }
-        this.gameSpeed -= 1;
-        if (this.gameSpeed < 0) {
-            this.gameSpeed = 0;
+        this.gameSpeedIndex -= 1;
+        if (this.gameSpeedIndex < 0) {
+            this.gameSpeedIndex = 0;
         }
-        this.timeManager.setGameSpeed(this.gameSpeed);
+        this.timeManager.setGameSpeed(this.gameSpeedIndex);
+    }
+
+    incrementKeyboardSpeed(): void {
+        this.keyboardSpeedIndex += 1;
+        if (this.keyboardSpeedIndex >= CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length) {
+            this.keyboardSpeedIndex = CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length - 1;
+        }
+        this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
+    }
+
+    decrementKeyboardSpeed(): void {
+        this.keyboardSpeedIndex -= 1;
+        if (this.keyboardSpeedIndex < 0) {
+            this.keyboardSpeedIndex = 0;
+        }
+        this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
+    }
+
+    incrementScrollSpeed(): void {
+        this.scrollSpeedIndex += 1;
+        if (this.scrollSpeedIndex >= CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS.length) {
+            this.scrollSpeedIndex = CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS.length - 1;
+        }
+        this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
+    }
+
+    decrementScrollSpeed(): void {
+        this.scrollSpeedIndex -= 1;
+        if (this.scrollSpeedIndex < 0) {
+            this.scrollSpeedIndex = 0;
+        }
+        this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
+    }
+
+    incrementDragSpeed(): void {
+        this.dragSpeedIndex += 1;
+        if (this.dragSpeedIndex >= CONFIG.CAMERA.SCROLL.DRAG_SPEEDS.length) {
+            this.dragSpeedIndex = CONFIG.CAMERA.SCROLL.DRAG_SPEEDS.length - 1;
+        }
+        this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
+    }
+
+    decrementDragSpeed(): void {
+        this.dragSpeedIndex -= 1;
+        if (this.dragSpeedIndex < 0) {
+            this.dragSpeedIndex = 0;
+        }
+        this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
+    }
+
+    changeInvertDrag(p_invert: boolean): void {
+        this.invertDrag = p_invert;
+        this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
     }
 
     procGame(): void {
@@ -519,6 +586,36 @@ export class Game {
     openAnimationList(): void {
         // Open a json animation dictionary file
         // TODO : Implement
+    }
+
+    saveSettingsLocalStorage(): void {
+        const settings: Settings = {
+            resolutionIndex: this.resolutionIndex,
+            gameSpeedIndex: this.gameSpeedIndex,
+            keyboardSpeedIndex: this.keyboardSpeedIndex,
+            scrollSpeedIndex: this.scrollSpeedIndex,
+            dragSpeedIndex: this.dragSpeedIndex,
+            invertDrag: this.invertDrag
+        };
+        localStorage.setItem('settings', JSON.stringify(settings));
+    }
+
+    loadSettingsLocalStorage(): void {
+        const settings = localStorage.getItem('settings');
+        // If inexistant settings, the defaults will remain.
+        if (settings) {
+            const parsedSettings = JSON.parse(settings);
+            this.setResolution(parsedSettings.resolutionIndex);
+            this.gameSpeedIndex = parsedSettings.gameSpeedIndex;
+            this.keyboardSpeedIndex = parsedSettings.keyboardSpeedIndex;
+            this.scrollSpeedIndex = parsedSettings.scrollSpeedIndex;
+            this.dragSpeedIndex = parsedSettings.dragSpeedIndex;
+            this.invertDrag = parsedSettings.invertDrag;
+            this.timeManager.setGameSpeed(this.gameSpeedIndex);
+            this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
+            this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
+            this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
+        }
     }
 
 

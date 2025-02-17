@@ -1,3 +1,12 @@
+export type Settings = {
+    resolutionIndex: number;
+    gameSpeedIndex: number;
+    keyboardSpeedIndex: number;
+    scrollSpeedIndex: number;
+    dragSpeedIndex: number;
+    invertDrag: boolean;
+}
+
 export type Vec2 = { x: number, y: number };
 
 export type TCommand = {

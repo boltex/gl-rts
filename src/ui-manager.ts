@@ -11,7 +11,6 @@ export class UIManager {
 
     private game: Game;
     private startButtonElement: HTMLButtonElement;
-    private resolutionSelectElement: HTMLSelectElement;
     private documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
 
@@ -22,6 +21,10 @@ export class UIManager {
     private fileInput: HTMLInputElement | null = null;
     private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
     private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
+
+    private animInput: HTMLInputElement | null = null;
+    private animListText: HTMLInputElement | null = null;
+    private currentAnimIndex: number = 0;
 
     // Game Menu properties
     /*
@@ -34,10 +37,7 @@ export class UIManager {
         - Invert Drag (Checkbox)
     */
     private gameMenuElement: HTMLDivElement | null = null;
-
-    private animInput: HTMLInputElement | null = null;
-    private animListText: HTMLInputElement | null = null;
-    private currentAnimIndex: number = 0;
+    private resolutionSelectElement: HTMLSelectElement;
 
     constructor(game: Game) {
         this.game = game;
@@ -62,6 +62,7 @@ export class UIManager {
             option.textContent = label;
             this.resolutionSelectElement.appendChild(option);
         }
+        this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
         document.body.appendChild(this.resolutionSelectElement);
     }
 
@@ -83,18 +84,13 @@ export class UIManager {
             // Toggle visibility
             if (this.gameMenuElement.style.display === "none" || this.gameMenuElement.style.display === "") {
                 this.gameMenuElement.style.display = "block";
-                // Get values from the game and update the UI
-                // this.screenSizeRadios.value = this.game.getScreenSize().toString();
-                // this.gameSpeedInput.value = this.game.getGameSpeed().toString();
-                // this.keyboardScrollSpeedInput.value = this.game.getKeyboardScrollSpeed().toString();
-                // this.scrollSpeedInput.value = this.game.getScrollSpeed().toString();
-                // this.dragSpeedInput.value = this.game.getDragSpeed().toString();
-                // this.invertDragCheckbox.checked = this.game.getInvertDrag();
-
-
             } else {
                 this.gameMenuElement.style.display = "none";
             }
+        }
+        if (this.gameMenuElement) {
+            // if it now exists, set the controls to the current game settings.
+            // todo 
         }
     }
 

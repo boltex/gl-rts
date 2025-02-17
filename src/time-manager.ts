@@ -30,7 +30,6 @@ export class TimeManager {
     setGameSpeed(speedIndex: number): void {
         this.timePerTick = CONFIG.GAME.TIMING.GAME_SPEEDS[speedIndex].value;
         this.timerTriggerAccum = this.timePerTick * 3; // 3 ticks behind
-        console.log('Speed set to ', CONFIG.GAME.TIMING.GAME_SPEEDS[speedIndex].label);
     }
 
     update(timestamp: number) {

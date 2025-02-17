@@ -115,13 +115,6 @@ const CAMERA = {
 } as const;
 
 const UI = {
-    MAP_EDITOR: {
-        WIDTH: 130,
-        HEIGHT: 280,
-        TOP: 10,
-        RIGHT: 10,
-    },
-
     WIDGET: {
         ANIMATION_FRAMES: 6
     }

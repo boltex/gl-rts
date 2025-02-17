@@ -133,7 +133,7 @@ export class Game {
     }
 
     startGame(): void {
-        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[CONFIG.DISPLAY.DEFAULT_RESOLUTION]);
+        this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[this.resolutionIndex]);
         this.cameraManager.updateProperties(this.canvasBoundingRect);
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 

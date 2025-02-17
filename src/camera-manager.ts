@@ -2,7 +2,11 @@ import { CONFIG } from './config';
 import { Game } from './game';
 
 export class CameraManager {
-    resolution: { label: string; width: number; height: number };
+    resolution: {
+        label: string;
+        width: number;
+        height: number;
+    };
     aspectRatio: number;
     gameScreenWidth: number;
     gameScreenHeight: number;
@@ -28,7 +32,7 @@ export class CameraManager {
 
     constructor(game: Game) {
         this.game = game;
-        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[0];
+        this.resolution = CONFIG.DISPLAY.RESOLUTIONS[CONFIG.DISPLAY.DEFAULT_RESOLUTION];
         this.zoom = 1;
         this.zoomTarget = 1;
         this.aspectRatio = this.resolution.width / this.resolution.height;
@@ -53,7 +57,11 @@ export class CameraManager {
         if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY };
     }
 
-    setResolution(resolution: { label: string; width: number; height: number }): void {
+    setResolution(resolution: {
+        label: string;
+        width: number;
+        height: number;
+    }): void {
         this.resolution = resolution;
         this.aspectRatio = this.resolution.width / this.resolution.height;
     }

@@ -11,7 +11,6 @@ export class UIManager {
 
     private game: Game;
     private startButtonElement: HTMLButtonElement;
-    private resolutionSelectElement: HTMLSelectElement;
     private documentElementClassList: DOMTokenList; // Css rules rely on this to change cursor.
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
 
@@ -22,6 +21,10 @@ export class UIManager {
     private fileInput: HTMLInputElement | null = null;
     private fileInputFor: 'map' | 'entity' | 'animation' = 'map';
     private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
+
+    private animInput: HTMLInputElement | null = null;
+    private animListText: HTMLInputElement | null = null;
+    private currentAnimIndex: number = 0;
 
     // Game Menu properties
     /*
@@ -34,16 +37,17 @@ export class UIManager {
         - Invert Drag (Checkbox)
     */
     private gameMenuElement: HTMLDivElement | null = null;
-
-    private animInput: HTMLInputElement | null = null;
-    private animListText: HTMLInputElement | null = null;
-    private currentAnimIndex: number = 0;
+    private resolutionSelectElement: HTMLSelectElement | null = null;
+    private gameSpeedRange: HTMLInputElement | null = null;
+    private keyboardScrollSpeedRange: HTMLInputElement | null = null;
+    private scrollSpeedRange: HTMLInputElement | null = null;
+    private dragSpeedRange: HTMLInputElement | null = null;
+    private invertDragCheckbox: HTMLInputElement | null = null;
 
     constructor(game: Game) {
         this.game = game;
         this.documentElementClassList = document.documentElement.classList;
         this.startButtonElement = document.createElement("button");
-        this.resolutionSelectElement = document.createElement("select");
     }
 
     mainMenu(): void {
@@ -51,18 +55,6 @@ export class UIManager {
         this.startButtonElement.textContent = "Start Game";
         this.startButtonElement.classList.add("btn-start");
         document.body.appendChild(this.startButtonElement);
-
-        // Create the dropdown for screen resolution
-        this.resolutionSelectElement.classList.add("resolution-select");
-
-        // Populate the dropdown with options
-        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
-            const option = document.createElement("option");
-            option.value = `${width}x${height}`;
-            option.textContent = label;
-            this.resolutionSelectElement.appendChild(option);
-        }
-        document.body.appendChild(this.resolutionSelectElement);
     }
 
     setCursor(newClass: string): void {
@@ -83,18 +75,13 @@ export class UIManager {
             // Toggle visibility
             if (this.gameMenuElement.style.display === "none" || this.gameMenuElement.style.display === "") {
                 this.gameMenuElement.style.display = "block";
-                // Get values from the game and update the UI
-                // this.screenSizeRadios.value = this.game.getScreenSize().toString();
-                // this.gameSpeedInput.value = this.game.getGameSpeed().toString();
-                // this.keyboardScrollSpeedInput.value = this.game.getKeyboardScrollSpeed().toString();
-                // this.scrollSpeedInput.value = this.game.getScrollSpeed().toString();
-                // this.dragSpeedInput.value = this.game.getDragSpeed().toString();
-                // this.invertDragCheckbox.checked = this.game.getInvertDrag();
-
-
             } else {
                 this.gameMenuElement.style.display = "none";
             }
+        }
+        if (this.gameMenuElement) {
+            // if it now exists, set the controls to the current game settings.
+            // todo 
         }
     }
 
@@ -111,7 +98,7 @@ export class UIManager {
         return this.startButtonElement;
     }
 
-    getResolutionSelectElement(): HTMLSelectElement {
+    getResolutionSelectElement(): HTMLSelectElement | null {
         return this.resolutionSelectElement;
     }
 
@@ -141,33 +128,10 @@ export class UIManager {
         // Create the map editor container
         this.mapEditorElement = document.createElement("div");
         this.mapEditorElement.id = "map-editor";
-        Object.assign(this.mapEditorElement.style, {
-            position: "absolute",
-            top: `${CONFIG.UI.MAP_EDITOR.TOP}px`,
-            right: `${CONFIG.UI.MAP_EDITOR.RIGHT}px`,
-            width: `${CONFIG.UI.MAP_EDITOR.WIDTH}px`,
-            height: `${CONFIG.UI.MAP_EDITOR.HEIGHT}px`,
-            textAlign: "center",
-            backgroundColor: "#ccc",
-            border: "1px solid #333",
-            padding: "10px",
-            zIndex: "10",
-            cursor: "move",
-            display: "block",
-        });
 
         // Create tile preview element using the atlas (using background positioning)
         this.tilePreview = document.createElement("div");
-        Object.assign(this.tilePreview.style, {
-            width: `${CONFIG.GAME.TILE.SIZE}px`,
-            height: `${CONFIG.GAME.TILE.SIZE}px`,
-            backgroundImage: "url('images/map-tiles-vertical.png')",
-            backgroundRepeat: "no-repeat",
-            cursor: "default",
-            marginBottom: "10px",
-            border: "1px solid #333",
-            pointerEvents: "none"
-        });
+        this.tilePreview.id = "tile-preview";
         this.updateTilePreview();
 
         // Create Up and Down buttons
@@ -316,7 +280,6 @@ export class UIManager {
         // Create text input for animation lists to be parsed like: "[0,1,2,22,33,255]"
         this.animListText = document.createElement("input");
         this.animListText.type = "text";
-        this.animListText.style.width = "120px";
         this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         this.animListText.addEventListener("change", () => {
             if (this.animListText) {
@@ -364,27 +327,157 @@ export class UIManager {
     buildGameMenu(): void {
         this.gameMenuElement = document.createElement("div");
         this.gameMenuElement.id = "game-menu";
-        Object.assign(this.gameMenuElement.style, {
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: "400px",
-            transform: "translate(-50%, -50%)",
-            // height: "50%",
-            textAlign: "center",
-            // backgroundColor: "#ccc",
-            background: "rgba(0, 0, 0, 0.8)",
-            border: "1px solid #333",
-            padding: "20px",
-            zIndex: "11",
-            display: "block",
-        });
+
         // 'Option' heading
         const heading = document.createElement("h2");
         heading.textContent = "Options";
-        heading.style.color = "#fff";
         this.gameMenuElement.appendChild(heading);
 
+        // Create the dropdown for screen resolution
+        const gameResolution = document.createElement("label");
+        gameResolution.htmlFor = "resolution-select";
+        gameResolution.textContent = "Resolution";
+        this.gameMenuElement.appendChild(gameResolution);
+        this.resolutionSelectElement = document.createElement("select");
+        this.resolutionSelectElement.id = "resolution-select";
+        this.resolutionSelectElement.classList.add("resolution-select");
+
+        // Populate the dropdown with options
+        for (const { label, width, height } of CONFIG.DISPLAY.RESOLUTIONS) {
+            const option = document.createElement("option");
+            option.value = `${width}x${height}`;
+            option.textContent = label;
+            this.resolutionSelectElement.appendChild(option);
+        }
+        this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
+        this.gameMenuElement.appendChild(this.resolutionSelectElement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create the game speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const gameSpeedLabel = document.createElement("label");
+        gameSpeedLabel.textContent = "Game Speed";
+        this.gameMenuElement.appendChild(gameSpeedLabel);
+
+        const gameSpeedDecrement = document.createElement("button");
+        gameSpeedDecrement.textContent = "-";
+        gameSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementGameSpeed();
+        });
+        this.gameMenuElement.appendChild(gameSpeedDecrement);
+        this.gameSpeedRange = document.createElement("input");
+        this.gameSpeedRange.type = "range";
+        this.gameSpeedRange.min = "0";
+        this.gameSpeedRange.max = "6";
+        this.gameSpeedRange.step = "1";
+        this.gameSpeedRange.value = "3";
+        this.gameSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.gameSpeedRange);
+        const gameSpeedIncrement = document.createElement("button");
+        gameSpeedIncrement.textContent = "+";
+        gameSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementGameSpeed();
+        });
+        this.gameMenuElement.appendChild(gameSpeedIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create mouse scroll speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const scrollSpeedLabel = document.createElement("label");
+        scrollSpeedLabel.textContent = "Mouse Scroll Speed";
+        this.gameMenuElement.appendChild(scrollSpeedLabel);
+
+        const scrollSpeedDecrement = document.createElement("button");
+        scrollSpeedDecrement.textContent = "-";
+        scrollSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementScrollSpeed();
+        });
+        this.gameMenuElement.appendChild(scrollSpeedDecrement);
+        this.scrollSpeedRange = document.createElement("input");
+        this.scrollSpeedRange.type = "range";
+        this.scrollSpeedRange.min = "0";
+        this.scrollSpeedRange.max = "6";
+        this.scrollSpeedRange.step = "1";
+        this.scrollSpeedRange.value = "3";
+        this.scrollSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.scrollSpeedRange);
+        const scrollSpeedIncrement = document.createElement("button");
+        scrollSpeedIncrement.textContent = "+";
+        scrollSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementScrollSpeed();
+        });
+        this.gameMenuElement.appendChild(scrollSpeedIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create keyboard scroll speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const keyboardScrollSpeedLabel = document.createElement("label");
+        keyboardScrollSpeedLabel.textContent = "Keyboard Scroll Speed";
+        this.gameMenuElement.appendChild(keyboardScrollSpeedLabel);
+
+        const keyboardScrollSpeedDecrement = document.createElement("button");
+        keyboardScrollSpeedDecrement.textContent = "-";
+        keyboardScrollSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementKeyboardSpeed();
+        });
+        this.gameMenuElement.appendChild(keyboardScrollSpeedDecrement);
+        this.keyboardScrollSpeedRange = document.createElement("input");
+        this.keyboardScrollSpeedRange.type = "range";
+        this.keyboardScrollSpeedRange.min = "0";
+        this.keyboardScrollSpeedRange.max = "6";
+        this.keyboardScrollSpeedRange.step = "1";
+        this.keyboardScrollSpeedRange.value = "3";
+        this.keyboardScrollSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.keyboardScrollSpeedRange);
+        const keyboardScrollSpeedIncrement = document.createElement("button");
+        keyboardScrollSpeedIncrement.textContent = "+";
+        keyboardScrollSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementKeyboardSpeed();
+        });
+        this.gameMenuElement.appendChild(keyboardScrollSpeedIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create drag scroll speed range input made of two buttons to decrement and increment, 
+        // with a disabled range input in the middle.
+        const dragSpeedLabel = document.createElement("label");
+        dragSpeedLabel.textContent = "Drag Scroll Speed";
+        this.gameMenuElement.appendChild(dragSpeedLabel);
+
+        const dragSpeedDecrement = document.createElement("button");
+        dragSpeedDecrement.textContent = "-";
+        dragSpeedDecrement.addEventListener("click", () => {
+            this.game.decrementDragSpeed();
+        });
+        this.gameMenuElement.appendChild(dragSpeedDecrement);
+        this.dragSpeedRange = document.createElement("input");
+        this.dragSpeedRange.type = "range";
+        this.dragSpeedRange.min = "0";
+        this.dragSpeedRange.max = "6";
+        this.dragSpeedRange.step = "1";
+        this.dragSpeedRange.value = "3";
+        this.dragSpeedRange.disabled = true;
+        this.gameMenuElement.appendChild(this.dragSpeedRange);
+        const dragSpeedIncrement = document.createElement("button");
+        dragSpeedIncrement.textContent = "+";
+        dragSpeedIncrement.addEventListener("click", () => {
+            this.game.incrementDragSpeed();
+        });
+        this.gameMenuElement.appendChild(dragSpeedIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create invert-drag checkbox
+        const invertDragLabel = document.createElement("label");
+        invertDragLabel.textContent = "Invert Drag Scroll";
+        invertDragLabel.htmlFor = "invert-drag";
+        this.gameMenuElement.appendChild(invertDragLabel);
+        this.invertDragCheckbox = document.createElement("input");
+        this.invertDragCheckbox.id = "invert-drag";
+        this.invertDragCheckbox.type = "checkbox";
+        this.invertDragCheckbox.checked = false;
+        this.invertDragCheckbox.addEventListener("change", () => {
+            this.game.changeInvertDrag(!!this.invertDragCheckbox?.checked);
+        });
+        this.gameMenuElement.appendChild(this.invertDragCheckbox);
 
         // Append the game menu container to the document body
         document.body.appendChild(this.gameMenuElement);

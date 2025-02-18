@@ -77,7 +77,7 @@ export class Game {
         this.gl.clearColor(0.0, 0.0, 0.0, 0.0); // transparent black
 
         // Prevent right-click context menu
-        this.canvasElement.addEventListener('contextmenu', this.handleContextMenu);
+        document.addEventListener('contextmenu', this.handleContextMenu);
 
         // Canvas has style width: 100vw; and style height: 100vh; so we need to handle resizes!
         const debouncedResize = utils.debounce(this.handleCanvasResize.bind(this), 250);
@@ -96,7 +96,7 @@ export class Game {
 
     dispose(): void {
         this.rendererManager.dispose();
-        this.canvasElement.removeEventListener('contextmenu', this.handleContextMenu);
+        document.removeEventListener('contextmenu', this.handleContextMenu);
         this.uiManager.getStartButtonElement().removeEventListener("click", this.startGameHandler);
         this.resizeObserver.unobserve(this.canvasElement);
         this.resizeObserver.disconnect();

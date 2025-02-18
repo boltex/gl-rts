@@ -46,6 +46,9 @@ export class UIManager {
     private dragSpeedRange: HTMLInputElement | null = null;
     private invertDragCheckbox: HTMLInputElement | null = null;
 
+    // Handlers
+    private handleContextMenu = (event: MouseEvent) => event.preventDefault();
+
     constructor(game: Game) {
         this.game = game;
         this.documentElementClassList = document.documentElement.classList;

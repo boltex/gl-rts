@@ -15,6 +15,7 @@ export class UIManager {
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
 
     // Map Editor properties
+    isMapEditorOpen: boolean = false;
     private mapEditorElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
@@ -36,6 +37,9 @@ export class UIManager {
         - Drag Speed (Range input)
         - Invert Drag (Checkbox)
     */
+
+    isMenuOpen: boolean = false;
+    private oldSettings: any;
     private gameMenuElement: HTMLDivElement | null = null;
     private resolutionSelectElement: HTMLSelectElement | null = null;
     private gameSpeedRange: HTMLInputElement | null = null;
@@ -75,13 +79,45 @@ export class UIManager {
             // Toggle visibility
             if (this.gameMenuElement.style.display === "none" || this.gameMenuElement.style.display === "") {
                 this.gameMenuElement.style.display = "block";
+                this.isMenuOpen = true;
             } else {
                 this.gameMenuElement.style.display = "none";
+                this.isMenuOpen = false;
             }
         }
         if (this.gameMenuElement) {
-            // if it now exists, set the controls to the current game settings.
-            // todo 
+            // Set control values from the game options
+            this.setMenuControlValues();
+            // Preserve those settings in case the user changes them and cancels.
+            this.oldSettings = {
+                resolutionIndex: this.game.resolutionIndex,
+                gameSpeedIndex: this.game.gameSpeedIndex,
+                keyboardSpeedIndex: this.game.keyboardSpeedIndex,
+                scrollSpeedIndex: this.game.scrollSpeedIndex,
+                dragSpeedIndex: this.game.dragSpeedIndex,
+                invertDrag: this.game.invertDrag
+            };
+        }
+    }
+
+    setMenuControlValues(): void {
+        if (this.resolutionSelectElement) {
+            this.resolutionSelectElement.selectedIndex = this.game.resolutionIndex;
+        }
+        if (this.gameSpeedRange) {
+            this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+        }
+        if (this.keyboardScrollSpeedRange) {
+            this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+        }
+        if (this.scrollSpeedRange) {
+            this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+        }
+        if (this.dragSpeedRange) {
+            this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+        }
+        if (this.invertDragCheckbox) {
+            this.invertDragCheckbox.checked = this.game.invertDrag;
         }
     }
 
@@ -109,15 +145,12 @@ export class UIManager {
             // Toggle visibility
             if (this.mapEditorElement.style.display === "none" || this.mapEditorElement.style.display === "") {
                 this.mapEditorElement.style.display = "block";
+                this.isMapEditorOpen = true;
             } else {
                 this.mapEditorElement.style.display = "none";
+                this.isMapEditorOpen = false;
             }
         }
-    }
-
-    isMapEditorVisible(): boolean {
-        return this.mapEditorElement !== null &&
-            (this.mapEditorElement.style.display === "block");
     }
 
     getSelectedTileIndex(): number {
@@ -323,6 +356,7 @@ export class UIManager {
 
         // Make the map editor draggable
         this.addDragElement(this.mapEditorElement);
+        this.isMapEditorOpen = true;
     }
 
     buildGameMenu(): void {
@@ -352,6 +386,12 @@ export class UIManager {
             this.resolutionSelectElement.appendChild(option);
         }
         this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
+        this.resolutionSelectElement.addEventListener("change", () => {
+            if (this.resolutionSelectElement) {
+                const selectedResolutionIndex = this.resolutionSelectElement.selectedIndex;
+                this.game.setResolution(selectedResolutionIndex);
+            }
+        });
         this.gameMenuElement.appendChild(this.resolutionSelectElement);
         this.gameMenuElement.appendChild(document.createElement("br"));
 
@@ -365,6 +405,9 @@ export class UIManager {
         gameSpeedDecrement.textContent = "-";
         gameSpeedDecrement.addEventListener("click", () => {
             this.game.decrementGameSpeed();
+            if (this.gameSpeedRange) {
+                this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(gameSpeedDecrement);
         this.gameSpeedRange = document.createElement("input");
@@ -374,11 +417,17 @@ export class UIManager {
         this.gameSpeedRange.step = "1";
         this.gameSpeedRange.value = "3";
         this.gameSpeedRange.disabled = true;
+        this.gameSpeedRange.addEventListener("change", () => {
+            console.log('gameSpeedRange changed to:', this.gameSpeedRange?.value);
+        });
         this.gameMenuElement.appendChild(this.gameSpeedRange);
         const gameSpeedIncrement = document.createElement("button");
         gameSpeedIncrement.textContent = "+";
         gameSpeedIncrement.addEventListener("click", () => {
             this.game.incrementGameSpeed();
+            if (this.gameSpeedRange) {
+                this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(gameSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -393,6 +442,9 @@ export class UIManager {
         scrollSpeedDecrement.textContent = "-";
         scrollSpeedDecrement.addEventListener("click", () => {
             this.game.decrementScrollSpeed();
+            if (this.scrollSpeedRange) {
+                this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(scrollSpeedDecrement);
         this.scrollSpeedRange = document.createElement("input");
@@ -407,6 +459,9 @@ export class UIManager {
         scrollSpeedIncrement.textContent = "+";
         scrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementScrollSpeed();
+            if (this.scrollSpeedRange) {
+                this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(scrollSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -421,6 +476,9 @@ export class UIManager {
         keyboardScrollSpeedDecrement.textContent = "-";
         keyboardScrollSpeedDecrement.addEventListener("click", () => {
             this.game.decrementKeyboardSpeed();
+            if (this.keyboardScrollSpeedRange) {
+                this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(keyboardScrollSpeedDecrement);
         this.keyboardScrollSpeedRange = document.createElement("input");
@@ -435,6 +493,9 @@ export class UIManager {
         keyboardScrollSpeedIncrement.textContent = "+";
         keyboardScrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementKeyboardSpeed();
+            if (this.keyboardScrollSpeedRange) {
+                this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(keyboardScrollSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -449,6 +510,9 @@ export class UIManager {
         dragSpeedDecrement.textContent = "-";
         dragSpeedDecrement.addEventListener("click", () => {
             this.game.decrementDragSpeed();
+            if (this.dragSpeedRange) {
+                this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(dragSpeedDecrement);
         this.dragSpeedRange = document.createElement("input");
@@ -463,6 +527,9 @@ export class UIManager {
         dragSpeedIncrement.textContent = "+";
         dragSpeedIncrement.addEventListener("click", () => {
             this.game.incrementDragSpeed();
+            if (this.dragSpeedRange) {
+                this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(dragSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -478,11 +545,37 @@ export class UIManager {
         this.invertDragCheckbox.checked = false;
         this.invertDragCheckbox.addEventListener("change", () => {
             this.game.changeInvertDrag(!!this.invertDragCheckbox?.checked);
+            // No need to update the checkbox value as it updates itself.
         });
         this.gameMenuElement.appendChild(this.invertDragCheckbox);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Add 'OK' and 'Cancel' buttons
+        const okButton = document.createElement("button");
+        okButton.textContent = "OK";
+        okButton.addEventListener("click", () => {
+            // Close the menu, no need to apply the settings as they are already applied.
+            this.toggleGameMenu();
+        });
+        this.gameMenuElement.appendChild(okButton);
+
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+        cancelButton.addEventListener("click", () => {
+            // Close the menu and restore the old settings
+            this.game.setResolution(this.oldSettings.resolutionIndex);
+            this.game.setGameSpeed(this.oldSettings.gameSpeedIndex);
+            this.game.setKeyboardSpeed(this.oldSettings.keyboardSpeedIndex);
+            this.game.setScrollSpeed(this.oldSettings.scrollSpeedIndex);
+            this.game.setDragSpeed(this.oldSettings.dragSpeedIndex);
+            this.game.changeInvertDrag(this.oldSettings.invertDrag);
+            this.toggleGameMenu();
+        });
+        this.gameMenuElement.appendChild(cancelButton);
 
         // Append the game menu container to the document body
         document.body.appendChild(this.gameMenuElement);
+        this.isMenuOpen = true;
     }
 
     private addDragElement(elm: HTMLElement): void {

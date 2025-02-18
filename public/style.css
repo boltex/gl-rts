@@ -115,6 +115,7 @@ input:focus-visible {
 }
 
 #game-menu {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   position: fixed; /* Added position property */
   top: 0;
   left: 0;

@@ -83,12 +83,33 @@ export class UIManager {
                 this.isMenuOpen = true;
             } else {
                 this.gameMenuElement.style.display = "none";
-                this.isMenuOpen = false
+                this.isMenuOpen = false;
             }
         }
         if (this.gameMenuElement) {
-            // if it now exists, set the controls to the current game settings.
-            // todo SET VALUES IN CONTROLS
+            // Set control values from the game options
+            this.setMenuControlValues();
+        }
+    }
+
+    setMenuControlValues(): void {
+        if (this.resolutionSelectElement) {
+            this.resolutionSelectElement.selectedIndex = this.game.resolutionIndex;
+        }
+        if (this.gameSpeedRange) {
+            this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+        }
+        if (this.keyboardScrollSpeedRange) {
+            this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+        }
+        if (this.scrollSpeedRange) {
+            this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+        }
+        if (this.dragSpeedRange) {
+            this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+        }
+        if (this.invertDragCheckbox) {
+            this.invertDragCheckbox.checked = this.game.invertDrag;
         }
     }
 
@@ -370,6 +391,9 @@ export class UIManager {
         gameSpeedDecrement.textContent = "-";
         gameSpeedDecrement.addEventListener("click", () => {
             this.game.decrementGameSpeed();
+            if (this.gameSpeedRange) {
+                this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(gameSpeedDecrement);
         this.gameSpeedRange = document.createElement("input");
@@ -379,11 +403,17 @@ export class UIManager {
         this.gameSpeedRange.step = "1";
         this.gameSpeedRange.value = "3";
         this.gameSpeedRange.disabled = true;
+        this.gameSpeedRange.addEventListener("change", () => {
+            console.log('gameSpeedRange changed to:', this.gameSpeedRange?.value);
+        });
         this.gameMenuElement.appendChild(this.gameSpeedRange);
         const gameSpeedIncrement = document.createElement("button");
         gameSpeedIncrement.textContent = "+";
         gameSpeedIncrement.addEventListener("click", () => {
             this.game.incrementGameSpeed();
+            if (this.gameSpeedRange) {
+                this.gameSpeedRange.value = this.game.gameSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(gameSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -398,6 +428,9 @@ export class UIManager {
         scrollSpeedDecrement.textContent = "-";
         scrollSpeedDecrement.addEventListener("click", () => {
             this.game.decrementScrollSpeed();
+            if (this.scrollSpeedRange) {
+                this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(scrollSpeedDecrement);
         this.scrollSpeedRange = document.createElement("input");
@@ -412,6 +445,9 @@ export class UIManager {
         scrollSpeedIncrement.textContent = "+";
         scrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementScrollSpeed();
+            if (this.scrollSpeedRange) {
+                this.scrollSpeedRange.value = this.game.scrollSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(scrollSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -426,6 +462,9 @@ export class UIManager {
         keyboardScrollSpeedDecrement.textContent = "-";
         keyboardScrollSpeedDecrement.addEventListener("click", () => {
             this.game.decrementKeyboardSpeed();
+            if (this.keyboardScrollSpeedRange) {
+                this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(keyboardScrollSpeedDecrement);
         this.keyboardScrollSpeedRange = document.createElement("input");
@@ -440,6 +479,9 @@ export class UIManager {
         keyboardScrollSpeedIncrement.textContent = "+";
         keyboardScrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementKeyboardSpeed();
+            if (this.keyboardScrollSpeedRange) {
+                this.keyboardScrollSpeedRange.value = this.game.keyboardSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(keyboardScrollSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -454,6 +496,9 @@ export class UIManager {
         dragSpeedDecrement.textContent = "-";
         dragSpeedDecrement.addEventListener("click", () => {
             this.game.decrementDragSpeed();
+            if (this.dragSpeedRange) {
+                this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(dragSpeedDecrement);
         this.dragSpeedRange = document.createElement("input");
@@ -468,6 +513,9 @@ export class UIManager {
         dragSpeedIncrement.textContent = "+";
         dragSpeedIncrement.addEventListener("click", () => {
             this.game.incrementDragSpeed();
+            if (this.dragSpeedRange) {
+                this.dragSpeedRange.value = this.game.dragSpeedIndex.toString();
+            }
         });
         this.gameMenuElement.appendChild(dragSpeedIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -483,6 +531,7 @@ export class UIManager {
         this.invertDragCheckbox.checked = false;
         this.invertDragCheckbox.addEventListener("change", () => {
             this.game.changeInvertDrag(!!this.invertDragCheckbox?.checked);
+            // No need to update the checkbox value as it updates itself.
         });
         this.gameMenuElement.appendChild(this.invertDragCheckbox);
 

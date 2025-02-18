@@ -15,6 +15,7 @@ export class UIManager {
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
 
     // Map Editor properties
+    public isMapEditorOpen: boolean = false;
     private mapEditorElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
@@ -36,6 +37,7 @@ export class UIManager {
         - Drag Speed (Range input)
         - Invert Drag (Checkbox)
     */
+    public isMenuOpen: boolean = false;
     private gameMenuElement: HTMLDivElement | null = null;
     private resolutionSelectElement: HTMLSelectElement | null = null;
     private gameSpeedRange: HTMLInputElement | null = null;
@@ -75,13 +77,15 @@ export class UIManager {
             // Toggle visibility
             if (this.gameMenuElement.style.display === "none" || this.gameMenuElement.style.display === "") {
                 this.gameMenuElement.style.display = "block";
+                this.isMenuOpen = true;
             } else {
                 this.gameMenuElement.style.display = "none";
+                this.isMenuOpen = false
             }
         }
         if (this.gameMenuElement) {
             // if it now exists, set the controls to the current game settings.
-            // todo 
+            // todo SET VALUES IN CONTROLS
         }
     }
 
@@ -109,15 +113,12 @@ export class UIManager {
             // Toggle visibility
             if (this.mapEditorElement.style.display === "none" || this.mapEditorElement.style.display === "") {
                 this.mapEditorElement.style.display = "block";
+                this.isMapEditorOpen = true;
             } else {
                 this.mapEditorElement.style.display = "none";
+                this.isMapEditorOpen = false;
             }
         }
-    }
-
-    isMapEditorVisible(): boolean {
-        return this.mapEditorElement !== null &&
-            (this.mapEditorElement.style.display === "block");
     }
 
     getSelectedTileIndex(): number {
@@ -323,6 +324,7 @@ export class UIManager {
 
         // Make the map editor draggable
         this.addDragElement(this.mapEditorElement);
+        this.isMapEditorOpen = true;
     }
 
     buildGameMenu(): void {
@@ -483,6 +485,7 @@ export class UIManager {
 
         // Append the game menu container to the document body
         document.body.appendChild(this.gameMenuElement);
+        this.isMenuOpen = true;
     }
 
     private addDragElement(elm: HTMLElement): void {

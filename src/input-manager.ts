@@ -95,7 +95,7 @@ export class InputManager {
 
     private handleKeyDown(e: KeyboardEvent): void {
         // Add tile increment/decrement when map editor is visible.
-        if (this.game.uiManager.isMapEditorVisible()) {
+        if (this.game.uiManager.isMapEditorOpen) {
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
                 this.game.uiManager.incrementMapTile();
@@ -109,8 +109,8 @@ export class InputManager {
             if (e.ctrlKey && (e.key === 's' || e.key === 'o')) {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
-        } else {
-            // Only when not in map editor.
+        } else if (!this.game.uiManager.isMenuOpen) {
+            // Only when not in map editor nor game menu.
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
                 this.game.incrementGameSpeed();
@@ -128,17 +128,23 @@ export class InputManager {
         }
         if (e.key === 'F9') {
             e.preventDefault();
+            this.selecting = false;
+            this.dragScrolling = false;
             this.game.uiManager.toggleMapEditor();
             return;
         }
         if (e.key === 'F10') {
             e.preventDefault();
+            this.selecting = false;
+            this.dragScrolling = false;
             this.game.uiManager.toggleGameMenu();
             return;
         }
         if (e.key === 'F6') {
             e.preventDefault();
-            this.game.cameraManager.resetZoom();
+            if (!this.game.uiManager.isMenuOpen) {
+                this.game.cameraManager.resetZoom();
+            }
             return;
         }
 
@@ -156,7 +162,10 @@ export class InputManager {
     }
 
     private handleMouseMove(event?: MouseEvent): void {
-
+        // ignore in game menu
+        if (this.game.uiManager.isMenuOpen) {
+            return;
+        }
         if (event) {
             if (this.dragScrolling) {
                 // first, calculate the difference between the last mouse position and the current one.
@@ -176,7 +185,7 @@ export class InputManager {
             this.setCursorPos(event);
         }
 
-        if (this.game.uiManager.isMapEditorVisible()) {
+        if (this.game.uiManager.isMapEditorOpen) {
             // Make sure the event click is over the canvas, not the map editor.
             if (event && event.target !== this.game.canvasElement) {
                 return;
@@ -218,17 +227,21 @@ export class InputManager {
 
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
+        // ignore in game menu
+        if (this.game.uiManager.isMenuOpen) {
+            return;
+        }
         // for both game and map editor.
         if (event.button === 1) {
             // middle mouse is drag-scroll.
             if (!this.dragScrolling) {
                 this.dragScrolling = true;
                 // No cursor when dragging.
-                this.game.uiManager.setCursor('cur-none');
+                this.game.uiManager.setCursor('cur-cur-none');
             }
         }
 
-        if (this.game.uiManager.isMapEditorVisible()) {
+        if (this.game.uiManager.isMapEditorOpen) {
 
             // Make sure the event click is over the canvas, not the map editor.
             if (event.target !== this.game.canvasElement) {
@@ -265,8 +278,7 @@ export class InputManager {
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
-        if (this.game.uiManager.isMapEditorVisible()) {
-            // Specific to when the map editor is visible.
+        if (this.game.uiManager.isMapEditorOpen || this.game.uiManager.isMenuOpen) {
             return;
         }
         if (event.button === 0) {
@@ -274,13 +286,18 @@ export class InputManager {
             this.gameSelEndY = this.mouseY + this.game.cameraManager.scrollY;
             this.selecting = false;
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
-            this.game.uiManager.setCursor('cur-pointer');
+            // now restore cursor.
+            if (this.dragScrolling) {
+                this.game.uiManager.setCursor('cur-none');
+            } else {
+                this.game.uiManager.setCursor('cur-pointer');
+            }
         }
         if (event.button === 1) {
             this.dragScrolling = false;
-            // Set cursor back to normal. target if selecting, pointer otherwise.
-            this.game.uiManager.setCursor('cur-target');
+            // now restore cursor.
             if (this.selecting) {
+                this.game.uiManager.setCursor('cur-target');
             } else {
                 this.game.uiManager.setCursor('cur-pointer');
             }
@@ -288,6 +305,10 @@ export class InputManager {
     }
 
     private handleMouseWheel(event: WheelEvent): void {
+        // ignore in game menu
+        if (this.game.uiManager.isMenuOpen) {
+            return;
+        }
         if (event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -321,6 +342,10 @@ export class InputManager {
     }
 
     processInputs(): void {
+        // ignore in game menu
+        if (this.game.uiManager.isMenuOpen) {
+            return;
+        }
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
             this.scrollNowY = -this.keyboardSpeed;
             this.keyboardUp = true

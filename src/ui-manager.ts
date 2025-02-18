@@ -127,6 +127,7 @@ export class UIManager {
     private buildMapEditor(): void {
         // Create the map editor container
         this.mapEditorElement = document.createElement("div");
+        this.mapEditorElement.style.display = "block";
         this.mapEditorElement.id = "map-editor";
 
         // Create tile preview element using the atlas (using background positioning)
@@ -327,6 +328,7 @@ export class UIManager {
     buildGameMenu(): void {
         this.gameMenuElement = document.createElement("div");
         this.gameMenuElement.id = "game-menu";
+        this.gameMenuElement.style.display = "block";
 
         // 'Option' heading
         const heading = document.createElement("h2");

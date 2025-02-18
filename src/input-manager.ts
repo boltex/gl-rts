@@ -128,6 +128,9 @@ export class InputManager {
         }
         if (e.key === 'F9') {
             e.preventDefault();
+            if (this.game.uiManager.isMenuOpen) {
+                return;
+            }
             this.selecting = false;
             this.dragScrolling = false;
             this.game.uiManager.toggleMapEditor();

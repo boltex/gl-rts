@@ -199,7 +199,19 @@ export class Game {
         this.resolutionIndex = resolutionIndex;
         this.cameraManager.setResolution(CONFIG.DISPLAY.RESOLUTIONS[this.resolutionIndex]);
         this.cameraManager.updateProperties(this.canvasBoundingRect);
+        this.cameraManager.scroll({ dx: 0, dy: 0 });
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
+    }
+
+    setGameSpeed(speedIndex: number): void {
+        // Single player only. Prevent if multiplayer.
+        if (this.isMultiplayer) {
+            return;
+        }
+        if (speedIndex >= 0 && speedIndex < CONFIG.GAME.TIMING.GAME_SPEEDS.length) {
+            this.gameSpeedIndex = speedIndex;
+            this.timeManager.setGameSpeed(CONFIG.GAME.TIMING.GAME_SPEEDS[this.gameSpeedIndex].value);
+        }
     }
 
     incrementGameSpeed(): void {
@@ -226,6 +238,13 @@ export class Game {
         this.timeManager.setGameSpeed(CONFIG.GAME.TIMING.GAME_SPEEDS[this.gameSpeedIndex].value);
     }
 
+    setKeyboardSpeed(speed: number): void {
+        if (speed >= 0 && speed < CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length) {
+            this.keyboardSpeedIndex = speed;
+            this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
+        }
+    }
+
     incrementKeyboardSpeed(): void {
         this.keyboardSpeedIndex += 1;
         if (this.keyboardSpeedIndex >= CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length) {
@@ -242,6 +261,13 @@ export class Game {
         this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
     }
 
+    setScrollSpeed(speedIndex: number): void {
+        if (speedIndex >= 0 && speedIndex < CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS.length) {
+            this.scrollSpeedIndex = speedIndex;
+            this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
+        }
+    }
+
     incrementScrollSpeed(): void {
         this.scrollSpeedIndex += 1;
         if (this.scrollSpeedIndex >= CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS.length) {
@@ -256,6 +282,13 @@ export class Game {
             this.scrollSpeedIndex = 0;
         }
         this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
+    }
+
+    setDragSpeed(speedIndex: number): void {
+        if (speedIndex >= 0 && speedIndex < CONFIG.CAMERA.SCROLL.DRAG_SPEEDS.length) {
+            this.dragSpeedIndex = speedIndex;
+            this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
+        }
     }
 
     incrementDragSpeed(): void {
@@ -281,9 +314,6 @@ export class Game {
 
     procGame(): void {
 
-        // procgame processes a game frame, animating each RAF.
-        // Note: This is not a game-states tick, at timePerTick intervals.
-
         if (this.gameAction) {
 
             switch (this.gameAction) {
@@ -300,9 +330,9 @@ export class Game {
 
         }
 
-        this.gameAction = 0; // -------------- no more game actions to do
+        this.gameAction = 0; // Reset game action after processing
 
-        this.inputManager.processInputs(); // So far this scrolls the map only
+        this.inputManager.processInputs();
 
     }
 

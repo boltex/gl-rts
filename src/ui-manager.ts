@@ -15,7 +15,7 @@ export class UIManager {
     private currentCursorClass: string = ""; // Mouse Cursor: cur-pointer, cur-target..
 
     // Map Editor properties
-    public isMapEditorOpen: boolean = false;
+    isMapEditorOpen: boolean = false;
     private mapEditorElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
@@ -37,7 +37,9 @@ export class UIManager {
         - Drag Speed (Range input)
         - Invert Drag (Checkbox)
     */
-    public isMenuOpen: boolean = false;
+
+    isMenuOpen: boolean = false;
+    private oldSettings: any;
     private gameMenuElement: HTMLDivElement | null = null;
     private resolutionSelectElement: HTMLSelectElement | null = null;
     private gameSpeedRange: HTMLInputElement | null = null;
@@ -45,9 +47,6 @@ export class UIManager {
     private scrollSpeedRange: HTMLInputElement | null = null;
     private dragSpeedRange: HTMLInputElement | null = null;
     private invertDragCheckbox: HTMLInputElement | null = null;
-
-    // Handlers
-    private handleContextMenu = (event: MouseEvent) => event.preventDefault();
 
     constructor(game: Game) {
         this.game = game;
@@ -89,6 +88,15 @@ export class UIManager {
         if (this.gameMenuElement) {
             // Set control values from the game options
             this.setMenuControlValues();
+            // Preserve those settings in case the user changes them and cancels.
+            this.oldSettings = {
+                resolutionIndex: this.game.resolutionIndex,
+                gameSpeedIndex: this.game.gameSpeedIndex,
+                keyboardSpeedIndex: this.game.keyboardSpeedIndex,
+                scrollSpeedIndex: this.game.scrollSpeedIndex,
+                dragSpeedIndex: this.game.dragSpeedIndex,
+                invertDrag: this.game.invertDrag
+            };
         }
     }
 
@@ -378,6 +386,12 @@ export class UIManager {
             this.resolutionSelectElement.appendChild(option);
         }
         this.resolutionSelectElement.selectedIndex = CONFIG.DISPLAY.DEFAULT_RESOLUTION;
+        this.resolutionSelectElement.addEventListener("change", () => {
+            if (this.resolutionSelectElement) {
+                const selectedResolutionIndex = this.resolutionSelectElement.selectedIndex;
+                this.game.setResolution(selectedResolutionIndex);
+            }
+        });
         this.gameMenuElement.appendChild(this.resolutionSelectElement);
         this.gameMenuElement.appendChild(document.createElement("br"));
 
@@ -534,6 +548,30 @@ export class UIManager {
             // No need to update the checkbox value as it updates itself.
         });
         this.gameMenuElement.appendChild(this.invertDragCheckbox);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Add 'OK' and 'Cancel' buttons
+        const okButton = document.createElement("button");
+        okButton.textContent = "OK";
+        okButton.addEventListener("click", () => {
+            // Close the menu, no need to apply the settings as they are already applied.
+            this.toggleGameMenu();
+        });
+        this.gameMenuElement.appendChild(okButton);
+
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+        cancelButton.addEventListener("click", () => {
+            // Close the menu and restore the old settings
+            this.game.setResolution(this.oldSettings.resolutionIndex);
+            this.game.setGameSpeed(this.oldSettings.gameSpeedIndex);
+            this.game.setKeyboardSpeed(this.oldSettings.keyboardSpeedIndex);
+            this.game.setScrollSpeed(this.oldSettings.scrollSpeedIndex);
+            this.game.setDragSpeed(this.oldSettings.dragSpeedIndex);
+            this.game.changeInvertDrag(this.oldSettings.invertDrag);
+            this.toggleGameMenu();
+        });
+        this.gameMenuElement.appendChild(cancelButton);
 
         // Append the game menu container to the document body
         document.body.appendChild(this.gameMenuElement);

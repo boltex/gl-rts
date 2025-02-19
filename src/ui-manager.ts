@@ -553,14 +553,18 @@ export class UIManager {
         // Add 'OK' and 'Cancel' buttons
         const okButton = document.createElement("button");
         okButton.textContent = "OK";
+        okButton.id = "ok-button";
         okButton.addEventListener("click", () => {
             // Close the menu, no need to apply the settings as they are already applied.
+            // Save those to local storage.
+            this.game.saveSettingsLocalStorage();
             this.toggleGameMenu();
         });
         this.gameMenuElement.appendChild(okButton);
 
         const cancelButton = document.createElement("button");
         cancelButton.textContent = "Cancel";
+        cancelButton.id = "cancel-button";
         cancelButton.addEventListener("click", () => {
             // Close the menu and restore the old settings
             this.game.setResolution(this.oldSettings.resolutionIndex);

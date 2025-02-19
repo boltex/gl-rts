@@ -90,6 +90,10 @@ export class Game {
         this.inputManager = new InputManager(this);
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager(this);
+
+        // Load settings from local storage at start. Those are saved when users presses ok in settings dialog.
+        this.loadSettingsLocalStorage();
+
         this.uiManager.mainMenu();
         this.uiManager.getStartButtonElement().addEventListener("click", this.startGameHandler);
     }

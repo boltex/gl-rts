@@ -138,6 +138,9 @@ export class InputManager {
         }
         if (e.key === 'F10') {
             e.preventDefault();
+            if (this.game.uiManager.isMenuOpen) {
+                return; // Use the ok or cancel buttons instead.
+            }
             this.selecting = false;
             this.dragScrolling = false;
             this.game.uiManager.toggleGameMenu();

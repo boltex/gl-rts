@@ -242,9 +242,9 @@ export class Game {
         this.timeManager.setGameSpeed(CONFIG.GAME.TIMING.GAME_SPEEDS[this.gameSpeedIndex].value);
     }
 
-    setKeyboardSpeed(speed: number): void {
-        if (speed >= 0 && speed < CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length) {
-            this.keyboardSpeedIndex = speed;
+    setKeyboardSpeed(speedIndex: number): void {
+        if (speedIndex >= 0 && speedIndex < CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS.length) {
+            this.keyboardSpeedIndex = speedIndex;
             this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
         }
     }
@@ -638,16 +638,18 @@ export class Game {
         // If inexistant settings, the defaults will remain.
         if (settings) {
             const parsedSettings = JSON.parse(settings);
-            this.setResolution(parsedSettings.resolutionIndex);
+            this.resolutionIndex = parsedSettings.resolutionIndex;
             this.gameSpeedIndex = parsedSettings.gameSpeedIndex;
             this.keyboardSpeedIndex = parsedSettings.keyboardSpeedIndex;
             this.scrollSpeedIndex = parsedSettings.scrollSpeedIndex;
             this.dragSpeedIndex = parsedSettings.dragSpeedIndex;
             this.invertDrag = parsedSettings.invertDrag;
-            this.timeManager.setGameSpeed(this.gameSpeedIndex);
-            this.inputManager.setKeyboardSpeed(CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[this.keyboardSpeedIndex].value);
-            this.inputManager.setScrollSpeed(CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[this.scrollSpeedIndex].value);
-            this.inputManager.setDragSpeed(CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[this.dragSpeedIndex].value, this.invertDrag);
+            this.setResolution(this.resolutionIndex);
+            this.setGameSpeed(this.gameSpeedIndex);
+            this.setKeyboardSpeed(this.keyboardSpeedIndex);
+            this.setScrollSpeed(this.scrollSpeedIndex);
+            this.setDragSpeed(this.dragSpeedIndex);
+            this.changeInvertDrag(this.invertDrag);
         }
     }
 

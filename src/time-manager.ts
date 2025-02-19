@@ -15,7 +15,7 @@ export class TimeManager {
 
     // FPS tracking
     lastTime = 0; // Initialized by the game at the start of a proper game loop.
-    fps = 0;
+    fps = 30; // Default value
     fpsInterval: number;
     fpsLastTime = 0;
 
@@ -63,7 +63,7 @@ export class TimeManager {
         if (timestamp - this.fpsLastTime > this.fpsInterval) {
             this.fps = Math.round(1000 / deltaTime);
             this.fpsLastTime = timestamp;
-            // console.log('RAF FPS ', this.fps);
+            console.log('RAF FPS ', this.fps);
         }
     }
 

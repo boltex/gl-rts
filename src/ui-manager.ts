@@ -396,9 +396,9 @@ export class UIManager {
         this.gameMenuElement.appendChild(document.createElement("br"));
 
         // Create the game speed range input made of two buttons to decrement and increment, 
-        // with a disabled range input in the middle.
         const gameSpeedLabel = document.createElement("label");
         gameSpeedLabel.textContent = "Game Speed";
+        gameSpeedLabel.htmlFor = "game-speed";
         this.gameMenuElement.appendChild(gameSpeedLabel);
 
         const gameSpeedDecrement = document.createElement("button");
@@ -411,14 +411,17 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(gameSpeedDecrement);
         this.gameSpeedRange = document.createElement("input");
+        this.gameSpeedRange.id = "game-speed";
         this.gameSpeedRange.type = "range";
         this.gameSpeedRange.min = "0";
         this.gameSpeedRange.max = "6";
         this.gameSpeedRange.step = "1";
         this.gameSpeedRange.value = "3";
-        this.gameSpeedRange.disabled = true;
         this.gameSpeedRange.addEventListener("change", () => {
-            console.log('gameSpeedRange changed to:', this.gameSpeedRange?.value);
+            if (this.gameSpeedRange) {
+                console.log('gameSpeedRange changed to:', this.gameSpeedRange.value);
+                this.game.setGameSpeed(parseInt(this.gameSpeedRange.value, 10));
+            }
         });
         this.gameMenuElement.appendChild(this.gameSpeedRange);
         const gameSpeedIncrement = document.createElement("button");
@@ -433,9 +436,9 @@ export class UIManager {
         this.gameMenuElement.appendChild(document.createElement("br"));
 
         // Create mouse scroll speed range input made of two buttons to decrement and increment, 
-        // with a disabled range input in the middle.
         const scrollSpeedLabel = document.createElement("label");
         scrollSpeedLabel.textContent = "Mouse Scroll Speed";
+        scrollSpeedLabel.htmlFor = "scroll-speed";
         this.gameMenuElement.appendChild(scrollSpeedLabel);
 
         const scrollSpeedDecrement = document.createElement("button");
@@ -448,12 +451,18 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(scrollSpeedDecrement);
         this.scrollSpeedRange = document.createElement("input");
+        this.scrollSpeedRange.id = "scroll-speed";
         this.scrollSpeedRange.type = "range";
         this.scrollSpeedRange.min = "0";
         this.scrollSpeedRange.max = "6";
         this.scrollSpeedRange.step = "1";
         this.scrollSpeedRange.value = "3";
-        this.scrollSpeedRange.disabled = true;
+        this.scrollSpeedRange.addEventListener("change", () => {
+            if (this.scrollSpeedRange) {
+                console.log('scrollSpeedRange changed to:', this.scrollSpeedRange.value);
+                this.game.setScrollSpeed(parseInt(this.scrollSpeedRange.value, 10));
+            }
+        });
         this.gameMenuElement.appendChild(this.scrollSpeedRange);
         const scrollSpeedIncrement = document.createElement("button");
         scrollSpeedIncrement.textContent = "+";
@@ -467,9 +476,9 @@ export class UIManager {
         this.gameMenuElement.appendChild(document.createElement("br"));
 
         // Create keyboard scroll speed range input made of two buttons to decrement and increment, 
-        // with a disabled range input in the middle.
         const keyboardScrollSpeedLabel = document.createElement("label");
         keyboardScrollSpeedLabel.textContent = "Keyboard Scroll Speed";
+        keyboardScrollSpeedLabel.htmlFor = "keyboard-scroll-speed";
         this.gameMenuElement.appendChild(keyboardScrollSpeedLabel);
 
         const keyboardScrollSpeedDecrement = document.createElement("button");
@@ -482,12 +491,18 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(keyboardScrollSpeedDecrement);
         this.keyboardScrollSpeedRange = document.createElement("input");
+        this.keyboardScrollSpeedRange.id = "keyboard-scroll-speed";
         this.keyboardScrollSpeedRange.type = "range";
         this.keyboardScrollSpeedRange.min = "0";
         this.keyboardScrollSpeedRange.max = "6";
         this.keyboardScrollSpeedRange.step = "1";
         this.keyboardScrollSpeedRange.value = "3";
-        this.keyboardScrollSpeedRange.disabled = true;
+        this.keyboardScrollSpeedRange.addEventListener("change", () => {
+            if (this.keyboardScrollSpeedRange) {
+                console.log('keyboardScrollSpeedRange changed to:', this.keyboardScrollSpeedRange.value);
+                this.game.setKeyboardSpeed(parseInt(this.keyboardScrollSpeedRange.value, 10));
+            }
+        });
         this.gameMenuElement.appendChild(this.keyboardScrollSpeedRange);
         const keyboardScrollSpeedIncrement = document.createElement("button");
         keyboardScrollSpeedIncrement.textContent = "+";
@@ -501,8 +516,8 @@ export class UIManager {
         this.gameMenuElement.appendChild(document.createElement("br"));
 
         // Create drag scroll speed range input made of two buttons to decrement and increment, 
-        // with a disabled range input in the middle.
         const dragSpeedLabel = document.createElement("label");
+        dragSpeedLabel.htmlFor = "drag-speed";
         dragSpeedLabel.textContent = "Drag Scroll Speed";
         this.gameMenuElement.appendChild(dragSpeedLabel);
 
@@ -516,12 +531,18 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(dragSpeedDecrement);
         this.dragSpeedRange = document.createElement("input");
+        this.dragSpeedRange.id = "drag-speed";
         this.dragSpeedRange.type = "range";
         this.dragSpeedRange.min = "0";
         this.dragSpeedRange.max = "6";
         this.dragSpeedRange.step = "1";
         this.dragSpeedRange.value = "3";
-        this.dragSpeedRange.disabled = true;
+        this.dragSpeedRange.addEventListener("change", () => {
+            if (this.dragSpeedRange) {
+                console.log('dragSpeedRange changed to:', this.dragSpeedRange.value);
+                this.game.setDragSpeed(parseInt(this.dragSpeedRange.value, 10));
+            }
+        });
         this.gameMenuElement.appendChild(this.dragSpeedRange);
         const dragSpeedIncrement = document.createElement("button");
         dragSpeedIncrement.textContent = "+";

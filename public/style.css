@@ -78,12 +78,6 @@ canvas {
   cursor: move;
 }
 
-input:focus-visible {
-  outline: none;
-  border-color: #66afe9;
-  box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
-}
-
 #map-editor {
   position: absolute;
   top: 10px;
@@ -97,6 +91,12 @@ input:focus-visible {
   z-index: 10;
   cursor: move;
   display: block;
+}
+
+#map-editor input:focus-visible {
+  outline: none;
+  border-color: #66afe9;
+  box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
 }
 
 #map-editor input[type="text"] {
@@ -150,6 +150,14 @@ input:focus-visible {
 
 #game-menu input[type="checkbox"] {
   margin: 0 82px;
+}
+
+/* TODO : Style those range input. See: https://brennaobrien.com/blog/2014/05/style-input-type-range-in-every-browser.html  */
+#game-menu #game-speed,
+#game-menu #scroll-speed,
+#game-menu #keyboard-scroll-speed,
+#game-menu #drag-speed {
+  /* todo */
 }
 
 #game-menu #ok-button,

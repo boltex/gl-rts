@@ -138,6 +138,9 @@ export class InputManager {
         }
         if (e.key === 'F10') {
             e.preventDefault();
+            if (this.game.uiManager.isMenuOpen) {
+                return; // Use the ok or cancel buttons instead.
+            }
             this.selecting = false;
             this.dragScrolling = false;
             this.game.uiManager.toggleGameMenu();
@@ -211,18 +214,19 @@ export class InputManager {
         if (!this.dragScrolling) {
             this.scrollNowX = 0;
             this.scrollNowY = 0;
+            const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
             // normal mouse move, check if near the edge of the screen to scroll.
             if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
-                this.scrollNowX = this.scrollSpeed;
+                this.scrollNowX = this.scrollSpeed * (30 / fps);
             }
             if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
-                this.scrollNowY = this.scrollSpeed;
+                this.scrollNowY = this.scrollSpeed * (30 / fps);
             }
             if (this.mouseX < CONFIG.CAMERA.SCROLL.BORDER) {
-                this.scrollNowX = -this.scrollSpeed;
+                this.scrollNowX = -this.scrollSpeed * (30 / fps);
             }
             if (this.mouseY < CONFIG.CAMERA.SCROLL.BORDER) {
-                this.scrollNowY = -this.scrollSpeed;
+                this.scrollNowY = -this.scrollSpeed * (30 / fps);
             }
         }
 
@@ -349,8 +353,11 @@ export class InputManager {
         if (this.game.uiManager.isMenuOpen) {
             return;
         }
+        const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
+
+        // keyboard needs to be scaled for 30fps
         if (this.keysPressed['ArrowUp'] || this.keysPressed['w']) {
-            this.scrollNowY = -this.keyboardSpeed;
+            this.scrollNowY = -this.keyboardSpeed * (30 / fps);
             this.keyboardUp = true
         } else if (this.keyboardUp) {
             this.keyboardUp = false;
@@ -358,7 +365,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
-            this.scrollNowY = this.keyboardSpeed;
+            this.scrollNowY = this.keyboardSpeed * (30 / fps);
             this.keyboardDown = true
         } else if (this.keyboardDown) {
             this.keyboardDown = false;
@@ -366,7 +373,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
-            this.scrollNowX = -this.keyboardSpeed;
+            this.scrollNowX = -this.keyboardSpeed * (30 / fps);
             this.keyboardLeft = true
         } else if (this.keyboardLeft) {
             this.keyboardLeft = false;
@@ -374,7 +381,7 @@ export class InputManager {
             this.handleMouseMove();
         }
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
-            this.scrollNowX = this.keyboardSpeed;
+            this.scrollNowX = this.keyboardSpeed * (30 / fps);
             this.keyboardRight = true
         } else if (this.keyboardRight) {
             this.keyboardRight = false;

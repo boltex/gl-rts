@@ -60,8 +60,8 @@ export class TimeManager {
     }
 
     updateFps(timestamp: number, deltaTime: number) {
+        this.fps = Math.round(1000 / deltaTime);
         if (timestamp - this.fpsLastTime > this.fpsInterval) {
-            this.fps = Math.round(1000 / deltaTime);
             this.fpsLastTime = timestamp;
             // console.log('RAF FPS ', this.fps);
         }

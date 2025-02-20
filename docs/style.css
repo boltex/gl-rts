@@ -71,7 +71,8 @@ canvas {
 .resolution-select {
   padding: 2px 8px;
   margin: 0px 49px;
-  font-size: 16px;
+  font-size: 13px;
+  margin-right: 88px;
 }
 
 [draggable="true"] {
@@ -132,7 +133,7 @@ canvas {
 
 #game-menu h2 {
   color: #29ff00;
-  text-shadow: 0 0 10px #03391b, 0 0 30px #e3ff71;
+  /* text-shadow: 0 0 10px #03391b, 0 0 30px #e3ff71; */
 }
 
 #game-menu label {
@@ -140,24 +141,126 @@ canvas {
   margin-right: 10px;
   text-align: right;
   display: inline-block;
-  width: 175px;
-  text-shadow: 0 0 11px #0f2716, 0 0 24px #e3ff71;
+  width: 225px;
+  /* text-shadow: 0 0 11px #0f2716, 0 0 24px #e3ff71; */
   transition: color 0.2s;
 }
 #game-menu label:hover {
+  text-shadow: 0 0 11px #0f2716, 0 0 24px #e3ff71;
   color: #e5ff20;
 }
 
-#game-menu input[type="checkbox"] {
-  margin: 0 82px;
+/* ------------------------ chrome ------------------------ */
+input[type="range"] {
+  -webkit-appearance: none;
+  cursor: url("images/cursor-pointer32.png"), auto;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 130px;
+  height: 5px;
+  background: #104000;
+  border: none;
+  border-radius: 3px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 13px;
+  width: 13px;
+  border-radius: 50%;
+  background: #29ff00;
+  margin-top: -4px;
+}
+input[type="range"]:focus {
+  outline: none;
+}
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  background: #15601d;
 }
 
-/* TODO : Style those range input. See: https://brennaobrien.com/blog/2014/05/style-input-type-range-in-every-browser.html  */
-#game-menu #game-speed,
-#game-menu #scroll-speed,
-#game-menu #keyboard-scroll-speed,
-#game-menu #drag-speed {
-  /* todo */
+/* ------------------------ firefox ------------------------ */
+input[type="range"] {
+  border: 1px solid transparent;
+  width: 130px;
+}
+input[type="range"]::-moz-range-track {
+  width: 130px;
+  height: 5px;
+  background: #104000;
+  border: none;
+  border-radius: 3px;
+}
+input[type="range"]::-moz-range-thumb {
+  border: none;
+  height: 13px;
+  width: 13px;
+  border-radius: 50%;
+  background: #29ff00;
+}
+input[type="range"]:-moz-focusring {
+  outline: 1px solid rgb(0, 0, 0);
+  outline-offset: -1px;
+}
+input[type="range"]:focus::-moz-range-track {
+  background: #15601d;
+}
+
+/* ------------------------ IE ------------------------ */
+input[type="range"]::-ms-track {
+  width: 130px;
+  height: 5px;
+  background: transparent;
+  border-color: transparent;
+  border-width: 6px 0;
+  color: transparent;
+}
+input[type="range"]::-ms-thumb {
+  border: none;
+  height: 13px;
+  width: 13px;
+  border-radius: 50%;
+  background: #29ff00;
+}
+input[type="range"]::-ms-fill-lower {
+  background: #002000;
+  border-radius: 10px;
+}
+input[type="range"]::-ms-fill-upper {
+  background: #104000;
+  border-radius: 10px;
+}
+input[type="range"]:focus::-ms-fill-lower {
+  background: #15601d;
+}
+input[type="range"]:focus::-ms-fill-upper {
+  background: #15601d;
+}
+
+#game-menu button {
+  background: #104000;
+  border: none;
+  border-radius: 2px;
+  color: #29ff00;
+}
+
+#game-menu button:focus-visible {
+  outline: 2px solid #15601d;
+}
+
+#game-menu button:hover {
+  background: #29ff00;
+  color: #0b2b11;
+}
+
+#game-menu button,
+select,
+input[type="checkbox"] {
+  cursor: url("images/cursor-pointer32.png"), auto;
+}
+
+.button-increment {
+  margin-right: 40px;
 }
 
 #game-menu #ok-button,
@@ -167,19 +270,55 @@ canvas {
   margin: 20px 10px;
   font-size: 18px;
   border-radius: 4px;
-  /* background: linear-gradient(45deg, #0ff, #00f); */
-  border: none;
-  /* color: #fff; */
-  /* text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff;
-  box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff; */
-  cursor: pointer;
-  /* transition: transform 0.2s, box-shadow 0.2s; */
-  transition: color 0.2s;
 }
 
-#game-menu #ok-button:hover,
-#game-menu #cancel-button:hover {
-  color: rgb(6, 54, 3);
-  /* transform: scale(1.1); */
-  /* box-shadow: 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff; */
+#game-menu input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0 120px 0 76px;
+  width: 16px;
+  height: 16px;
+  background: #104000;
+  border-radius: 3px;
+  display: inline-block;
+  position: relative;
+  top: 4px;
+}
+#game-menu input[type="checkbox"]:checked::before {
+  content: "X";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #29ff00;
+}
+#game-menu input[type="checkbox"]:focus-visible {
+  outline: 2px solid #15601d;
+}
+
+#game-menu select {
+  background: #104000;
+  color: #29ff00;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 6px;
+}
+#game-menu select:hover {
+  background: #29ff00;
+  color: #104000;
+}
+
+#game-menu select:focus {
+  outline: 2px solid #15601d;
+}
+
+#game-menu select option {
+  background: #104000;
+  color: #29ff00;
+}
+#game-menu select option:hover {
+  background: #29ff00;
+  color: #104000;
 }

@@ -88,6 +88,7 @@ export class Game {
         this.cameraManager = new CameraManager(this);
         this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
         this.inputManager = new InputManager(this);
+        this.inputManager.init(); // Start even before game start to prevent zooming.
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.uiManager = new UIManager(this);
 
@@ -142,7 +143,6 @@ export class Game {
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 
         this.uiManager.setCursor("cur-pointer");
-        this.inputManager.init();
 
         this.uiManager.getStartButtonElement().style.display = 'none';
 

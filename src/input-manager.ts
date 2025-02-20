@@ -122,36 +122,38 @@ export class InputManager {
                 return;
             }
         }
-        if (e.key === 'F5' || e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
-            return;
-        }
-        if (e.key === 'F9') {
-            e.preventDefault();
-            if (this.game.uiManager.isMenuOpen) {
+        if (this.game.started) {
+            if (e.key === 'F5' || e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
                 return;
             }
-            this.selecting = false;
-            this.dragScrolling = false;
-            this.game.uiManager.toggleMapEditor();
-            return;
-        }
-        if (e.key === 'F10') {
-            e.preventDefault();
-            if (this.game.uiManager.isMenuOpen) {
-                return; // Use the ok or cancel buttons instead.
+            if (e.key === 'F9') {
+                e.preventDefault();
+                if (this.game.uiManager.isMenuOpen) {
+                    return;
+                }
+                this.selecting = false;
+                this.dragScrolling = false;
+                this.game.uiManager.toggleMapEditor();
+                return;
             }
-            this.selecting = false;
-            this.dragScrolling = false;
-            this.game.uiManager.toggleGameMenu();
-            return;
-        }
-        if (e.key === 'F6') {
-            e.preventDefault();
-            if (!this.game.uiManager.isMenuOpen) {
-                this.game.cameraManager.resetZoom();
+            if (e.key === 'F10') {
+                e.preventDefault();
+                if (this.game.uiManager.isMenuOpen) {
+                    return; // Use the ok or cancel buttons instead.
+                }
+                this.selecting = false;
+                this.dragScrolling = false;
+                this.game.uiManager.toggleGameMenu();
+                return;
             }
-            return;
+            if (e.key === 'F6') {
+                e.preventDefault();
+                if (!this.game.uiManager.isMenuOpen) {
+                    this.game.cameraManager.resetZoom();
+                }
+                return;
+            }
         }
 
         // To keep track of which keys are currently pressed.
@@ -168,8 +170,8 @@ export class InputManager {
     }
 
     private handleMouseMove(event?: MouseEvent): void {
-        // ignore in game menu
-        if (this.game.uiManager.isMenuOpen) {
+        // ignore if not started or in game menu
+        if (!this.game.started || this.game.uiManager.isMenuOpen) {
             return;
         }
         if (event) {
@@ -234,8 +236,8 @@ export class InputManager {
 
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
-        // ignore in game menu
-        if (this.game.uiManager.isMenuOpen) {
+        // ignore if not started or in game menu
+        if (!this.game.started || this.game.uiManager.isMenuOpen) {
             return;
         }
         // for both game and map editor.
@@ -244,12 +246,11 @@ export class InputManager {
             if (!this.dragScrolling) {
                 this.dragScrolling = true;
                 // No cursor when dragging.
-                this.game.uiManager.setCursor('cur-cur-none');
+                this.game.uiManager.setCursor('cur-none');
             }
         }
 
         if (this.game.uiManager.isMapEditorOpen) {
-
             // Make sure the event click is over the canvas, not the map editor.
             if (event.target !== this.game.canvasElement) {
                 return;
@@ -285,7 +286,7 @@ export class InputManager {
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
-        if (this.game.uiManager.isMapEditorOpen || this.game.uiManager.isMenuOpen) {
+        if (!this.game.started || this.game.uiManager.isMapEditorOpen || this.game.uiManager.isMenuOpen) {
             return;
         }
         if (event.button === 0) {
@@ -312,16 +313,13 @@ export class InputManager {
     }
 
     private handleMouseWheel(event: WheelEvent): void {
-        // ignore in game menu
-        if (this.game.uiManager.isMenuOpen) {
-            return;
-        }
         if (event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
         }
-        if (this.selecting) {
-            return; // Do not zoom while selecting
+        // ignore in game menu,  while selecting or if not started
+        if (!this.game.started || this.selecting || this.game.uiManager.isMenuOpen) {
+            return;
         }
         if (event.deltaY < 0) {
             this.game.cameraManager.zoomIn();

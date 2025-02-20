@@ -425,6 +425,7 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(this.gameSpeedRange);
         const gameSpeedIncrement = document.createElement("button");
+        gameSpeedIncrement.classList.add("button-increment");
         gameSpeedIncrement.textContent = "+";
         gameSpeedIncrement.addEventListener("click", () => {
             this.game.incrementGameSpeed();
@@ -465,6 +466,7 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(this.scrollSpeedRange);
         const scrollSpeedIncrement = document.createElement("button");
+        scrollSpeedIncrement.classList.add("button-increment");
         scrollSpeedIncrement.textContent = "+";
         scrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementScrollSpeed();
@@ -505,6 +507,7 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(this.keyboardScrollSpeedRange);
         const keyboardScrollSpeedIncrement = document.createElement("button");
+        keyboardScrollSpeedIncrement.classList.add("button-increment");
         keyboardScrollSpeedIncrement.textContent = "+";
         keyboardScrollSpeedIncrement.addEventListener("click", () => {
             this.game.incrementKeyboardSpeed();
@@ -545,6 +548,7 @@ export class UIManager {
         });
         this.gameMenuElement.appendChild(this.dragSpeedRange);
         const dragSpeedIncrement = document.createElement("button");
+        dragSpeedIncrement.classList.add("button-increment");
         dragSpeedIncrement.textContent = "+";
         dragSpeedIncrement.addEventListener("click", () => {
             this.game.incrementDragSpeed();

@@ -427,7 +427,7 @@
     },
     {
       "gnx": "felix.20250218223114.1",
-      "vh": "@clean src/ui/menu-manager.ts",
+      "vh": "@clean src/ui/main-menu-manager.ts",
       "children": [
         {
           "gnx": "felix.20250218224238.1",
@@ -435,10 +435,30 @@
         },
         {
           "gnx": "felix.20250218224343.1",
-          "vh": "class MenuManager",
+          "vh": "class MainMenuManager",
           "children": [
             {
               "gnx": "felix.20250218224623.1",
+              "vh": "constructor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gnx": "felix.20250225234241.1",
+      "vh": "@clean src/ui/options-menu-manager.ts",
+      "children": [
+        {
+          "gnx": "felix.20250225234241.2",
+          "vh": "<< imports >>"
+        },
+        {
+          "gnx": "felix.20250225234241.3",
+          "vh": "class OptionsMenuManager",
+          "children": [
+            {
+              "gnx": "felix.20250225234241.4",
               "vh": "constructor"
             }
           ]
@@ -832,8 +852,12 @@
     "felix.20250210235123.1": "saveAnimationListFile(): void {\n    // No need for a file picker dialog, just save the active entities\n    this.game.saveAnimationList();\n}\n",
     "felix.20250218223114.1": "<< imports >>\n@others\n@nowrap\n",
     "felix.20250218224238.1": "import { CONFIG } from '../config';\nimport { Game } from '../game';\n\n",
-    "felix.20250218224343.1": "export class MenuManager {\n\n    game: Game;\n\n    @others\n\n}\n\n",
+    "felix.20250218224343.1": "export class MainMenuManager {\n\n    game: Game;\n\n    @others\n\n}\n\n",
     "felix.20250218224623.1": "constructor(game: Game) {\n    this.game = game;\n}\n\n",
+    "felix.20250225234241.1": "<< imports >>\n@others\n@nowrap\n",
+    "felix.20250225234241.2": "import { CONFIG } from '../config';\nimport { Game } from '../game';\n\n",
+    "felix.20250225234241.3": "export class OptionsMenuManager {\n\n    game: Game;\n\n    @others\n\n}\n\n",
+    "felix.20250225234241.4": "constructor(game: Game) {\n    this.game = game;\n}\n\n",
     "felix.20250218223128.1": "<< imports >>\n@others\n@nowrap\n",
     "felix.20250218224239.1": "import { CONFIG } from '../config';\nimport { Game } from '../game';\n\n",
     "felix.20250218224355.1": "export class EditorManager {\n\n    game: Game;\n\n    @others\n\n}\n\n",

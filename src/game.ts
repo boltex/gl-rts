@@ -602,7 +602,7 @@ export class Game {
 
     saveEntities(): void {
         // Todo: save the entities list (only for active, not all pool)
-        //
+        // to a file
     }
 
     openEntities(): void {

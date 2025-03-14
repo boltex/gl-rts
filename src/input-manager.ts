@@ -11,6 +11,7 @@ export class InputManager {
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
     private dragScrolling: boolean = false;
+    public mouseInScreen = true;
     public mouseX = 0;  // in gameScreen coordinates.
     public mouseY = 0;
     private gameMouseX = 0; // In game coordinates. with zoom factor applied.
@@ -33,6 +34,8 @@ export class InputManager {
 
     private keyDownHandler = this.handleKeyDown.bind(this);
     private keyUpHandler = this.handleKeyUp.bind(this);
+    private mouseEnterHandler = this.handleMouseEnter.bind(this);
+    private mouseLeaveHandler = this.handleMouseLeave.bind(this);
     private mouseMoveHandler = this.handleMouseMove.bind(this);
     private mouseDownHandler = this.handleMouseDown.bind(this);
     private mouseUpHandler = this.handleMouseUp.bind(this);
@@ -78,6 +81,8 @@ export class InputManager {
     init(): void {
         window.addEventListener("keydown", this.keyDownHandler);
         window.addEventListener("keyup", this.keyUpHandler);
+        document.documentElement.addEventListener("mouseenter", this.mouseEnterHandler);
+        document.documentElement.addEventListener("mouseleave", this.mouseLeaveHandler);
         window.addEventListener("mousemove", this.mouseMoveHandler);
         window.addEventListener("mousedown", this.mouseDownHandler);
         window.addEventListener("mouseup", this.mouseUpHandler);
@@ -87,6 +92,8 @@ export class InputManager {
     dispose(): void {
         window.removeEventListener("keydown", this.keyDownHandler);
         window.removeEventListener("keyup", this.keyUpHandler);
+        document.documentElement.removeEventListener("mouseenter", this.mouseEnterHandler);
+        document.documentElement.removeEventListener("mouseleave", this.mouseLeaveHandler);
         window.removeEventListener("mousemove", this.mouseMoveHandler);
         window.removeEventListener("mousedown", this.mouseDownHandler);
         window.removeEventListener("mouseup", this.mouseUpHandler);
@@ -94,8 +101,9 @@ export class InputManager {
     }
 
     private handleKeyDown(e: KeyboardEvent): void {
-        // Add tile increment/decrement when map editor is visible.
+
         if (this.game.editorManager.isMapEditorOpen) {
+            // Only when in Map Editor (Add tile inc/dec and ctrl+s/ctrl+o shortcuts)
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
                 this.game.editorManager.incrementMapTile();
@@ -110,7 +118,7 @@ export class InputManager {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
         } else if (!this.game.optionsMenuManager.isMenuOpen) {
-            // Only when not in map editor nor game menu.
+            // Only when not in map editor nor game menu (game speed shortcuts)
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
                 this.game.incrementGameSpeed();
@@ -122,7 +130,9 @@ export class InputManager {
                 return;
             }
         }
+
         if (this.game.started) {
+            // Only when the game has started (game shortcuts)
             if (e.key === 'F5' || e.ctrlKey && e.key === 'r') {
                 e.preventDefault();
                 return;
@@ -154,6 +164,14 @@ export class InputManager {
                 }
                 return;
             }
+            // Check for the 'escape' key and close the options menu if it's open.
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (this.game.optionsMenuManager.isMenuOpen) {
+                    this.game.optionsMenuManager.cancelMenu();
+                    return;
+                }
+            }
         }
 
         // To keep track of which keys are currently pressed.
@@ -167,6 +185,14 @@ export class InputManager {
 
     private handleKeyUp(e: KeyboardEvent): void {
         this.keysPressed[e.key] = false;
+    }
+
+    private handleMouseEnter(event: MouseEvent): void {
+        this.mouseInScreen = true;
+    }
+
+    private handleMouseLeave(event: MouseEvent): void {
+        this.mouseInScreen = false;
     }
 
     private handleMouseMove(event: MouseEvent): void {
@@ -405,8 +431,8 @@ export class InputManager {
             this.applyMouseScroll();
         }
 
-        // Scroll if not currently dragging a selection.
-        if (!this.selecting) {
+        // Scroll if not currently dragging a selection and in the game area.
+        if (!this.selecting && this.mouseInScreen) {
             this.game.cameraManager.scroll(this.scrollVelocity);
             if (this.dragScrolling) {
                 // Reset veolcity to 0 after scrolling.

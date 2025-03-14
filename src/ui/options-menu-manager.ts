@@ -18,6 +18,7 @@ export class OptionsMenuManager {
         this.game = game;
     }
 
+
     toggleMenu(): void {
         // Create the game menu elements
         if (!this.gameMenuElement) {
@@ -45,6 +46,17 @@ export class OptionsMenuManager {
                 invertDrag: this.game.invertDrag
             };
         }
+    }
+
+    cancelMenu(): void {
+        // Close the menu and restore the old settings
+        this.game.setResolution(this.oldSettings.resolutionIndex);
+        this.game.setGameSpeed(this.oldSettings.gameSpeedIndex);
+        this.game.setKeyboardSpeed(this.oldSettings.keyboardSpeedIndex);
+        this.game.setScrollSpeed(this.oldSettings.scrollSpeedIndex);
+        this.game.setDragSpeed(this.oldSettings.dragSpeedIndex);
+        this.game.changeInvertDrag(this.oldSettings.invertDrag);
+        this.toggleMenu();
     }
 
     setMenuControlValues(): void {
@@ -304,14 +316,7 @@ export class OptionsMenuManager {
         cancelButton.textContent = "Cancel";
         cancelButton.id = "cancel-button";
         cancelButton.addEventListener("click", () => {
-            // Close the menu and restore the old settings
-            this.game.setResolution(this.oldSettings.resolutionIndex);
-            this.game.setGameSpeed(this.oldSettings.gameSpeedIndex);
-            this.game.setKeyboardSpeed(this.oldSettings.keyboardSpeedIndex);
-            this.game.setScrollSpeed(this.oldSettings.scrollSpeedIndex);
-            this.game.setDragSpeed(this.oldSettings.dragSpeedIndex);
-            this.game.changeInvertDrag(this.oldSettings.invertDrag);
-            this.toggleMenu();
+            this.cancelMenu();
         });
         this.gameMenuElement.appendChild(cancelButton);
 

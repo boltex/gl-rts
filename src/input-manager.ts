@@ -95,21 +95,21 @@ export class InputManager {
 
     private handleKeyDown(e: KeyboardEvent): void {
         // Add tile increment/decrement when map editor is visible.
-        if (this.game.uiManager.isMapEditorOpen) {
+        if (this.game.editorManager.isMapEditorOpen) {
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
-                this.game.uiManager.incrementMapTile();
+                this.game.editorManager.incrementMapTile();
                 return;
             }
             if (e.key === 'NumPad-' || e.key === '-' || e.key === '_') {
                 e.preventDefault();
-                this.game.uiManager.decrementMapTile();
+                this.game.editorManager.decrementMapTile();
                 return;
             }
             if (e.ctrlKey && (e.key === 's' || e.key === 'o')) {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
-        } else if (!this.game.uiManager.isMenuOpen) {
+        } else if (!this.game.optionsMenuManager.isMenuOpen) {
             // Only when not in map editor nor game menu.
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
                 e.preventDefault();
@@ -129,27 +129,27 @@ export class InputManager {
             }
             if (e.key === 'F9') {
                 e.preventDefault();
-                if (this.game.uiManager.isMenuOpen) {
+                if (this.game.optionsMenuManager.isMenuOpen) {
                     return;
                 }
                 this.selecting = false;
                 this.dragScrolling = false;
-                this.game.uiManager.toggleMapEditor();
+                this.game.editorManager.toggleMapEditor();
                 return;
             }
             if (e.key === 'F10') {
                 e.preventDefault();
-                if (this.game.uiManager.isMenuOpen) {
+                if (this.game.optionsMenuManager.isMenuOpen) {
                     return; // Use the ok or cancel buttons instead.
                 }
                 this.selecting = false;
                 this.dragScrolling = false;
-                this.game.uiManager.toggleGameMenu();
+                this.game.optionsMenuManager.toggleMenu();
                 return;
             }
             if (e.key === 'F6') {
                 e.preventDefault();
-                if (!this.game.uiManager.isMenuOpen) {
+                if (!this.game.optionsMenuManager.isMenuOpen) {
                     this.game.cameraManager.resetZoom();
                 }
                 return;
@@ -171,7 +171,7 @@ export class InputManager {
 
     private handleMouseMove(event?: MouseEvent): void {
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.uiManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
         if (event) {
@@ -193,7 +193,7 @@ export class InputManager {
             this.setCursorPos(event);
         }
 
-        if (this.game.uiManager.isMapEditorOpen) {
+        if (this.game.editorManager.isMapEditorOpen) {
             // Make sure the event click is over the canvas, not the map editor.
             if (event && event.target !== this.game.canvasElement) {
                 return;
@@ -201,7 +201,7 @@ export class InputManager {
             if (event && event.buttons === 1) {
                 // left
                 // Replace the clicked tile on the map with the selected tile in the map editor.
-                const tileIndex = this.game.uiManager.getSelectedTileIndex();
+                const tileIndex = this.game.editorManager.getSelectedTileIndex();
                 this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
                 return;
             }
@@ -237,7 +237,7 @@ export class InputManager {
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.uiManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
         // for both game and map editor.
@@ -246,11 +246,11 @@ export class InputManager {
             if (!this.dragScrolling) {
                 this.dragScrolling = true;
                 // No cursor when dragging.
-                this.game.uiManager.setCursor('cur-none');
+                this.game.cursorManager.setCursor('cur-none');
             }
         }
 
-        if (this.game.uiManager.isMapEditorOpen) {
+        if (this.game.editorManager.isMapEditorOpen) {
             // Make sure the event click is over the canvas, not the map editor.
             if (event.target !== this.game.canvasElement) {
                 return;
@@ -259,7 +259,7 @@ export class InputManager {
             if (event.button === 0) {
                 // left
                 // Replace the clicked tile on the map with the selected tile in the map editor.
-                const tileIndex = this.game.uiManager.getSelectedTileIndex();
+                const tileIndex = this.game.editorManager.getSelectedTileIndex();
                 this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
             }
             if (event.button === 2) {
@@ -276,7 +276,7 @@ export class InputManager {
                 this.selY = this.mouseY;
                 this.gameSelStartX = this.selX + this.game.cameraManager.scrollX;
                 this.gameSelStartY = this.selY + this.game.cameraManager.scrollY;
-                this.game.uiManager.setCursor('cur-target');
+                this.game.cursorManager.setCursor('cur-target');
             }
             if (event.button === 2) {
                 this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
@@ -286,7 +286,7 @@ export class InputManager {
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
-        if (!this.game.started || this.game.uiManager.isMapEditorOpen || this.game.uiManager.isMenuOpen) {
+        if (!this.game.started || this.game.editorManager.isMapEditorOpen || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
         if (event.button === 0) {
@@ -296,18 +296,18 @@ export class InputManager {
             this.game.gameAction = CONFIG.GAME.ACTIONS.RELEASESEL;
             // now restore cursor.
             if (this.dragScrolling) {
-                this.game.uiManager.setCursor('cur-none');
+                this.game.cursorManager.setCursor('cur-none');
             } else {
-                this.game.uiManager.setCursor('cur-pointer');
+                this.game.cursorManager.setCursor('cur-pointer');
             }
         }
         if (event.button === 1) {
             this.dragScrolling = false;
             // now restore cursor.
             if (this.selecting) {
-                this.game.uiManager.setCursor('cur-target');
+                this.game.cursorManager.setCursor('cur-target');
             } else {
-                this.game.uiManager.setCursor('cur-pointer');
+                this.game.cursorManager.setCursor('cur-pointer');
             }
         }
     }
@@ -318,7 +318,7 @@ export class InputManager {
             event.stopImmediatePropagation();
         }
         // ignore in game menu,  while selecting or if not started
-        if (!this.game.started || this.selecting || this.game.uiManager.isMenuOpen) {
+        if (!this.game.started || this.selecting || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
         if (event.deltaY < 0) {
@@ -348,7 +348,7 @@ export class InputManager {
 
     processInputs(): void {
         // ignore in game menu
-        if (this.game.uiManager.isMenuOpen) {
+        if (this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
         const fps = this.game.timeManager.fps || 1; // Avoid division by zero.

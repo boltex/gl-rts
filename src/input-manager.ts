@@ -169,55 +169,58 @@ export class InputManager {
         this.keysPressed[e.key] = false;
     }
 
-    private handleMouseMove(event?: MouseEvent): void {
+    private handleMouseMove(event: MouseEvent): void {
         // ignore if not started or in game menu
         if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
-        if (event) {
-            if (this.dragScrolling) {
-                // first, calculate the difference between the last mouse position and the current one.
-                let dragX = this.lastMouseX - event.clientX;
-                let dragY = this.lastMouseY - event.clientY;
+        if (this.dragScrolling) {
+            // first, calculate the difference between the last mouse position and the current one.
+            let dragX = this.lastMouseX - event.clientX;
+            let dragY = this.lastMouseY - event.clientY;
 
-                // Already 'inverted' so flip it if not inverted.
-                if (!this.invertDrag) {
-                    dragX = -dragX;
-                    dragY = -dragY;
-                }
-
-                // Then, convert the difference to game coordinates.
-                this.scrollNowX = this.dragSpeed * dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
-                this.scrollNowY = this.dragSpeed * dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+            // Already 'inverted' so flip it if not inverted.
+            if (!this.invertDrag) {
+                dragX = -dragX;
+                dragY = -dragY;
             }
-            this.setCursorPos(event);
+
+            // Then, convert the difference to game coordinates.
+            this.scrollNowX = this.dragSpeed * dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
+            this.scrollNowY = this.dragSpeed * dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
         }
+        this.setCursorPos(event);
 
         if (this.game.editorManager.isMapEditorOpen) {
             // Make sure the event click is over the canvas, not the map editor.
-            if (event && event.target !== this.game.canvasElement) {
+            if (event.target !== this.game.canvasElement) {
                 return;
             }
-            if (event && event.buttons === 1) {
+            if (event.buttons === 1) {
                 // left
                 // Replace the clicked tile on the map with the selected tile in the map editor.
                 const tileIndex = this.game.editorManager.getSelectedTileIndex();
                 this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
                 return;
             }
-            if (event && event.buttons === 2) {
+            if (event.buttons === 2) {
                 // right mouse is like the eyedropper tool.
                 // Sample the tile index at the clicked position to select it in the map editor.
                 this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
                 return;
             }
         }
+        this.applyMouseScroll();
+    }
 
+    /**
+     * Set the scroll velocity based on the mouse position. (If not dragging)
+     */
+    private applyMouseScroll(): void {
         if (!this.dragScrolling) {
             this.scrollNowX = 0;
             this.scrollNowY = 0;
             const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
-            // normal mouse move, check if near the edge of the screen to scroll.
             if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
                 this.scrollNowX = this.scrollSpeed * (30 / fps);
             }
@@ -231,15 +234,16 @@ export class InputManager {
                 this.scrollNowY = -this.scrollSpeed * (30 / fps);
             }
         }
-
     }
 
     private handleMouseDown(event: MouseEvent): void {
         this.setCursorPos(event);
+
         // ignore if not started or in game menu
         if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
+
         // for both game and map editor.
         if (event.button === 1) {
             // middle mouse is drag-scroll.
@@ -269,6 +273,7 @@ export class InputManager {
             }
             return;
         }
+
         if (!this.selecting) {
             if (event.button === 0) {
                 this.selecting = true;
@@ -282,13 +287,34 @@ export class InputManager {
                 this.game.gameAction = CONFIG.GAME.ACTIONS.DEFAULT;
             }
         }
+
     }
+
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);
-        if (!this.game.started || this.game.editorManager.isMapEditorOpen || this.game.optionsMenuManager.isMenuOpen) {
+
+        // ignore if not started or in game menu
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
             return;
         }
+
+        // for both game and map editor.
+        if (event.button === 1) {
+            this.dragScrolling = false;
+            // now restore cursor.
+            if (this.selecting) {
+                this.game.cursorManager.setCursor('cur-target');
+            } else {
+                this.game.cursorManager.setCursor('cur-pointer');
+            }
+        }
+
+        if (this.game.editorManager.isMapEditorOpen) {
+            // special case for map editor, if needed.
+            return
+        }
+
         if (event.button === 0) {
             this.gameSelEndX = this.mouseX + this.game.cameraManager.scrollX;
             this.gameSelEndY = this.mouseY + this.game.cameraManager.scrollY;
@@ -301,15 +327,7 @@ export class InputManager {
                 this.game.cursorManager.setCursor('cur-pointer');
             }
         }
-        if (event.button === 1) {
-            this.dragScrolling = false;
-            // now restore cursor.
-            if (this.selecting) {
-                this.game.cursorManager.setCursor('cur-target');
-            } else {
-                this.game.cursorManager.setCursor('cur-pointer');
-            }
-        }
+
     }
 
     private handleMouseWheel(event: WheelEvent): void {
@@ -360,7 +378,7 @@ export class InputManager {
         } else if (this.keyboardUp) {
             this.keyboardUp = false;
             this.scrollNowY = 0;
-            this.handleMouseMove();
+            this.applyMouseScroll();
         }
         if (this.keysPressed['ArrowDown'] || this.keysPressed['s']) {
             this.scrollNowY = this.keyboardSpeed * (30 / fps);
@@ -368,7 +386,7 @@ export class InputManager {
         } else if (this.keyboardDown) {
             this.keyboardDown = false;
             this.scrollNowY = 0;
-            this.handleMouseMove();
+            this.applyMouseScroll();
         }
         if (this.keysPressed['ArrowLeft'] || this.keysPressed['a']) {
             this.scrollNowX = -this.keyboardSpeed * (30 / fps);
@@ -376,7 +394,7 @@ export class InputManager {
         } else if (this.keyboardLeft) {
             this.keyboardLeft = false;
             this.scrollNowX = 0;
-            this.handleMouseMove();
+            this.applyMouseScroll();
         }
         if (this.keysPressed['ArrowRight'] || this.keysPressed['d']) {
             this.scrollNowX = this.keyboardSpeed * (30 / fps);
@@ -384,7 +402,7 @@ export class InputManager {
         } else if (this.keyboardRight) {
             this.keyboardRight = false;
             this.scrollNowX = 0;
-            this.handleMouseMove();
+            this.applyMouseScroll();
         }
 
         // Scroll if not currently dragging a selection.

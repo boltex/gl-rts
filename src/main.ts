@@ -11,6 +11,30 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const creaturesPromise = utils.loadImage('images/alien.png');
     const tilesPromise = utils.loadImage('images/map-tiles-vertical.png');
     const widgetsPromise = utils.loadImage('images/animated-widget.png');
+    const cursorImages = [
+        "images/cursor-pointer32.png",
+        "images/cursor-target32.png",
+        "images/cursor-green1-32.png",
+        "images/cursor-green2-32.png",
+        "images/cursor-yellow1-32.png",
+        "images/cursor-yellow2-32.png",
+        "images/cursor-red1-32.png",
+        "images/cursor-red2-32.png",
+        "images/scroll-bottom32.png",
+        "images/scroll-bottom-left32.png",
+        "images/scroll-bottom-right32.png",
+        "images/scroll-top32.png",
+        "images/scroll-top-left32.png",
+        "images/scroll-top-right32.png",
+        "images/scroll-left32.png",
+        "images/scroll-right32.png"
+    ];
+
+    // Preload cursors for performance
+    cursorImages.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+    });
 
     Promise.all([creaturesPromise, tilesPromise, widgetsPromise]).then((images) => {
         document.body.removeChild(loadingText);

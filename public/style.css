@@ -39,6 +39,30 @@ html.cur-select-red1 {
 html.cur-select-red2 {
   cursor: url("images/cursor-red2-32.png") 15 15, auto;
 }
+html.cur-scroll-bottom {
+  cursor: url("images/scroll-bottom32.png") 15 15, auto;
+}
+html.cur-scroll-bottom-left {
+  cursor: url("images/scroll-bottom-left32.png") 15 15, auto;
+}
+html.cur-scroll-bottom-right {
+  cursor: url("images/scroll-bottom-right32.png") 15 15, auto;
+}
+html.cur-scroll-top {
+  cursor: url("images/scroll-top32.png") 15 15, auto;
+}
+html.cur-scroll-top-left {
+  cursor: url("images/scroll-top-left32.png") 15 15, auto;
+}
+html.cur-scroll-top-right {
+  cursor: url("images/scroll-top-right32.png") 15 15, auto;
+}
+html.cur-scroll-left {
+  cursor: url("images/scroll-left32.png") 15 15, auto;
+}
+html.cur-scroll-right {
+  cursor: url("images/scroll-right32.png") 15 15, auto;
+}
 
 canvas {
   background-color: #333;

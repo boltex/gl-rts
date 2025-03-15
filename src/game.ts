@@ -1,5 +1,4 @@
 import { RendererManager } from "./renderer-manager";
-import { UIManager } from "./ui-manager";
 import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
@@ -7,6 +6,11 @@ import { CONFIG } from './config';
 import { EntityType, TRectangle, TSelectAnim, Settings } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
+import { CursorManager } from "./ui/cursor-manager";
+import { EditorManager } from "./ui/editor-manager";
+import { FileManager } from "./ui/file-manager";
+import { MainMenuManager } from "./ui/main-menu-manager";
+import { OptionsMenuManager } from "./ui/options-menu-manager";
 import * as utils from "./utils";
 
 export class Game {
@@ -14,9 +18,13 @@ export class Game {
     // Manager classes
     inputManager: InputManager;
     rendererManager: RendererManager;
-    uiManager: UIManager;
     cameraManager: CameraManager;
     timeManager: TimeManager;
+    cursorManager: CursorManager;
+    mainMenuManager: MainMenuManager;
+    optionsMenuManager: OptionsMenuManager;
+    fileManager: FileManager;
+    editorManager: EditorManager;
 
     // Canvas Properties
     lastDisplayWidth = 0;
@@ -90,19 +98,23 @@ export class Game {
         this.inputManager = new InputManager(this);
         this.inputManager.init(); // Start even before game start to prevent zooming.
         this.resizeCanvasToDisplaySize(this.canvasElement);
-        this.uiManager = new UIManager(this);
+        this.fileManager = new FileManager(this);
+        this.cursorManager = new CursorManager(this);
+        this.mainMenuManager = new MainMenuManager(this);
+        this.optionsMenuManager = new OptionsMenuManager(this);
+        this.editorManager = new EditorManager(this, this.fileManager);
 
         // Load settings from local storage at start. Those are saved when users presses ok in settings dialog.
         this.loadSettingsLocalStorage();
 
-        this.uiManager.mainMenu();
-        this.uiManager.getStartButtonElement().addEventListener("click", this.startGameHandler);
+        this.mainMenuManager.mainMenu();
+        this.mainMenuManager.getStartButtonElement().addEventListener("click", this.startGameHandler);
     }
 
     dispose(): void {
         this.rendererManager.dispose();
         document.removeEventListener('contextmenu', this.handleContextMenu);
-        this.uiManager.getStartButtonElement().removeEventListener("click", this.startGameHandler);
+        this.mainMenuManager.getStartButtonElement().removeEventListener("click", this.startGameHandler);
         this.resizeObserver.unobserve(this.canvasElement);
         this.resizeObserver.disconnect();
         this.inputManager.dispose();
@@ -142,9 +154,9 @@ export class Game {
         this.cameraManager.updateProperties(this.canvasBoundingRect);
         this.rendererManager.setUboWorldTransforms(this.cameraManager.gameScreenWidth, this.cameraManager.gameScreenHeight);
 
-        this.uiManager.setCursor("cur-pointer");
+        this.cursorManager.setCursor("cur-pointer");
 
-        this.uiManager.getStartButtonElement().style.display = 'none';
+        this.mainMenuManager.getStartButtonElement().style.display = 'none';
 
         this.initGameStates();
         this.started = true;
@@ -352,7 +364,7 @@ export class Game {
         // 3. Update constant speed animations if needed
         while (this.timeManager.shouldAnimUpdate()) {
             // Animate cursor and UI hud, minimap, etc. at specific constant speed
-            this.uiManager.animateCursor();
+            this.cursorManager.animateCursor();
         }
 
         // 4. Update game logic at specific game-speed if needed
@@ -425,8 +437,9 @@ export class Game {
                 );
             }
 
-            // If the map Editor is toggled, add a grid to the visible tiles, vertical and horizontal lines.
-            if (this.uiManager.isMapEditorOpen) {
+            // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones.
+            if (this.editorManager.isMapEditorOpen) {
+
                 const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
@@ -461,11 +474,11 @@ export class Game {
 
             // Animated selection widget, if any. Uses same renderer and texture as sprites.
             const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
-            if (this.uiManager.widgetAnim > 0) {
+            if (this.cursorManager.widgetAnim > 0) {
                 visibleWidgets.push([
-                    this.uiManager.widgetAnimX - this.cameraManager.scrollX,
-                    this.uiManager.widgetAnimY - this.cameraManager.scrollY,
-                    this.uiManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
+                    this.cursorManager.widgetAnimX - this.cameraManager.scrollX,
+                    this.cursorManager.widgetAnimY - this.cameraManager.scrollY,
+                    this.cursorManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
                     CONFIG.GAME.WIDGETS.SIZE / this.cameraManager.zoom
                 ]);
             } else {
@@ -517,9 +530,9 @@ export class Game {
 
         // TODO : Replace test cursor animation with the real default action
         // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION
-        this.uiManager.widgetAnim = 1;
-        this.uiManager.widgetAnimX = gamePosition.x - (32 / this.cameraManager.zoom);
-        this.uiManager.widgetAnimY = gamePosition.y - (32 / this.cameraManager.zoom);
+        this.cursorManager.widgetAnim = 1;
+        this.cursorManager.widgetAnimX = gamePosition.x - (32 / this.cameraManager.zoom);
+        this.cursorManager.widgetAnimY = gamePosition.y - (32 / this.cameraManager.zoom);
     }
 
     selectUnits(): void {
@@ -570,7 +583,7 @@ export class Game {
 
         const sampledTile = this.gamemap[index];
 
-        this.uiManager.setTileSelectIndex(sampledTile);
+        this.editorManager.setTileSelectIndex(sampledTile);
     }
 
     saveMap(mapData?: number[], filename?: string) {
@@ -602,7 +615,7 @@ export class Game {
 
     saveEntities(): void {
         // Todo: save the entities list (only for active, not all pool)
-        //
+        // to a file
     }
 
     openEntities(): void {

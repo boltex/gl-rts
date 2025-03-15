@@ -10,8 +10,10 @@ export class CameraManager {
     aspectRatio: number;
     gameScreenWidth: number;
     gameScreenHeight: number;
-    scrollEdgeX: number;
-    scrollEdgeY: number;
+    scrollEdgeXMax: number;
+    scrollEdgeYMax: number;
+    scrollEdgeXMin: number;
+    scrollEdgeYMin: number;
     zoom: number;
     zoomTarget: number; // Used for smooth zooming
     gameWidthRatio: number;
@@ -40,8 +42,10 @@ export class CameraManager {
         this.gameScreenHeight = this.resolution.height / this.zoom;
         this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
         this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
-        this.scrollEdgeX = 0;
-        this.scrollEdgeY = 0;
+        this.scrollEdgeXMax = 0;
+        this.scrollEdgeYMax = 0;
+        this.scrollEdgeXMin = 0;
+        this.scrollEdgeYMin = 0;
         this.gameWidthRatio = 0;
         this.gameHeightRatio = 0;
         this.maxScrollX = 0;
@@ -70,10 +74,13 @@ export class CameraManager {
 
     updateProperties(canvasBoundingRect: DOMRect): void {
         // Called when the mouse-wheel zoomed in or out, or when the game is started.
+        const scrollZoneThickness = CONFIG.CAMERA.SCROLL.BORDER / this.zoom; // Divide by zoom to keep thickness constant
         this.gameScreenWidth = this.resolution.width / this.zoom;
         this.gameScreenHeight = this.resolution.height / this.zoom;
-        this.scrollEdgeX = this.gameScreenWidth - CONFIG.CAMERA.SCROLL.BORDER;
-        this.scrollEdgeY = this.gameScreenHeight - CONFIG.CAMERA.SCROLL.BORDER;
+        this.scrollEdgeXMax = this.gameScreenWidth - scrollZoneThickness;
+        this.scrollEdgeYMax = this.gameScreenHeight - scrollZoneThickness;
+        this.scrollEdgeXMin = scrollZoneThickness;
+        this.scrollEdgeYMin = scrollZoneThickness;
         this.initRangeX = (this.gameScreenWidth / CONFIG.GAME.TILE.SIZE) + 1;
         this.initRangeY = (this.gameScreenHeight / CONFIG.GAME.TILE.SIZE) + 1;
         this.maxScrollX = 1 + this.maxMapX - this.gameScreenWidth;

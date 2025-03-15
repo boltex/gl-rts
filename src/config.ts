@@ -77,7 +77,7 @@ const CAMERA = {
         FACTOR: Math.pow(2, 1 / 4)
     },
     SCROLL: {
-        BORDER: 10, // pixels from screen to trigger scrolling
+        BORDER: 12, // pixels from screen to trigger scrolling
         DEFAULT_KEYBOARD_SPEED: 3, // speed index for KEYBOARD_SPEEDS
         KEYBOARD_SPEEDS: [
             // Keyboard scroll speed in game-pixels for moving the map with arrow keys

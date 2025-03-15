@@ -437,8 +437,9 @@ export class Game {
                 );
             }
 
-            // If the map Editor is toggled, add a grid to the visible tiles, vertical and horizontal lines.
+            // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones.
             if (this.editorManager.isMapEditorOpen) {
+
                 const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 

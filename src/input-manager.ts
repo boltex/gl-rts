@@ -247,16 +247,16 @@ export class InputManager {
             this.scrollNowX = 0;
             this.scrollNowY = 0;
             const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
-            if (this.mouseX > this.game.cameraManager.scrollEdgeX) {
+            if (this.mouseX > this.game.cameraManager.scrollEdgeXMax) {
                 this.scrollNowX = this.scrollSpeed * (30 / fps);
             }
-            if (this.mouseY > this.game.cameraManager.scrollEdgeY) {
+            if (this.mouseY > this.game.cameraManager.scrollEdgeYMax) {
                 this.scrollNowY = this.scrollSpeed * (30 / fps);
             }
-            if (this.mouseX < CONFIG.CAMERA.SCROLL.BORDER) {
+            if (this.mouseX < this.game.cameraManager.scrollEdgeXMin) {
                 this.scrollNowX = -this.scrollSpeed * (30 / fps);
             }
-            if (this.mouseY < CONFIG.CAMERA.SCROLL.BORDER) {
+            if (this.mouseY < this.game.cameraManager.scrollEdgeYMin) {
                 this.scrollNowY = -this.scrollSpeed * (30 / fps);
             }
         }

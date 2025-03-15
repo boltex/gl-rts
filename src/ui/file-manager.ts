@@ -108,5 +108,6 @@ export class FileManager {
         // No need for a file picker dialog, just save the active entities
         this.game.saveAnimationList();
     }
+
 }
 

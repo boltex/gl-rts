@@ -15,7 +15,7 @@ export class EditorManager {
 
     private game: Game;
     private fileManager: FileManager;
-
+    
     constructor(game: Game, fileManager: FileManager) {
         this.game = game;
         this.fileManager = fileManager;
@@ -296,5 +296,6 @@ export class EditorManager {
             document.removeEventListener("mousemove", elementDrag);
         }
     }
+
 }
 

@@ -20,5 +20,6 @@ export class MainMenuManager {
     getStartButtonElement(): HTMLButtonElement {
         return this.startButtonElement;
     }
+
 }
 

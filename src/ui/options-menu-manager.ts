@@ -18,7 +18,6 @@ export class OptionsMenuManager {
         this.game = game;
     }
 
-
     toggleMenu(): void {
         // Create the game menu elements
         if (!this.gameMenuElement) {
@@ -324,5 +323,6 @@ export class OptionsMenuManager {
         document.body.appendChild(this.gameMenuElement);
         this.isMenuOpen = true;
     }
+
 }
 

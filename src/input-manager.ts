@@ -243,21 +243,39 @@ export class InputManager {
      * Set the scroll velocity based on the mouse position. (If not dragging)
      */
     private applyMouseScroll(): void {
-        if (!this.dragScrolling) {
+        if (!this.dragScrolling && !this.selecting) {
             this.scrollNowX = 0;
             this.scrollNowY = 0;
             const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
-            if (this.mouseX > this.game.cameraManager.scrollEdgeXMax) {
-                this.scrollNowX = this.scrollSpeed * (30 / fps);
+            let cursor: string | undefined;
+            const camera = this.game.cameraManager;
+            const scrollSpeed = this.scrollSpeed * (30 / fps);
+            if (this.mouseY > camera.scrollEdgeYMax && camera.scrollY < camera.maxScrollY) {
+                this.scrollNowY = scrollSpeed;
+                cursor = 'cur-scroll-bottom';
+            } else if (this.mouseY < camera.scrollEdgeYMin && camera.scrollY > 0) {
+                this.scrollNowY = -scrollSpeed;
+                cursor = 'cur-scroll-top';
             }
-            if (this.mouseY > this.game.cameraManager.scrollEdgeYMax) {
-                this.scrollNowY = this.scrollSpeed * (30 / fps);
+            if (this.mouseX > camera.scrollEdgeXMax && camera.scrollX < camera.maxScrollX) {
+                this.scrollNowX = scrollSpeed;
+                if (cursor) {
+                    cursor += '-right';
+                } else {
+                    cursor = 'cur-scroll-right';
+                }
+            } else if (this.mouseX < camera.scrollEdgeXMin && camera.scrollX > 0) {
+                this.scrollNowX = -scrollSpeed;
+                if (cursor) {
+                    cursor += '-left';
+                } else {
+                    cursor = 'cur-scroll-left';
+                }
             }
-            if (this.mouseX < this.game.cameraManager.scrollEdgeXMin) {
-                this.scrollNowX = -this.scrollSpeed * (30 / fps);
-            }
-            if (this.mouseY < this.game.cameraManager.scrollEdgeYMin) {
-                this.scrollNowY = -this.scrollSpeed * (30 / fps);
+            if (cursor) {
+                this.game.cursorManager.setCursor(cursor);
+            } else {
+                this.game.cursorManager.setCursor('cur-pointer');
             }
         }
     }

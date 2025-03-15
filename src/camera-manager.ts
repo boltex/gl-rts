@@ -57,10 +57,14 @@ export class CameraManager {
             this.scrollX += scrollVelocity.dx;
             this.scrollY += scrollVelocity.dy;
         }
-        if (this.scrollX < 0) { this.scrollX = 0 };
-        if (this.scrollY < 0) { this.scrollY = 0 };
-        if (this.scrollX > this.maxScrollX) { this.scrollX = this.maxScrollX };
-        if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY };
+        let stop = false;
+        if (this.scrollX < 0) { this.scrollX = 0; stop = true; };
+        if (this.scrollY < 0) { this.scrollY = 0; stop = true; };
+        if (this.scrollX > this.maxScrollX) { this.scrollX = this.maxScrollX; stop = true; };
+        if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY; stop = true; };
+        if (stop) {
+            this.game.cursorManager.setCursor('cur-pointer');
+        }
     }
 
     setResolution(resolution: {

@@ -1,3 +1,4 @@
+import '../public/style.css';
 import { Game } from "./game";
 import * as utils from "./utils";
 

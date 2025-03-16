@@ -12,15 +12,19 @@ body {
   user-select: none;
 }
 
+/* -------------------- hide cursor --------------------- */
 html.cur-none {
   cursor: none;
 }
+/* ------------------- default cursor ------------------- */
 html.cur-pointer {
   cursor: url("images/cursor-pointer32.png"), auto;
 }
+/* ------------ while drawing selection box ------------- */
 html.cur-target {
   cursor: url("images/cursor-target32.png") 15 15, auto;
 }
+/* ---------------- hover on selectable ----------------- */
 html.cur-select-green1 {
   cursor: url("images/cursor-green1-32.png") 15 15, auto;
 }
@@ -39,29 +43,30 @@ html.cur-select-red1 {
 html.cur-select-red2 {
   cursor: url("images/cursor-red2-32.png") 15 15, auto;
 }
+/* ----------------------- scroll ----------------------- */
 html.cur-scroll-bottom {
-  cursor: url("images/scroll-bottom32.png") 15 15, auto;
+  cursor: url("images/scroll-bottom32.png") 15 31, auto;
 }
 html.cur-scroll-bottom-left {
-  cursor: url("images/scroll-bottom-left32.png") 15 15, auto;
+  cursor: url("images/scroll-bottom-left32.png") 0 31, auto;
 }
 html.cur-scroll-bottom-right {
-  cursor: url("images/scroll-bottom-right32.png") 15 15, auto;
+  cursor: url("images/scroll-bottom-right32.png") 31 31, auto;
 }
 html.cur-scroll-top {
-  cursor: url("images/scroll-top32.png") 15 15, auto;
+  cursor: url("images/scroll-top32.png") 15 0, auto;
 }
 html.cur-scroll-top-left {
-  cursor: url("images/scroll-top-left32.png") 15 15, auto;
+  cursor: url("images/scroll-top-left32.png") 0 0, auto;
 }
 html.cur-scroll-top-right {
-  cursor: url("images/scroll-top-right32.png") 15 15, auto;
+  cursor: url("images/scroll-top-right32.png") 31 0, auto;
 }
 html.cur-scroll-left {
-  cursor: url("images/scroll-left32.png") 15 15, auto;
+  cursor: url("images/scroll-left32.png") 0 15, auto;
 }
 html.cur-scroll-right {
-  cursor: url("images/scroll-right32.png") 15 15, auto;
+  cursor: url("images/scroll-right32.png") 31 15, auto;
 }
 
 canvas {

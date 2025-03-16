@@ -42,11 +42,12 @@ export class Game {
     invertDrag: boolean = false; // Affects inputManager.invertDrag
 
     // Game state Properties
-    started = false;
-    isMultiplayer = false;
+    started: boolean = false;
+    isMultiplayer: boolean = false;
+    showFPS: boolean = false;
     gamemap: number[] = [];
-    gameMapChanged = false;
-    gameAction = 0;    // 0 = none
+    gameMapChanged: boolean = false;
+    gameAction: number = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
     selectAnim: [TSelectAnim] = [{
@@ -209,6 +210,10 @@ export class Game {
         for (let i = 0; i < CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT; i++) {
             this.gamemap.push(Math.floor(Math.random() * 16));
         }
+    }
+
+    toggleShowFPS(): void {
+        this.showFPS = !this.showFPS;
     }
 
     setResolution(resolutionIndex: number): void {
@@ -477,17 +482,25 @@ export class Game {
                     this.cursorManager.widgetAnimX - this.cameraManager.scrollX,
                     this.cursorManager.widgetAnimY - this.cameraManager.scrollY,
                     this.cursorManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
-                    CONFIG.GAME.WIDGETS.SIZE / this.cameraManager.zoom // Un-scaled by zoom to keep apparent constant size!
+                    CONFIG.GAME.WIDGETS.SIZE // / this.cameraManager.zoom // Un-scaled by zoom to keep apparent constant size!
                 ]);
             } else {
                 // this.selectAnim[0].active = false;
             }
 
-            // Text to render, for now just one character at 20, 20. Should be a string to render
-            // such as APM or FPS.
-            const text: [number, number, number, number][] = [
-                [20 / this.cameraManager.zoom, 20 / this.cameraManager.zoom, 5, 32 / this.cameraManager.zoom], // X, Y, Char Index, Scale
-            ]; // X, Y, Char Index, Scale
+            // Text to render, such as APM or FPS.
+            const text: [number, number, number, number][] = []; // X, Y, Char Index, Scale
+
+
+            if (this.showFPS) {
+                const fps = 'FPS: ' + this.timeManager.fps.toString();
+                // Loop each letter in the string and add to the text array
+                let x = 20 / this.cameraManager.zoom;
+                for (let i = 0; i < fps.length; i++) {
+                    text.push([x, 20 / this.cameraManager.zoom, fps.charCodeAt(i) - 32, 32 / this.cameraManager.zoom]);
+                    x += 32 / this.cameraManager.zoom;
+                }
+            }
 
             this.rendererManager.render(
                 visibleTiles,

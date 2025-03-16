@@ -66,7 +66,7 @@ export class Game {
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
     private resizeObserver: ResizeObserver;
 
-    constructor(sprites: HTMLImageElement, tiles: HTMLImageElement, widgets: HTMLImageElement) {
+    constructor(sprites: HTMLImageElement, tiles: HTMLImageElement, widgets: HTMLImageElement, font: HTMLImageElement) {
 
         this.canvasElement = document.createElement('canvas');
         document.body.appendChild(this.canvasElement);
@@ -94,7 +94,7 @@ export class Game {
 
         this.timeManager = new TimeManager();
         this.cameraManager = new CameraManager(this);
-        this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets);
+        this.rendererManager = new RendererManager(this.gl, tiles, sprites, widgets, font);
         this.inputManager = new InputManager(this);
         this.inputManager.init(); // Start even before game start to prevent zooming.
         this.resizeCanvasToDisplaySize(this.canvasElement);
@@ -483,11 +483,18 @@ export class Game {
                 // this.selectAnim[0].active = false;
             }
 
+            // Text to render, for now just one character at 20, 20. Should be a string to render
+            // such as APM or FPS.
+            const text: [number, number, number, number][] = [
+                [20 / this.cameraManager.zoom, 20 / this.cameraManager.zoom, 5, 32 / this.cameraManager.zoom], // X, Y, Char Index, Scale
+            ]; // X, Y, Char Index, Scale
+
             this.rendererManager.render(
                 visibleTiles,
                 this.entities.pool,
                 cursor,
                 visibleWidgets,
+                text,
                 this.cameraManager,
                 this.timeManager.getInterpolation()
             );

@@ -28,6 +28,11 @@ const GAME = {
         SIZE: 128, // size of an individual square TILE 
         DEPTH: 64, // Total number of tiles in the bitmap
     },
+    FONT: {
+        SIZE: 32, // size of an individual square TILE 
+        DEPTH: 95, // Total number of tiles in the bitmap
+        MAX: 256 // Maximum number of characters
+    },
     WIDGETS: {
         SIZE: 64, // size of an individual square TILE 
         DEPTH: 10, // Total number of tiles in the bitmap

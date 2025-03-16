@@ -1,4 +1,4 @@
-import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer } from "./renderers";
+import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer, FontRenderer } from "./renderers";
 import { CONFIG } from "./config";
 import { TEntity, TRectangle, TSelectAnim } from "./types";
 import { CameraManager } from "./camera-manager";
@@ -12,14 +12,16 @@ export class RendererManager {
     private widgetRenderer: WidgetRenderer;
     private spriteRenderer: SpriteRenderer;
     private rectangleRenderer: RectangleRenderer;
+    private fontRenderer: FontRenderer;
     private static readonly WORLD_BINDING_POINT = 0;
 
-    constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement) {
+    constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement, fontImage: HTMLImageElement) {
         this.gl = gl;
         this.tileRenderer = new TileRenderer(this.gl, tilesImage, CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.MAP.HEIGHT);
         this.widgetRenderer = new WidgetRenderer(this.gl, widgetsImage, CONFIG.GAME.WIDGETS.MAX);
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.rectangleRenderer = new RectangleRenderer(this.gl, CONFIG.GAME.RECTANGLES.MAX);
+        this.fontRenderer = new FontRenderer(this.gl, fontImage, CONFIG.GAME.FONT.MAX);
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         // Here bind 16 even though we only need 8 bytes, because the minimum size of a UBO is 16 bytes.
@@ -61,6 +63,7 @@ export class RendererManager {
         entitiesPool: TEntity[],
         selectionRectangles: TRectangle[],
         visibleWidgets: [number, number, number, number][],
+        text: [number, number, number, number][],
         camera: CameraManager,
         interpolation: number
     ): void {
@@ -96,6 +99,11 @@ export class RendererManager {
             // Update tile transform data if needed.
             this.widgetRenderer.updateTransformData(visibleWidgets);
             this.widgetRenderer.render();
+        }
+
+        if (text.length) {
+            this.fontRenderer.updateTransformData(text);
+            this.fontRenderer.render();
         }
 
         this.gl.flush();

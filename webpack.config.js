@@ -55,5 +55,5 @@ module.exports = {
         watchFiles: ['public/**/*.css', 'public/**/*.html'], // Watch for changes in CSS and HTML files
         liveReload: true, // Enable live reload for full page reload on changes
     },
-    mode: 'development', // or 'production' for production builds
+    mode: 'production', // or 'production' for production builds
 };

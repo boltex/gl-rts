@@ -38,7 +38,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './public/index.html',
-            inject: true, // Ensure the CSS and JS are injected into the body
+            // inject: 'body', // Ensure the CSS and JS are injected into the body
         }),
         new CopyWebpackPlugin({
             patterns: [
@@ -52,6 +52,8 @@ module.exports = {
     ],
     devServer: {
         static: './dist',
+        watchFiles: ['public/**/*.css', 'public/**/*.html'], // Watch for changes in CSS and HTML files
+        liveReload: true, // Enable live reload for full page reload on changes
     },
     mode: 'development', // or 'production' for production builds
 };

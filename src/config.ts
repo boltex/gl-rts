@@ -34,8 +34,8 @@ const GAME = {
         MAX: 256 // Maximum number of characters
     },
     WIDGETS: {
-        SIZE: 64, // size of an individual square TILE 
-        DEPTH: 10, // Total number of tiles in the bitmap
+        SIZE: 128, // size of an individual square TILE 
+        DEPTH: 5, // Total number of tiles in the bitmap
         MAX: 100 // Maximum number of widgets
     },
     RECTANGLES: {
@@ -121,7 +121,8 @@ const CAMERA = {
 
 const UI = {
     WIDGET: {
-        ANIMATION_FRAMES: 6
+        TOTAL_FRAMES: 6,
+        ANIMATION_FRAMES: [0, 2, 4, 3, 2, 1] // 6 frames
     }
 } as const;
 

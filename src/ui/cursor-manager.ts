@@ -4,7 +4,8 @@ import { Game } from '../game';
 export class CursorManager {
     // Command Acknowledged Widget Animation Properties
     widgetAnim: number = 0;
-    widgetAnimTotal: number = CONFIG.UI.WIDGET.ANIMATION_FRAMES;
+    widgetAnimTotal: number = CONFIG.UI.WIDGET.TOTAL_FRAMES;
+    widgetAnimFrames: readonly number[] = CONFIG.UI.WIDGET.ANIMATION_FRAMES;
     widgetAnimX: number = 0;
     widgetAnimY: number = 0;
 

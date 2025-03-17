@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const creaturesPromise = utils.loadImage('images/alien.png');
     const tilesPromise = utils.loadImage('images/map-tiles-vertical.png');
-    const widgetsPromise = utils.loadImage('images/animated-widget.png');
+    const widgetsPromise = utils.loadImage('images/animated-widget-128.png');
     const fontPromise = utils.loadImage('images/font-texture-grayscale.png');
     const preloadCursorImages = [
         "images/cursor-pointer32.png",

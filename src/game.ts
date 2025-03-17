@@ -359,21 +359,27 @@ export class Game {
 
     update(timestamp: number, skipRender?: boolean): void {
 
+        // 0. Optimize for performance
+        const cursorManager = this.cursorManager;
+        const cameraManager = this.cameraManager;
+        const inputManager = this.inputManager;
+        const timeManager = this.timeManager;
+
         // 1. Update time
-        const deltaTime = this.timeManager.update(timestamp);
+        const deltaTime = timeManager.update(timestamp);
 
         // 2. Process immediate user input actions
-        this.cameraManager.animateZoom();
+        cameraManager.animateZoom();
         this.procGame();
 
         // 3. Update constant speed animations if needed
-        while (this.timeManager.shouldAnimUpdate()) {
+        while (timeManager.shouldAnimUpdate()) {
             // Animate cursor and UI hud, minimap, etc. at specific constant speed
-            this.cursorManager.animateCursor();
+            cursorManager.animateCursor();
         }
 
         // 4. Update game logic at specific game-speed if needed
-        while (this.timeManager.shouldTickUpdate()) {
+        while (timeManager.shouldTickUpdate()) {
             // Advance game states in pool from currentTick count, to the next one.
             // This is the game logic update, at chosen game speed:
             // slowest, slower, slow, normal, fast, faster, fastest.
@@ -389,16 +395,16 @@ export class Game {
             // If camera did not move nor zoom, we can reuse the last visible tiles by leaving visibleTiles empty.
             if (
                 this.gameMapChanged ||
-                this.cameraManager.scrollX !== this.lastScrollX ||
-                this.cameraManager.scrollY !== this.lastScrollY ||
-                this.cameraManager.gameScreenWidth !== this.lastScreenX ||
-                this.cameraManager.gameScreenHeight !== this.lastScreenY
+                cameraManager.scrollX !== this.lastScrollX ||
+                cameraManager.scrollY !== this.lastScrollY ||
+                cameraManager.gameScreenWidth !== this.lastScreenX ||
+                cameraManager.gameScreenHeight !== this.lastScreenY
             ) {
                 // Save for next frame to check if camera moved.
-                this.lastScreenX = this.cameraManager.gameScreenWidth;
-                this.lastScreenY = this.cameraManager.gameScreenHeight;
-                this.lastScrollX = this.cameraManager.scrollX;
-                this.lastScrollY = this.cameraManager.scrollY;
+                this.lastScreenX = cameraManager.gameScreenWidth;
+                this.lastScreenY = cameraManager.gameScreenHeight;
+                this.lastScrollX = cameraManager.scrollX;
+                this.lastScrollY = cameraManager.scrollY;
                 this.gameMapChanged = false;
                 const tilesize = CONFIG.GAME.TILE.SIZE;
                 const tileoffx = Math.floor(this.lastScrollX / tilesize);
@@ -426,13 +432,13 @@ export class Game {
 
             // Selection lines with four thin rectangles, if user is selecting.
             const cursor: TRectangle[] = [];
-            if (this.inputManager.isSelecting) {
+            if (inputManager.isSelecting) {
                 // Draw selection rectangle with lines
-                const cx1 = Math.min(this.inputManager.selX, this.inputManager.mouseX);
-                const cx2 = Math.max(this.inputManager.selX, this.inputManager.mouseX);
-                const cy1 = Math.min(this.inputManager.selY, this.inputManager.mouseY);
-                const cy2 = Math.max(this.inputManager.selY, this.inputManager.mouseY);
-                const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
+                const cx1 = Math.min(inputManager.selX, inputManager.mouseX);
+                const cx2 = Math.max(inputManager.selX, inputManager.mouseX);
+                const cy1 = Math.min(inputManager.selY, inputManager.mouseY);
+                const cy2 = Math.max(inputManager.selY, inputManager.mouseY);
+                const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
                 cursor.push(
                     // Top, bottom, left, right lines
                     { x: cx1, y: cy1, width: cx2 - cx1, height: thickness, r: 0, g: 1, b: 0, a: 1 },
@@ -445,7 +451,7 @@ export class Game {
             // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones.
             if (this.editorManager.isMapEditorOpen) {
 
-                const thickness = 2 / this.cameraManager.zoom; // Divide by zoom to keep thickness constant
+                const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
                 // Draw horizontal grid lines
@@ -465,10 +471,10 @@ export class Game {
                 }
 
                 // Draw a full rectangle over the tile which contains the current mouse pointer.
-                const tileoffx = Math.floor(this.cameraManager.scrollX / tilesize);
-                const tileoffy = Math.floor(this.cameraManager.scrollY / tilesize);
-                const x = Math.floor((this.inputManager.mouseX + this.cameraManager.scrollX) / tilesize) - tileoffx;
-                const y = Math.floor((this.inputManager.mouseY + this.cameraManager.scrollY) / tilesize) - tileoffy;
+                const tileoffx = Math.floor(cameraManager.scrollX / tilesize);
+                const tileoffy = Math.floor(cameraManager.scrollY / tilesize);
+                const x = Math.floor((inputManager.mouseX + cameraManager.scrollX) / tilesize) - tileoffx;
+                const y = Math.floor((inputManager.mouseY + cameraManager.scrollY) / tilesize) - tileoffy;
                 cursor.push(
                     { x: x * tilesize - (this.lastScrollX % tilesize), y: y * tilesize - (this.lastScrollY % tilesize), width: tilesize, height: tilesize, r: 1, g: 1, b: 1, a: 0.2 }
                 );
@@ -477,12 +483,14 @@ export class Game {
 
             // Animated selection widget, if any.
             const visibleWidgets: [number, number, number, number][] = []; // X, Y and Tile Index
-            if (this.cursorManager.widgetAnim > 0) {
+            if (cursorManager.widgetAnim > 0) {
                 visibleWidgets.push([
-                    this.cursorManager.widgetAnimX - this.cameraManager.scrollX,
-                    this.cursorManager.widgetAnimY - this.cameraManager.scrollY,
-                    this.cursorManager.widgetAnim + 3, // 0-3 are other, animate 6 frames from 4 to 9.
-                    CONFIG.GAME.WIDGETS.SIZE // / this.cameraManager.zoom // Un-scaled by zoom to keep apparent constant size!
+                    cursorManager.widgetAnimX - cameraManager.scrollX,
+                    cursorManager.widgetAnimY - cameraManager.scrollY,
+                    // (cursorManager.widgetAnimX - (32 / this.cameraManager.zoom)) - cameraManager.scrollX,
+                    // (cursorManager.widgetAnimY - (32 / this.cameraManager.zoom)) - cameraManager.scrollY,
+                    cursorManager.widgetAnimFrames[cursorManager.widgetAnim], // 0-3 are other, animate 6 frames from 4 to 9.
+                    CONFIG.GAME.WIDGETS.SIZE / 2  // half of 128 is 64
                 ]);
             } else {
                 // this.selectAnim[0].active = false;
@@ -493,12 +501,12 @@ export class Game {
 
 
             if (this.showFPS) {
-                const fps = 'FPS: ' + this.timeManager.fps.toString();
+                const fps = 'FPS: ' + timeManager.fps.toString();
                 // Loop each letter in the string and add to the text array
-                let x = 20 / this.cameraManager.zoom;
+                let x = 20 / cameraManager.zoom;
                 for (let i = 0; i < fps.length; i++) {
-                    text.push([x, 20 / this.cameraManager.zoom, fps.charCodeAt(i) - 32, 32 / this.cameraManager.zoom]);
-                    x += 32 / this.cameraManager.zoom;
+                    text.push([x, 20 / cameraManager.zoom, fps.charCodeAt(i) - 32, 32 / cameraManager.zoom]);
+                    x += 32 / cameraManager.zoom;
                 }
             }
 
@@ -508,13 +516,13 @@ export class Game {
                 cursor,
                 visibleWidgets,
                 text,
-                this.cameraManager,
-                this.timeManager.getInterpolation()
+                cameraManager,
+                timeManager.getInterpolation()
             );
         }
 
         // 6. FPS
-        this.timeManager.updateFps(timestamp, deltaTime);
+        timeManager.updateFps(timestamp, deltaTime);
     }
 
     checkUpdate(): void {
@@ -549,8 +557,8 @@ export class Game {
         // TODO : Replace test cursor animation with the real default action
         // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION
         this.cursorManager.widgetAnim = 1;
-        this.cursorManager.widgetAnimX = gamePosition.x - (32 / this.cameraManager.zoom);
-        this.cursorManager.widgetAnimY = gamePosition.y - (32 / this.cameraManager.zoom);
+        this.cursorManager.widgetAnimX = gamePosition.x - 32;
+        this.cursorManager.widgetAnimY = gamePosition.y - 32;
     }
 
     selectUnits(): void {

@@ -1,3 +1,4 @@
+import '../public/style.css';
 import { Game } from "./game";
 import * as utils from "./utils";
 
@@ -10,8 +11,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const creaturesPromise = utils.loadImage('images/alien.png');
     const tilesPromise = utils.loadImage('images/map-tiles-vertical.png');
-    const widgetsPromise = utils.loadImage('images/animated-widget.png');
-    const cursorImages = [
+    const widgetsPromise = utils.loadImage('images/animated-widget-128.png');
+    const fontPromise = utils.loadImage('images/font-texture-grayscale.png');
+    const preloadCursorImages = [
         "images/cursor-pointer32.png",
         "images/cursor-target32.png",
         "images/cursor-green1-32.png",
@@ -31,15 +33,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
     ];
 
     // Preload cursors for performance
-    cursorImages.forEach((src) => {
+    preloadCursorImages.forEach((src) => {
         const img = new Image();
         img.src = src;
     });
 
-    Promise.all([creaturesPromise, tilesPromise, widgetsPromise]).then((images) => {
+    Promise.all([creaturesPromise, tilesPromise, widgetsPromise, fontPromise]).then((images) => {
         document.body.removeChild(loadingText);
         if (!window.game) {
-            window.game = new Game(images[0], images[1], images[2]);
+            window.game = new Game(images[0], images[1], images[2], images[3]);
 
             // Clean up on unload
             window.addEventListener('unload', () => {

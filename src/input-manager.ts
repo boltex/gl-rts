@@ -172,6 +172,14 @@ export class InputManager {
                     return;
                 }
             }
+            // Check for CTRL+ALT+F for toggling 'showFPS' option.
+            if (e.ctrlKey && e.altKey && e.key === 'f') {
+                e.preventDefault();
+                this.game.toggleShowFPS();
+                return;
+            }
+
+
         }
 
         // To keep track of which keys are currently pressed.

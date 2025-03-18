@@ -15,7 +15,7 @@ export class EditorManager {
 
     private game: Game;
     private fileManager: FileManager;
-    
+
     constructor(game: Game, fileManager: FileManager) {
         this.game = game;
         this.fileManager = fileManager;
@@ -266,7 +266,7 @@ export class EditorManager {
         elm.addEventListener("mousedown", dragMouseDown);
 
         function dragMouseDown(e: MouseEvent): void {
-            // Only drad if mouse event is directly on the mapEditorElement, not on the buttons or input.
+            // Only drag if mouse event is directly on the mapEditorElement, not on the buttons or input.
             if (e.target !== elm) {
                 return;
             }

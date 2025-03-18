@@ -487,8 +487,6 @@ export class Game {
                 visibleWidgets.push([
                     cursorManager.widgetAnimX - cameraManager.scrollX,
                     cursorManager.widgetAnimY - cameraManager.scrollY,
-                    // (cursorManager.widgetAnimX - (32 / this.cameraManager.zoom)) - cameraManager.scrollX,
-                    // (cursorManager.widgetAnimY - (32 / this.cameraManager.zoom)) - cameraManager.scrollY,
                     cursorManager.widgetAnimFrames[cursorManager.widgetAnim], // 0-3 are other, animate 6 frames from 4 to 9.
                     CONFIG.GAME.WIDGETS.SIZE / 2  // half of 128 is 64
                 ]);
@@ -505,8 +503,9 @@ export class Game {
                 // Loop each letter in the string and add to the text array
                 let x = 20 / cameraManager.zoom;
                 for (let i = 0; i < fps.length; i++) {
-                    text.push([x, 20 / cameraManager.zoom, fps.charCodeAt(i) - 32, 32 / cameraManager.zoom]);
-                    x += 32 / cameraManager.zoom;
+                    const charIndex = fps.charCodeAt(i) - 32;
+                    text.push([x, 20 / cameraManager.zoom, charIndex, 32 / cameraManager.zoom]);
+                    x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
                 }
             }
 

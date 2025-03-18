@@ -237,8 +237,8 @@ export class FontRenderer extends BaseRenderer {
             this.gl.UNSIGNED_BYTE,
             this.image
         );
-        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
-        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR); // adds thin line if touches
+        this.gl.texParameteri(this.gl.TEXTURE_2D_ARRAY, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR); // adds thin line if touches
         this.gl.generateMipmap(this.gl.TEXTURE_2D_ARRAY);
         this.setupBufferWithAttributes(this.modelBuffer, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW, [
             [0, 2, 16, 0],

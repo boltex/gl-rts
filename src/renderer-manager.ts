@@ -1,4 +1,4 @@
-import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer, FontRenderer } from "./renderers";
+import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer, FontRenderer, MinimapRenderer } from "./renderers";
 import { CONFIG } from "./config";
 import { TEntity, TRectangle, TSelectAnim } from "./types";
 import { CameraManager } from "./camera-manager";
@@ -15,6 +15,9 @@ export class RendererManager {
     private rectangleRenderer: RectangleRenderer;
     private fontRenderer: FontRenderer;
     private static readonly WORLD_BINDING_POINT = 0;
+    private minimapRenderer: MinimapRenderer;
+    private minimapNeedsUpdate: boolean = true;
+    private minimapSize: number = 256; // Size of the minimap texture
 
     constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement, fontImage: HTMLImageElement) {
         this.gl = gl;
@@ -23,6 +26,7 @@ export class RendererManager {
         this.spriteRenderer = new SpriteRenderer(this.gl, creaturesImage, CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.rectangleRenderer = new RectangleRenderer(this.gl, CONFIG.GAME.RECTANGLES.MAX);
         this.fontRenderer = new FontRenderer(this.gl, fontImage, CONFIG.GAME.FONT.MAX);
+        this.minimapRenderer = new MinimapRenderer(this.gl, this.minimapSize);
         this.worldBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
         // Here bind 16 even though we only need 8 bytes, because the minimum size of a UBO is 16 bytes.
@@ -61,6 +65,10 @@ export class RendererManager {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, this.worldData);
     }
 
+    setMinimapNeedsUpdate(): void {
+        this.minimapNeedsUpdate = true;
+    }
+
     render(
         visibleTiles: [number, number, number][],
         entitiesPool: TEntity[],
@@ -68,7 +76,8 @@ export class RendererManager {
         visibleWidgets: [number, number, number, number][],
         text: [number, number, number, number][],
         camera: CameraManager,
-        interpolation: number
+        interpolation: number,
+        gamemap: number[]
     ): void {
 
         // TODO : Use interpolation for smooth rendering.
@@ -76,6 +85,12 @@ export class RendererManager {
         // Clear canvas before rendering.
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+        // Update minimap background if needed
+        if (this.minimapNeedsUpdate) {
+            this.minimapRenderer.renderMapToTexture(this.tileRenderer, gamemap);
+            this.minimapNeedsUpdate = false;
+        }
 
         // Render tile layer.
         if (visibleTiles.length) {
@@ -109,6 +124,10 @@ export class RendererManager {
             this.fontRenderer.render();
         }
 
+        // Render minimap in bottom left corner
+        this.minimapRenderer.updateTransformData([], camera);
+        this.minimapRenderer.render();
+
         this.gl.flush();
     }
 
@@ -117,6 +136,7 @@ export class RendererManager {
         this.spriteRenderer.dispose();
         this.rectangleRenderer.dispose();
         this.widgetRenderer.dispose();
+        this.minimapRenderer.dispose();
     }
 
 }

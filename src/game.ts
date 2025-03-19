@@ -516,7 +516,8 @@ export class Game {
                 visibleWidgets,
                 text,
                 cameraManager,
-                timeManager.getInterpolation()
+                timeManager.getInterpolation(),
+                this.gamemap
             );
         }
 
@@ -566,7 +567,7 @@ export class Game {
         const selectionStart = this.inputManager.selectionStart;
         const selectionEnd = this.inputManager.selectionEnd;
 
-        console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
+        // console.log('select', selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
         // TODO : Add selection logic here
 
     }
@@ -604,6 +605,9 @@ export class Game {
 
         this.gamemap[index] = tileIndex;
         this.gameMapChanged = true;
+
+        // Flag minimap for update
+        this.rendererManager.setMinimapNeedsUpdate();
     }
 
     sampleTileAt(gameMouseX: number, gameMouseY: number): void {

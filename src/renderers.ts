@@ -438,6 +438,7 @@ export class SpriteRenderer extends BaseRenderer {
 
     render(): void {
         this.gl.useProgram(this.program);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.bindVertexArray(this.vao);
         if (this.dirtyTransforms) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
@@ -506,3 +507,174 @@ export class RectangleRenderer extends BaseRenderer {
 
 }
 
+export class MinimapRenderer extends BaseRenderer {
+    private fbo: WebGLFramebuffer;
+    private minimapTexture: WebGLTexture;
+    private modelBuffer: WebGLBuffer;
+    private transformBuffer: WebGLBuffer;
+    private transformData: Float32Array;
+    private minimapSize: number;
+
+    constructor(gl: WebGL2RenderingContext, size: number) {
+        super(gl, SHADERS.MINIMAP_VERTEX_SHADER, SHADERS.MINIMAP_FRAGMENT_SHADER);
+
+        this.minimapSize = size;
+
+        // Create transform buffer for minimap position
+        this.minimapTexture = this.createTexture();
+        this.modelBuffer = this.createBuffer();
+        this.transformBuffer = this.createBuffer();
+        this.transformData = new Float32Array(7); // position (2), scale (1), color (3), texture index (1)
+
+        // Create FBO for off-screen rendering
+        this.fbo = this.createFBO();
+
+        this.setupVAO();
+    }
+
+    private createFBO(): WebGLFramebuffer {
+        const fbo = this.gl.createFramebuffer();
+        if (!fbo) throw new Error('Failed to create framebuffer');
+
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo);
+
+        // Attach texture
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.minimapTexture);
+        this.gl.texImage2D(
+            this.gl.TEXTURE_2D,
+            0,
+            this.gl.RGBA,
+            this.minimapSize,
+            this.minimapSize,
+            0,
+            this.gl.RGBA,
+            this.gl.UNSIGNED_BYTE,
+            null
+        );
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+        // Attach texture to framebuffer
+        this.gl.framebufferTexture2D(
+            this.gl.FRAMEBUFFER,
+            this.gl.COLOR_ATTACHMENT0,
+            this.gl.TEXTURE_2D,
+            this.minimapTexture,
+            0
+        );
+
+        // Check if framebuffer is complete
+        if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
+            throw new Error('Framebuffer is not complete');
+        }
+
+        // Unbind FBO and texture
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+
+        return fbo;
+    }
+
+    private setupVAO(): void {
+        this.gl.bindVertexArray(this.vao);
+
+        // Setup model buffer (quad vertices)
+        this.setupBufferWithAttributes(this.modelBuffer, CONFIG.TEXTURE_MODEL_DATA, this.gl.STATIC_DRAW, [
+            [0, 2, 16, 0],
+            [1, 2, 16, 8]
+        ]);
+
+        // Setup transform buffer
+        this.setupBufferWithAttributes(this.transformBuffer, this.transformData, this.gl.DYNAMIC_DRAW, [
+            [2, 2, 28, 0, 1],
+            [3, 1, 28, 8, 1],
+            [4, 3, 28, 12, 1],
+            [5, 1, 28, 24, 1]
+        ]);
+
+        this.gl.bindVertexArray(null);
+    }
+
+    // Render the game map to minimap texture
+    renderMapToTexture(tileRenderer: TileRenderer, gamemap: number[]): void {
+        // Save current WebGL state
+        const viewport = this.gl.getParameter(this.gl.VIEWPORT);
+
+        // Bind framebuffer and set viewport to minimap size
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
+        this.gl.viewport(0, 0, this.minimapSize, this.minimapSize);
+
+        // Clear the buffer
+        this.gl.clearColor(0, 0, 0, 1);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+        // Prepare tile data for rendering at minimap scale
+        const mapWidth = CONFIG.GAME.MAP.WIDTH;
+        const mapHeight = CONFIG.GAME.MAP.HEIGHT;
+        const minimapTileSize = this.minimapSize / Math.max(mapWidth, mapHeight);
+        const minimapTiles: [number, number, number][] = [];
+
+        for (let y = 0; y < mapHeight; y++) {
+            for (let x = 0; x < mapWidth; x++) {
+                const tileIndex = gamemap[x + y * mapWidth];
+                minimapTiles.push([
+                    x * minimapTileSize,
+                    y * minimapTileSize,
+                    tileIndex
+                ]);
+            }
+        }
+
+        // Render tiles to minimap texture
+        tileRenderer.updateTransformData(minimapTiles);
+        tileRenderer.render();
+
+        // Unbind framebuffer and restore viewport
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+        this.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        console.log('did it');
+        // Explicitly make sure we're not messing with texture binding state
+        this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    }
+
+    updateTransformData(p_unused: any[], camera: CameraManager): void {
+        const minimapPadding = 10;
+        const minimapDisplaySize = Math.min(camera.gameScreenWidth, camera.gameScreenHeight) / 4;
+        this.transformData[0] = 100;           // x constant position
+        this.transformData[1] = 100;           // y constant position
+        this.transformData[2] = minimapDisplaySize;        // constant scale
+        this.transformData[3] = 1;           // r
+        this.transformData[4] = 1;           // g
+        this.transformData[5] = 1;           // b
+        this.transformData[6] = 0;           // texture index
+
+        this.dirtyTransforms = true;
+    }
+
+    // Render minimap to screen
+    render(): void {
+        this.gl.useProgram(this.program);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.minimapTexture);
+        this.gl.bindVertexArray(this.vao);
+
+        if (this.dirtyTransforms) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.transformBuffer);
+            this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.transformData); // This gives WebGL: INVALID_VALUE: bufferSubData: buffer overflow
+            this.dirtyTransforms = false;
+        }
+
+        this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, 1);
+    }
+
+    // Add markers for units on minimap (simplified version)
+    renderUnitMarkers(entitiesPool: TEntity[]): void {
+        // Using rectangleRenderer to draw dots
+        // Implementation depends on your specific needs
+    }
+
+    dispose(): void {
+        super.dispose();
+        this.gl.deleteFramebuffer(this.fbo);
+    }
+}

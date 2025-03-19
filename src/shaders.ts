@@ -196,6 +196,47 @@ void main()
     fragColor = vColor;
 }`;
 
+// MINIMAP VERTEX SHADER
+const MINIMAP_VERTEX_SHADER = /*glsl*/ `#version 300 es
+layout(location=0) in vec4 aPosition;
+layout(location=1) in vec2 aTexCoord;
+layout(location=2) in vec3 aOffset;
+layout(location=3) in float aScale;
+layout(location=4) in vec4 aColor;
+layout(location=5) in float aDepth;
+
+layout(std140) uniform World {
+    float uWorldX;
+    float uWorldY;
+};
+
+out vec4 vColor;
+out vec2 vTexCoord;
+
+void main()
+{
+    vColor = aColor;
+    vTexCoord = aTexCoord;
+    vec3 pos = aPosition.xyz * aScale + aOffset;
+    
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, 0.0, 1.0);
+}`;
+
+// MINIMAP FRAGMENT SHADER
+const MINIMAP_FRAGMENT_SHADER = /*glsl*/ `#version 300 es
+precision mediump float;
+
+uniform sampler2D uSampler;
+
+in vec4 vColor;
+in vec2 vTexCoord;
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = vColor * texture(uSampler, vTexCoord);
+}`;
+
 // Export all configs from a single point
 export const SHADERS = {
     FONT_VERTEX_SHADER,
@@ -206,4 +247,6 @@ export const SHADERS = {
     SPRITE_FRAGMENT_SHADER,
     RECTANGLE_VERTEX_SHADER,
     RECTANGLE_FRAGMENT_SHADER,
+    MINIMAP_VERTEX_SHADER,
+    MINIMAP_FRAGMENT_SHADER
 } as const;

@@ -6,6 +6,7 @@ import { CameraManager } from "./camera-manager";
 export class RendererManager {
 
     worldBuffer: WebGLBuffer;
+    private worldData: Float32Array;
 
     private gl: WebGL2RenderingContext;
     private tileRenderer: TileRenderer;
@@ -27,6 +28,7 @@ export class RendererManager {
         // Here bind 16 even though we only need 8 bytes, because the minimum size of a UBO is 16 bytes.
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 16, this.gl.DYNAMIC_DRAW);
         this.initUboBindings();
+        this.worldData = new Float32Array(2);
     }
 
     private initUboBindings(): void {
@@ -53,9 +55,10 @@ export class RendererManager {
 
     setUboWorldTransforms(gameScreenWidth: number, gameScreenHeight: number): void {
         // Update the uniform buffer with current world transform values.
-        const worldData = new Float32Array([2 / gameScreenWidth, 2 / -gameScreenHeight]);
+        this.worldData[0] = 2 / gameScreenWidth;
+        this.worldData[1] = 2 / -gameScreenHeight;
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.worldBuffer);
-        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, worldData);
+        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, this.worldData);
     }
 
     render(

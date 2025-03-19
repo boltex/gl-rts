@@ -571,6 +571,21 @@ export class Game {
 
     }
 
+    toggleMusic(): void {
+        // TODO: Implement toggleMusic
+        //
+    }
+
+    toggleSound(): void {
+        // TODO: Implement toggleSound
+        //
+    }
+
+    toggleTerrain(): void {
+        // TODO: Implement toggleTerrain
+        //
+    }
+
     setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {
         // Replace tile in gameMap at gameMouseX, gameMouseY with tileIndex
         // So we need to know the tile size, and the scroll position. Also set gameMapChanged.

@@ -46,7 +46,7 @@ export class Game {
     isMultiplayer: boolean = false;
     showFPS: boolean = false;
     gamemap: number[] = [];
-    gameMapChanged: boolean = false;
+    gameMapChanged: boolean = true;
     gameAction: number = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
@@ -405,7 +405,6 @@ export class Game {
                 this.lastScreenY = cameraManager.gameScreenHeight;
                 this.lastScrollX = cameraManager.scrollX;
                 this.lastScrollY = cameraManager.scrollY;
-                this.gameMapChanged = false;
                 const tilesize = CONFIG.GAME.TILE.SIZE;
                 const tileoffx = Math.floor(this.lastScrollX / tilesize);
                 const tileoffy = Math.floor(this.lastScrollY / tilesize);
@@ -517,8 +516,11 @@ export class Game {
                 text,
                 cameraManager,
                 timeManager.getInterpolation(),
-                this.gamemap
+                this.gamemap,
+                this.gameMapChanged
             );
+
+            this.gameMapChanged = false; // This now has been rendered.
         }
 
         // 6. FPS
@@ -605,9 +607,6 @@ export class Game {
 
         this.gamemap[index] = tileIndex;
         this.gameMapChanged = true;
-
-        // Flag minimap for update
-        this.rendererManager.setMinimapNeedsUpdate();
     }
 
     sampleTileAt(gameMouseX: number, gameMouseY: number): void {

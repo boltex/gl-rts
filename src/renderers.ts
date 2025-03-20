@@ -2,6 +2,7 @@ import { TEntity, GLResources, ShaderType, TRectangle, TSelectAnim } from "./typ
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 import { CameraManager } from "./camera-manager";
+import { RendererManager } from "./renderer-manager";
 
 abstract class BaseRenderer {
 
@@ -181,6 +182,22 @@ export class TileRenderer extends BaseRenderer {
             this.transformData[offset + 4] = 1;
             this.transformData[offset + 5] = 1;
             this.transformData[offset + 6] = data[i][2];
+        }
+        this.renderMax = data.length;
+        this.dirtyTransforms = true;
+    }
+
+    updateTransformDataForMinimap(data: [number, number, number][], tileSize: number): void {
+        // data is Array of X, Y and Tile Index triplets
+        for (let i = 0; i < data.length; i++) {
+            const offset = i * 7;
+            this.transformData[offset] = data[i][0];        // x position
+            this.transformData[offset + 1] = data[i][1];    // y position
+            this.transformData[offset + 2] = tileSize;      // Use provided tile size instead of CONFIG.GAME.TILE.SIZE
+            this.transformData[offset + 3] = 1;             // r
+            this.transformData[offset + 4] = 1;             // g
+            this.transformData[offset + 5] = 1;             // b
+            this.transformData[offset + 6] = data[i][2];    // tile index
         }
         this.renderMax = data.length;
         this.dirtyTransforms = true;
@@ -596,7 +613,7 @@ export class MinimapRenderer extends BaseRenderer {
     }
 
     // Render the game map to minimap texture
-    renderMapToTexture(tileRenderer: TileRenderer, gamemap: number[]): void {
+    renderMapToTexture(tileRenderer: TileRenderer, gamemap: number[], rendererManager: RendererManager): void {
         // Save current WebGL state
         const viewport = this.gl.getParameter(this.gl.VIEWPORT);
 
@@ -619,6 +636,8 @@ export class MinimapRenderer extends BaseRenderer {
                 const tileIndex = gamemap[x + y * mapWidth];
                 minimapTiles.push([
                     x * minimapTileSize,
+                    // Fix the upside-down issue by flipping y-coordinates
+                    // (mapHeight - 1 - y) * minimapTileSize, // THis only flips each tile's position, not the whole map
                     y * minimapTileSize,
                     tileIndex
                 ]);
@@ -626,28 +645,27 @@ export class MinimapRenderer extends BaseRenderer {
         }
 
         // Render tiles to minimap texture
-        tileRenderer.updateTransformData(minimapTiles);
+        tileRenderer.updateTransformDataForMinimap(minimapTiles, minimapTileSize);
         tileRenderer.render();
 
         // Unbind framebuffer and restore viewport
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
         this.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
-        console.log('did it');
         // Explicitly make sure we're not messing with texture binding state
         this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
 
     updateTransformData(p_unused: any[], camera: CameraManager): void {
-        const minimapPadding = 10;
-        const minimapDisplaySize = Math.min(camera.gameScreenWidth, camera.gameScreenHeight) / 4;
-        this.transformData[0] = 100;           // x constant position
-        this.transformData[1] = 100;           // y constant position
+        const minimapPadding = 10 / camera.zoom;
+        const minimapDisplaySize = Math.min(camera.gameScreenWidth, camera.gameScreenHeight) / 5;
+        this.transformData[0] = minimapPadding;           // x constant position
+        this.transformData[1] = camera.gameScreenHeight - minimapDisplaySize - minimapPadding;
         this.transformData[2] = minimapDisplaySize;        // constant scale
-        this.transformData[3] = 1;           // r
-        this.transformData[4] = 1;           // g
-        this.transformData[5] = 1;           // b
-        this.transformData[6] = 0;           // texture index
+        this.transformData[3] = 1;  // r
+        this.transformData[4] = 1;  // g
+        this.transformData[5] = 1;  // b
+        this.transformData[6] = 0;  // texture index
 
         this.dirtyTransforms = true;
     }

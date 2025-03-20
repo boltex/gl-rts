@@ -216,10 +216,11 @@ out vec2 vTexCoord;
 void main()
 {
     vColor = aColor;
-    vTexCoord = aTexCoord;
+    vTexCoord = vec2(aTexCoord.x, 1.0 - aTexCoord.y); // Flip Y coordinate
     vec3 pos = aPosition.xyz * aScale + aOffset;
-    
-    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, 0.0, 1.0);
+
+    // This brings it in the range 0-2. So it also needs a -1 to 1 conversion.
+    gl_Position = vec4((pos.x * uWorldX) - 1.0, (pos.y * uWorldY) + 1.0, pos.z, 1.0);
 }`;
 
 // MINIMAP FRAGMENT SHADER

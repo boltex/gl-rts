@@ -16,7 +16,6 @@ export class RendererManager {
     private fontRenderer: FontRenderer;
     private static readonly WORLD_BINDING_POINT = 0;
     private minimapRenderer: MinimapRenderer;
-    private minimapNeedsUpdate: boolean = true;
     private minimapSize: number = 256; // Size of the minimap texture
 
     constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement, fontImage: HTMLImageElement) {
@@ -65,10 +64,6 @@ export class RendererManager {
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, this.worldData);
     }
 
-    setMinimapNeedsUpdate(): void {
-        this.minimapNeedsUpdate = true;
-    }
-
     render(
         visibleTiles: [number, number, number][],
         entitiesPool: TEntity[],
@@ -77,7 +72,8 @@ export class RendererManager {
         text: [number, number, number, number][],
         camera: CameraManager,
         interpolation: number,
-        gamemap: number[]
+        gamemap: number[],
+        minimapNeedsUpdate: boolean
     ): void {
 
         // TODO : Use interpolation for smooth rendering.
@@ -87,9 +83,15 @@ export class RendererManager {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         // Update minimap background if needed
-        if (this.minimapNeedsUpdate) {
-            this.minimapRenderer.renderMapToTexture(this.tileRenderer, gamemap);
-            this.minimapNeedsUpdate = false;
+        if (minimapNeedsUpdate) {
+
+            // Set UBO for minimap rendering
+            this.setUboWorldTransforms(this.minimapSize, this.minimapSize);
+
+            this.minimapRenderer.renderMapToTexture(this.tileRenderer, gamemap, this);
+
+            // Restore UBO for main game rendering
+            this.setUboWorldTransforms(camera.gameScreenWidth, camera.gameScreenHeight);
         }
 
         // Render tile layer.

@@ -102,6 +102,9 @@ export class InputManager {
 
     private handleKeyDown(e: KeyboardEvent): void {
 
+        // TODO : The top conditions in this method could be improved! More things should be prevented by default.
+        // For example, the default behavior of the 'F5' or keyboard zooms +/- should also be prevented by default.
+
         if (this.game.editorManager.isMapEditorOpen) {
             // Only when in Map Editor (Add tile inc/dec and ctrl+s/ctrl+o shortcuts)
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
@@ -178,7 +181,24 @@ export class InputManager {
                 this.game.toggleShowFPS();
                 return;
             }
-
+            // Check for Ctrl+m to toggle the music.
+            if (e.ctrlKey && e.key === 'm') {
+                e.preventDefault();
+                this.game.toggleMusic();
+                return;
+            }
+            // Check for Ctrl+s to toggle the sound.
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                this.game.toggleSound();
+                return;
+            }
+            // Check for 'tab' to toggle the minimap terrain visibility.
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                this.game.toggleTerrain();
+                return;
+            }
 
         }
 

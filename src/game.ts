@@ -47,6 +47,18 @@ export class Game {
     showFPS: boolean = false;
     gamemap: number[] = [];
     gameMapChanged: boolean = true;
+    minimapRect: TRectangle[] = [
+        {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            r: 1, // White
+            g: 1,
+            b: 1,
+            a: 0.15
+        }
+    ];
     gameAction: number = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
@@ -59,8 +71,8 @@ export class Game {
     }];
     lastScrollX = -1; // initialized at -1 so that we can detect first frame.
     lastScrollY = -1;
-    lastScreenX = -1;
-    lastScreenY = -1;
+    lastScreenWidth = -1;
+    lastScreenHeight = -1;
     animations: number[][] = [];
 
     private startGameHandler = this.startGame.bind(this);
@@ -393,27 +405,27 @@ export class Game {
 
             const visibleTiles: [number, number, number][] = []; // X, Y and Tile Index
             // If camera did not move nor zoom, we can reuse the last visible tiles by leaving visibleTiles empty.
-            if (
-                this.gameMapChanged ||
-                cameraManager.scrollX !== this.lastScrollX ||
+            const cameraChanged = cameraManager.scrollX !== this.lastScrollX ||
                 cameraManager.scrollY !== this.lastScrollY ||
-                cameraManager.gameScreenWidth !== this.lastScreenX ||
-                cameraManager.gameScreenHeight !== this.lastScreenY
+                cameraManager.gameScreenWidth !== this.lastScreenWidth ||
+                cameraManager.gameScreenHeight !== this.lastScreenHeight;
+            if (
+                this.gameMapChanged || cameraChanged
             ) {
                 // Save for next frame to check if camera moved.
-                this.lastScreenX = cameraManager.gameScreenWidth;
-                this.lastScreenY = cameraManager.gameScreenHeight;
+                this.lastScreenWidth = cameraManager.gameScreenWidth;
+                this.lastScreenHeight = cameraManager.gameScreenHeight;
                 this.lastScrollX = cameraManager.scrollX;
                 this.lastScrollY = cameraManager.scrollY;
                 const tilesize = CONFIG.GAME.TILE.SIZE;
                 const tileoffx = Math.floor(this.lastScrollX / tilesize);
                 const tileoffy = Math.floor(this.lastScrollY / tilesize);
-                let rangex = (this.lastScreenX / tilesize) + 1;
-                let rangey = (this.lastScreenY / tilesize) + 1;
-                if (this.lastScrollX % tilesize > tilesize - (this.lastScreenX % tilesize)) {
+                let rangex = (this.lastScreenWidth / tilesize) + 1;
+                let rangey = (this.lastScreenHeight / tilesize) + 1;
+                if (this.lastScrollX % tilesize > tilesize - (this.lastScreenWidth % tilesize)) {
                     rangex += 1;
                 }
-                if (this.lastScrollY % tilesize > tilesize - (this.lastScreenY % tilesize)) {
+                if (this.lastScrollY % tilesize > tilesize - (this.lastScreenHeight % tilesize)) {
                     rangey += 1;
                 }
                 for (let y = 0; y < rangey; y++) {
@@ -447,6 +459,26 @@ export class Game {
                 );
             }
 
+            // Minimap camera view rectangle
+            if (cameraChanged) {
+                // Calculate minimap properties (match those used in MinimapRenderer.updateTransformData)
+                const minimapPadding = 10 / cameraManager.zoom;
+                const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+                const minimapX = minimapPadding;
+                const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
+
+                // Calculate the scale ratio between world space and minimap space
+                const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
+                const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
+                const minimapScale = minimapDisplaySize / Math.max(mapWorldWidth, mapWorldHeight);
+
+                // Calculate viewport rectangle in minimap coordinates
+                this.minimapRect[0].x = minimapX + (cameraManager.scrollX * minimapScale);
+                this.minimapRect[0].y = minimapY + (cameraManager.scrollY * minimapScale);
+                this.minimapRect[0].width = cameraManager.gameScreenWidth * minimapScale;
+                this.minimapRect[0].height = cameraManager.gameScreenHeight * minimapScale;
+            }
+
             // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones.
             if (this.editorManager.isMapEditorOpen) {
 
@@ -457,7 +489,7 @@ export class Game {
                 for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
                     const lineY = y * tilesize - (this.lastScrollY % tilesize);
                     cursor.push(
-                        { x: 0, y: lineY, width: this.lastScreenX, height: thickness, r: 1, g: 1, b: 1, a: 1 }
+                        { x: 0, y: lineY, width: this.lastScreenWidth, height: thickness, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
 
@@ -465,7 +497,7 @@ export class Game {
                 for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
                     const lineX = x * tilesize - (this.lastScrollX % tilesize);
                     cursor.push(
-                        { x: lineX, y: 0, width: thickness, height: this.lastScreenY, r: 1, g: 1, b: 1, a: 1 }
+                        { x: lineX, y: 0, width: thickness, height: this.lastScreenHeight, r: 1, g: 1, b: 1, a: 1 }
                     );
                 }
 
@@ -512,6 +544,7 @@ export class Game {
                 visibleTiles,
                 this.entities.pool,
                 cursor,
+                this.minimapRect,
                 visibleWidgets,
                 text,
                 cameraManager,

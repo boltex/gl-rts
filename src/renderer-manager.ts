@@ -68,6 +68,7 @@ export class RendererManager {
         visibleTiles: [number, number, number][],
         entitiesPool: TEntity[],
         selectionRectangles: TRectangle[],
+        minimapViewRectangles: TRectangle[],
         visibleWidgets: [number, number, number, number][],
         text: [number, number, number, number][],
         camera: CameraManager,
@@ -129,6 +130,12 @@ export class RendererManager {
         // Render minimap in bottom left corner
         this.minimapRenderer.updateTransformData([], camera);
         this.minimapRenderer.render();
+
+        // Render current camera view as a rectangle on the minimap
+        if (minimapViewRectangles.length) {
+            this.rectangleRenderer.updateTransformData(minimapViewRectangles);
+            this.rectangleRenderer.render();
+        }
 
         this.gl.flush();
     }

@@ -246,63 +246,84 @@ export class InputManager {
         }
         this.setCursorPos(event);
         if (this.minimapDragging) {
-            const cameraManager = this.game.cameraManager;
-
-            // Calculate minimap bounds (same calculation as in MinimapRenderer)
-            const minimapPadding = 10 / cameraManager.zoom;
-            const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
-            const minimapX = minimapPadding;
-            const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
-
-            // The camera is being dragged by the minimap.
-            // Check if click is within minimap bounds
-            if (this.mouseX >= minimapX &&
-                this.mouseX <= minimapX + minimapDisplaySize &&
-                this.mouseY >= minimapY &&
-                this.mouseY <= minimapY + minimapDisplaySize) {
-
-                // Calculate the world position that corresponds to this minimap click
-                const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
-                const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
-
-                // Calculate relative position within minimap (0 to 1)
-                const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
-                const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
-
-                // Convert to world position
-                const worldX = minimapRelativeX * mapWorldWidth;
-                const worldY = minimapRelativeY * mapWorldHeight;
-
-                // Center the camera on this position
-                cameraManager.scrollX = worldX - (cameraManager.gameScreenWidth / 2);
-                cameraManager.scrollY = worldY - (cameraManager.gameScreenHeight / 2);
-
-                // Ensure camera stays within bounds
-                cameraManager.scroll();
-                this.minimapDragging = true;
+            // Check minimap first
+            if (this.handleMinimapInteraction()) {
                 return;
             }
         }
+        // Map editor mode
         if (this.game.editorManager.isMapEditorOpen) {
-            // Make sure the event click is over the canvas, not the map editor.
-            if (event.target !== this.game.canvasElement) {
+            if (this.handleMapEditorInteraction(event)) {
                 return;
             }
-            if (event.buttons === 1) {
-                // left
-                // Replace the clicked tile on the map with the selected tile in the map editor.
-                const tileIndex = this.game.editorManager.getSelectedTileIndex();
-                this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
-                return;
-            }
-            if (event.buttons === 2) {
-                // right mouse is like the eyedropper tool.
-                // Sample the tile index at the clicked position to select it in the map editor.
-                this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
-                return;
-            }
+            // We only returned if it was a click that interacted with the map editor.
         }
         this.applyMouseScroll();
+    }
+
+    private handleMinimapInteraction(): boolean {
+        const cameraManager = this.game.cameraManager;
+
+        // Calculate minimap bounds
+        const minimapPadding = 10 / cameraManager.zoom;
+        const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+        const minimapX = minimapPadding;
+        const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
+
+        // Check if cursor is within minimap bounds
+        if (this.mouseX >= minimapX &&
+            this.mouseX <= minimapX + minimapDisplaySize &&
+            this.mouseY >= minimapY &&
+            this.mouseY <= minimapY + minimapDisplaySize) {
+
+            // Calculate world position from minimap coordinates
+            const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
+            const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
+
+            // Calculate relative position within minimap (0 to 1)
+            const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
+            const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
+
+            // Convert to world position
+            const worldX = minimapRelativeX * mapWorldWidth;
+            const worldY = minimapRelativeY * mapWorldHeight;
+
+            // Center the camera on this position
+            cameraManager.scrollX = worldX - (cameraManager.gameScreenWidth / 2);
+            cameraManager.scrollY = worldY - (cameraManager.gameScreenHeight / 2);
+
+            // Ensure camera stays within bounds
+            cameraManager.scroll();
+            this.minimapDragging = true;
+            return true;
+        }
+        return false;
+    }
+
+    private handleMapEditorInteraction(event: MouseEvent): boolean {
+        // Make sure the event is over the canvas, not the map editor UI
+        if (event.target !== this.game.canvasElement) {
+            return false;
+        }
+
+        // Use buttons for move events, button for down events
+        const isLeftButton = event.type === 'mousedown' ? event.button === 0 : event.buttons === 1;
+        const isRightButton = event.type === 'mousedown' ? event.button === 2 : event.buttons === 2;
+
+        if (isLeftButton) {
+            // Replace the clicked tile with the selected one
+            const tileIndex = this.game.editorManager.getSelectedTileIndex();
+            this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
+            return true;
+        }
+
+        if (isRightButton) {
+            // Sample the tile at the clicked position
+            this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -364,66 +385,18 @@ export class InputManager {
             }
         }
 
+        // Map editor mode
         if (this.game.editorManager.isMapEditorOpen) {
-            // Make sure the event click is over the canvas, not the map editor.
-            if (event.target !== this.game.canvasElement) {
-                return;
-            }
-
-            if (event.button === 0) {
-                // left
-                // Replace the clicked tile on the map with the selected tile in the map editor.
-                const tileIndex = this.game.editorManager.getSelectedTileIndex();
-                this.game.setTileAt(this.gameMouseX, this.gameMouseY, tileIndex);
-            }
-            if (event.button === 2) {
-                // right mouse is like the eyedropper tool.
-                // Sample the tile index at the clicked position to select it in the map editor.
-                this.game.sampleTileAt(this.gameMouseX, this.gameMouseY);
-            }
-            return;
+            this.handleMapEditorInteraction(event)
+            return; // We return here to avoid the default behavior.
         }
 
         if (!this.selecting) {
             if (event.button === 0) {
-                // TODO:  First check if it is a click on the minimap.
-                // Check if it is a click on the minimap
-                const cameraManager = this.game.cameraManager;
-
-                // Calculate minimap bounds (same calculation as in MinimapRenderer)
-                const minimapPadding = 10 / cameraManager.zoom;
-                const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
-                const minimapX = minimapPadding;
-                const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
-
-                // Check if click is within minimap bounds
-                if (this.mouseX >= minimapX &&
-                    this.mouseX <= minimapX + minimapDisplaySize &&
-                    this.mouseY >= minimapY &&
-                    this.mouseY <= minimapY + minimapDisplaySize) {
-
-                    // Calculate the world position that corresponds to this minimap click
-                    const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
-                    const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
-
-                    // Calculate relative position within minimap (0 to 1)
-                    const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
-                    const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
-
-                    // Convert to world position
-                    const worldX = minimapRelativeX * mapWorldWidth;
-                    const worldY = minimapRelativeY * mapWorldHeight;
-
-                    // Center the camera on this position
-                    cameraManager.scrollX = worldX - (cameraManager.gameScreenWidth / 2);
-                    cameraManager.scrollY = worldY - (cameraManager.gameScreenHeight / 2);
-
-                    // Ensure camera stays within bounds
-                    cameraManager.scroll();
-                    this.minimapDragging = true;
+                // Check minimap first
+                if (this.handleMinimapInteraction()) {
                     return;
                 }
-
                 this.selecting = true;
                 this.selX = this.mouseX;
                 this.selY = this.mouseY;
@@ -437,7 +410,6 @@ export class InputManager {
         }
 
     }
-
 
     private handleMouseUp(event: MouseEvent): void {
         this.setCursorPos(event);

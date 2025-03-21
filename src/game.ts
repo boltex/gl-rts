@@ -587,7 +587,13 @@ export class Game {
     }
 
     defaultAction(): void {
+
+        // * This is the 'default' action for a context sensitive right-click (on ground is move, on ennemy is attack, )
+
         const gamePosition = this.inputManager.gamePosition;
+
+        // TODO : First check if the mouse is over the minimap, 
+        // if so, consider the default action to be done on the ground of the coordinates of the minimap. (usually move command)
 
         // TODO : Replace test cursor animation with the real default action
         // FOR NOW: START WIDGET ANIMATION ON DEFAULT ACTION

@@ -10,6 +10,7 @@ export class InputManager {
 
     private keysPressed: Record<string, boolean> = {};
     private selecting: boolean = false;
+    private minimapDragging: boolean = false;
     private dragScrolling: boolean = false;
     public mouseInScreen = true;
     public mouseX = 0;  // in gameScreen coordinates.
@@ -244,7 +245,44 @@ export class InputManager {
             this.scrollNowY = this.dragSpeed * dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
         }
         this.setCursorPos(event);
+        if (this.minimapDragging) {
+            const cameraManager = this.game.cameraManager;
 
+            // Calculate minimap bounds (same calculation as in MinimapRenderer)
+            const minimapPadding = 10 / cameraManager.zoom;
+            const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+            const minimapX = minimapPadding;
+            const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
+
+            // The camera is being dragged by the minimap.
+            // Check if click is within minimap bounds
+            if (this.mouseX >= minimapX &&
+                this.mouseX <= minimapX + minimapDisplaySize &&
+                this.mouseY >= minimapY &&
+                this.mouseY <= minimapY + minimapDisplaySize) {
+
+                // Calculate the world position that corresponds to this minimap click
+                const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
+                const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
+
+                // Calculate relative position within minimap (0 to 1)
+                const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
+                const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
+
+                // Convert to world position
+                const worldX = minimapRelativeX * mapWorldWidth;
+                const worldY = minimapRelativeY * mapWorldHeight;
+
+                // Center the camera on this position
+                cameraManager.scrollX = worldX - (cameraManager.gameScreenWidth / 2);
+                cameraManager.scrollY = worldY - (cameraManager.gameScreenHeight / 2);
+
+                // Ensure camera stays within bounds
+                cameraManager.scroll();
+                this.minimapDragging = true;
+                return;
+            }
+        }
         if (this.game.editorManager.isMapEditorOpen) {
             // Make sure the event click is over the canvas, not the map editor.
             if (event.target !== this.game.canvasElement) {
@@ -348,6 +386,44 @@ export class InputManager {
 
         if (!this.selecting) {
             if (event.button === 0) {
+                // TODO:  First check if it is a click on the minimap.
+                // Check if it is a click on the minimap
+                const cameraManager = this.game.cameraManager;
+
+                // Calculate minimap bounds (same calculation as in MinimapRenderer)
+                const minimapPadding = 10 / cameraManager.zoom;
+                const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+                const minimapX = minimapPadding;
+                const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
+
+                // Check if click is within minimap bounds
+                if (this.mouseX >= minimapX &&
+                    this.mouseX <= minimapX + minimapDisplaySize &&
+                    this.mouseY >= minimapY &&
+                    this.mouseY <= minimapY + minimapDisplaySize) {
+
+                    // Calculate the world position that corresponds to this minimap click
+                    const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
+                    const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
+
+                    // Calculate relative position within minimap (0 to 1)
+                    const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
+                    const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
+
+                    // Convert to world position
+                    const worldX = minimapRelativeX * mapWorldWidth;
+                    const worldY = minimapRelativeY * mapWorldHeight;
+
+                    // Center the camera on this position
+                    cameraManager.scrollX = worldX - (cameraManager.gameScreenWidth / 2);
+                    cameraManager.scrollY = worldY - (cameraManager.gameScreenHeight / 2);
+
+                    // Ensure camera stays within bounds
+                    cameraManager.scroll();
+                    this.minimapDragging = true;
+                    return;
+                }
+
                 this.selecting = true;
                 this.selX = this.mouseX;
                 this.selY = this.mouseY;
@@ -388,6 +464,7 @@ export class InputManager {
         }
 
         if (event.button === 0) {
+            this.minimapDragging = false; // In case it was dragging the camera on the minimap.
             this.gameSelEndX = this.mouseX + this.game.cameraManager.scrollX;
             this.gameSelEndY = this.mouseY + this.game.cameraManager.scrollY;
             this.selecting = false;

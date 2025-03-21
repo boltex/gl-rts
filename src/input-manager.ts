@@ -270,8 +270,9 @@ export class InputManager {
         const minimapX = minimapPadding;
         const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
 
-        // Check if cursor is within minimap bounds
-        if (this.mouseX >= minimapX &&
+        // Check if cursor is within minimap bounds, or if it's currently dragging the minimap
+        if (this.minimapDragging ||
+            this.mouseX >= minimapX &&
             this.mouseX <= minimapX + minimapDisplaySize &&
             this.mouseY >= minimapY &&
             this.mouseY <= minimapY + minimapDisplaySize) {
@@ -280,9 +281,13 @@ export class InputManager {
             const mapWorldWidth = CONFIG.GAME.MAP.WIDTH * CONFIG.GAME.TILE.SIZE;
             const mapWorldHeight = CONFIG.GAME.MAP.HEIGHT * CONFIG.GAME.TILE.SIZE;
 
+            // Clamp mouse position to minimap bounds because we allowed dragging outside the minimap
+            const cappedMouseX = Math.min(Math.max(this.mouseX, minimapX), minimapX + minimapDisplaySize);
+            const cappedmouseY = Math.min(Math.max(this.mouseY, minimapY), minimapY + minimapDisplaySize);
+
             // Calculate relative position within minimap (0 to 1)
-            const minimapRelativeX = (this.mouseX - minimapX) / minimapDisplaySize;
-            const minimapRelativeY = (this.mouseY - minimapY) / minimapDisplaySize;
+            const minimapRelativeX = (cappedMouseX - minimapX) / minimapDisplaySize;
+            const minimapRelativeY = (cappedmouseY - minimapY) / minimapDisplaySize;
 
             // Convert to world position
             const worldX = minimapRelativeX * mapWorldWidth;
@@ -387,7 +392,7 @@ export class InputManager {
 
         // Map editor mode
         if (this.game.editorManager.isMapEditorOpen) {
-            this.handleMapEditorInteraction(event)
+            this.handleMapEditorInteraction(event);
             return; // We return here to avoid the default behavior.
         }
 

@@ -12,6 +12,7 @@ import { FileManager } from "./ui/file-manager";
 import { MainMenuManager } from "./ui/main-menu-manager";
 import { OptionsMenuManager } from "./ui/options-menu-manager";
 import * as utils from "./utils";
+import { AudioManager } from "./audio-manager";
 
 export class Game {
 
@@ -25,6 +26,7 @@ export class Game {
     optionsMenuManager: OptionsMenuManager;
     fileManager: FileManager;
     editorManager: EditorManager;
+    audioManager: AudioManager;
 
     // Canvas Properties
     lastDisplayWidth = 0;
@@ -39,7 +41,11 @@ export class Game {
     keyboardSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_KEYBOARD_SPEED; // Affects inputManager.keyboardSpeed
     scrollSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_SCROLL_SPEED; // Affects inputManager.scrollSpeed
     dragSpeedIndex: number = CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_SPEED; // Affects inputManager.dragSpeed
-    invertDrag: boolean = false; // Affects inputManager.invertDrag
+    invertDrag: boolean = CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_INVERT; // Affects inputManager.invertDrag
+    musicEnabled: boolean = true;
+    musicVolume: number = 50;
+    soundEnabled: boolean = true;
+    soundVolume: number = 50;
 
     // Game state Properties
     started: boolean = false;
@@ -116,6 +122,7 @@ export class Game {
         this.mainMenuManager = new MainMenuManager(this);
         this.optionsMenuManager = new OptionsMenuManager(this);
         this.editorManager = new EditorManager(this, this.fileManager);
+        this.audioManager = new AudioManager(this);
 
         // Load settings from local storage at start. Those are saved when users presses ok in settings dialog.
         this.loadSettingsLocalStorage();
@@ -614,18 +621,76 @@ export class Game {
     }
 
     toggleMusic(): void {
-        // TODO: Implement toggleMusic
-        //
+        this.musicEnabled = !this.musicEnabled;
+        this.audioManager.setMusicVolume(this.musicEnabled ? this.musicVolume / 100 : 0);
+    }
+
+    setMusicEnabled(value: boolean): void {
+        this.musicEnabled = value;
+        this.audioManager.setMusicVolume(this.musicEnabled ? this.musicVolume / 100 : 0);
+    }
+
+    setMusicVolume(volume: number): void {
+        this.musicVolume = volume;
+        this.audioManager.setMusicVolume(this.musicEnabled ? this.musicVolume / 100 : 0);
+    }
+
+    incrementMusicVolume(): void {
+        this.musicVolume += 5;
+        this.musicVolume = Math.ceil(this.musicVolume / 5) * 5;
+        if (this.musicVolume > 100) {
+            this.musicVolume = 100;
+        }
+        this.audioManager.setMusicVolume(this.musicEnabled ? this.musicVolume / 100 : 0);
+    }
+
+    decrementMusicVolume(): void {
+        this.musicVolume -= 5;
+        this.musicVolume = Math.ceil(this.musicVolume / 5) * 5;
+        if (this.musicVolume < 0) {
+            this.musicVolume = 0;
+        }
+        this.audioManager.setMusicVolume(this.musicEnabled ? this.musicVolume / 100 : 0);
     }
 
     toggleSound(): void {
-        // TODO: Implement toggleSound
-        //
+        this.soundEnabled = !this.soundEnabled;
+        this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
+    }
+
+    setSoundEnabled(value: boolean): void {
+        this.soundEnabled = value;
+        this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
+    }
+
+    setSoundVolume(volume: number): void {
+        this.soundVolume = volume;
+        this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
+
+    }
+
+    incrementSoundVolume(): void {
+        this.soundVolume += 5;
+        this.soundVolume = Math.ceil(this.soundVolume / 5) * 5;
+        if (this.soundVolume > 100) {
+            this.soundVolume = 100;
+        }
+        this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
+    }
+
+    decrementSoundVolume(): void {
+        this.soundVolume -= 5;
+        this.soundVolume = Math.ceil(this.soundVolume / 5) * 5;
+        if (this.soundVolume < 0) {
+            this.soundVolume = 0;
+        }
+        this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
     }
 
     toggleTerrain(): void {
-        // TODO: Implement toggleTerrain
-        //
+        // todo
+        console.log('todo: toggleTerrain');
+        this.rendererManager.toggleTerrain();
     }
 
     setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {
@@ -723,7 +788,11 @@ export class Game {
             keyboardSpeedIndex: this.keyboardSpeedIndex,
             scrollSpeedIndex: this.scrollSpeedIndex,
             dragSpeedIndex: this.dragSpeedIndex,
-            invertDrag: this.invertDrag
+            invertDrag: this.invertDrag,
+            musicEnabled: this.musicEnabled,
+            musicVolume: this.musicVolume,
+            soundEnabled: this.soundEnabled,
+            soundVolume: this.soundVolume
         };
         localStorage.setItem('settings', JSON.stringify(settings));
     }
@@ -733,12 +802,18 @@ export class Game {
         // If inexistant settings, the defaults will remain.
         if (settings) {
             const parsedSettings = JSON.parse(settings);
-            this.resolutionIndex = parsedSettings.resolutionIndex;
-            this.gameSpeedIndex = parsedSettings.gameSpeedIndex;
-            this.keyboardSpeedIndex = parsedSettings.keyboardSpeedIndex;
-            this.scrollSpeedIndex = parsedSettings.scrollSpeedIndex;
-            this.dragSpeedIndex = parsedSettings.dragSpeedIndex;
-            this.invertDrag = parsedSettings.invertDrag;
+
+            this.resolutionIndex = parsedSettings.resolutionIndex ?? this.resolutionIndex;
+            this.gameSpeedIndex = parsedSettings.gameSpeedIndex ?? this.gameSpeedIndex;
+            this.keyboardSpeedIndex = parsedSettings.keyboardSpeedIndex ?? this.keyboardSpeedIndex;
+            this.scrollSpeedIndex = parsedSettings.scrollSpeedIndex ?? this.scrollSpeedIndex;
+            this.dragSpeedIndex = parsedSettings.dragSpeedIndex ?? this.dragSpeedIndex;
+            this.invertDrag = parsedSettings.invertDrag ?? this.invertDrag;
+            this.musicEnabled = parsedSettings.musicEnabled ?? this.musicEnabled;
+            this.musicVolume = parsedSettings.musicVolume ?? this.musicVolume;
+            this.soundEnabled = parsedSettings.soundEnabled ?? this.soundEnabled;
+            this.soundVolume = parsedSettings.soundVolume ?? this.soundVolume;
+
             this.setResolution(this.resolutionIndex);
             this.setGameSpeed(this.gameSpeedIndex);
             this.setKeyboardSpeed(this.keyboardSpeedIndex);

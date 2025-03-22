@@ -48,7 +48,7 @@ export class InputManager {
         this.keyboardSpeed = CONFIG.CAMERA.SCROLL.KEYBOARD_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_KEYBOARD_SPEED].value;
         this.scrollSpeed = CONFIG.CAMERA.SCROLL.SCROLL_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_SCROLL_SPEED].value;
         this.dragSpeed = CONFIG.CAMERA.SCROLL.DRAG_SPEEDS[CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_SPEED].value;
-        this.invertDrag = false;
+        this.invertDrag = CONFIG.CAMERA.SCROLL.DEFAULT_DRAG_INVERT;
     }
 
     setKeyboardSpeed(keyboardSpeed: number): void {

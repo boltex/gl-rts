@@ -5,6 +5,10 @@ export type Settings = {
     scrollSpeedIndex: number;
     dragSpeedIndex: number;
     invertDrag: boolean;
+    musicEnabled: boolean;
+    musicVolume: number;
+    soundEnabled: boolean;
+    soundVolume: number;
 }
 
 export type Vec2 = { x: number, y: number };

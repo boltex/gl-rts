@@ -105,6 +105,7 @@ const CAMERA = {
             { label: "Faster", value: 145 }, // 5
             { label: "Fastest", value: 175 }, // 6   
         ],
+        DEFAULT_DRAG_INVERT: false,
         DEFAULT_DRAG_SPEED: 3, // speed index for DRAG_SPEEDS
         DRAG_SPEEDS: [
             // Mouse drag speed multipliers for moving the map with middle mouse button
@@ -118,6 +119,13 @@ const CAMERA = {
         ]
     }
 } as const;
+
+const AUDIO = {
+    DEFAULT_MUSIC_ENABLED: true,
+    DEFAULT_SOUND_ENABLED: true,
+    DEFAULT_MUSIC_VOLUME: 50,
+    DEFAULT_SOUND_VOLUME: 50,
+}
 
 const UI = {
     WIDGET: {

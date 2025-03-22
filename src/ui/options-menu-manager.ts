@@ -46,7 +46,11 @@ export class OptionsMenuManager {
                 keyboardSpeedIndex: this.game.keyboardSpeedIndex,
                 scrollSpeedIndex: this.game.scrollSpeedIndex,
                 dragSpeedIndex: this.game.dragSpeedIndex,
-                invertDrag: this.game.invertDrag
+                invertDrag: this.game.invertDrag,
+                musicEnabled: this.game.musicEnabled,
+                musicVolume: this.game.musicVolume,
+                soundEnabled: this.game.soundEnabled,
+                soundVolume: this.game.soundVolume,
             };
         }
     }
@@ -59,6 +63,10 @@ export class OptionsMenuManager {
         this.game.setScrollSpeed(this.oldSettings.scrollSpeedIndex);
         this.game.setDragSpeed(this.oldSettings.dragSpeedIndex);
         this.game.changeInvertDrag(this.oldSettings.invertDrag);
+        this.game.setMusicEnabled(this.oldSettings.musicEnabled);
+        this.game.setMusicVolume(this.oldSettings.musicVolume);
+        this.game.setSoundEnabled(this.oldSettings.soundEnabled);
+        this.game.setSoundVolume(this.oldSettings.soundVolume);
         this.toggleMenu();
     }
 
@@ -80,6 +88,18 @@ export class OptionsMenuManager {
         }
         if (this.invertDragCheckbox) {
             this.invertDragCheckbox.checked = this.game.invertDrag;
+        }
+        if (this.toggleMusicCheckbox) {
+            this.toggleMusicCheckbox.checked = this.game.musicEnabled;
+        }
+        if (this.musicVolumeRange) {
+            this.musicVolumeRange.value = this.game.musicVolume.toString();
+        }
+        if (this.toggleSoundCheckbox) {
+            this.toggleSoundCheckbox.checked = this.game.soundEnabled;
+        }
+        if (this.soundVolumeRange) {
+            this.soundVolumeRange.value = this.game.soundVolume.toString();
         }
     }
 
@@ -328,6 +348,9 @@ export class OptionsMenuManager {
         musicVolumeDecrement.textContent = "-";
         musicVolumeDecrement.addEventListener("click", () => {
             this.game.decrementMusicVolume();
+            if (this.musicVolumeRange) {
+                this.musicVolumeRange.value = this.game.musicVolume.toString();
+            }
         });
         this.gameMenuElement.appendChild(musicVolumeDecrement);
         this.musicVolumeRange = document.createElement("input");
@@ -350,6 +373,9 @@ export class OptionsMenuManager {
         musicVolumeIncrement.classList.add("button-increment");
         musicVolumeIncrement.addEventListener("click", () => {
             this.game.incrementMusicVolume();
+            if (this.musicVolumeRange) {
+                this.musicVolumeRange.value = this.game.musicVolume.toString();
+            }
         });
         this.gameMenuElement.appendChild(musicVolumeIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));
@@ -380,6 +406,9 @@ export class OptionsMenuManager {
         soundVolumeDecrement.textContent = "-";
         soundVolumeDecrement.addEventListener("click", () => {
             this.game.decrementSoundVolume();
+            if (this.soundVolumeRange) {
+                this.soundVolumeRange.value = this.game.soundVolume.toString();
+            }
         });
         this.gameMenuElement.appendChild(soundVolumeDecrement);
         this.soundVolumeRange = document.createElement("input");
@@ -400,6 +429,9 @@ export class OptionsMenuManager {
         soundVolumeIncrement.classList.add("button-increment");
         soundVolumeIncrement.addEventListener("click", () => {
             this.game.incrementSoundVolume();
+            if (this.soundVolumeRange) {
+                this.soundVolumeRange.value = this.game.soundVolume.toString();
+            }
         });
         this.gameMenuElement.appendChild(soundVolumeIncrement);
         this.gameMenuElement.appendChild(document.createElement("br"));

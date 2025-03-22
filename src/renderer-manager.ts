@@ -17,6 +17,7 @@ export class RendererManager {
     private static readonly WORLD_BINDING_POINT = 0;
     private minimapRenderer: MinimapRenderer;
     private minimapSize: number = 256; // Size of the minimap texture
+    private terrainVisible: boolean = true; // Draw terrain background titles under units
 
     constructor(gl: WebGL2RenderingContext, tilesImage: HTMLImageElement, creaturesImage: HTMLImageElement, widgetsImage: HTMLImageElement, fontImage: HTMLImageElement) {
         this.gl = gl;
@@ -32,6 +33,10 @@ export class RendererManager {
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, 16, this.gl.DYNAMIC_DRAW);
         this.initUboBindings();
         this.worldData = new Float32Array(2);
+    }
+
+    toggleTerrain(): void {
+        this.terrainVisible = !this.terrainVisible;
     }
 
     private initUboBindings(): void {

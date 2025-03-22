@@ -618,9 +618,33 @@ export class Game {
         //
     }
 
+    public setMusicVolume(volume: number): void {
+        // todo
+    }
+
+    public incrementMusicVolume(): void {
+        // todo
+    }
+
+    public decrementMusicVolume(): void {
+        // todo
+    }
+
     toggleSound(): void {
         // TODO: Implement toggleSound
         //
+    }
+
+    public setSoundVolume(volume: number): void {
+        // todo
+    }
+
+    public incrementSoundVolume(): void {
+        // todo
+    }
+
+    public decrementSoundVolume(): void {
+        // todo
     }
 
     toggleTerrain(): void {

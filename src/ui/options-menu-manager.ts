@@ -11,6 +11,10 @@ export class OptionsMenuManager {
     private scrollSpeedRange: HTMLInputElement | null = null;
     private dragSpeedRange: HTMLInputElement | null = null;
     private invertDragCheckbox: HTMLInputElement | null = null;
+    private toggleMusicCheckbox: HTMLInputElement | null = null;
+    private musicVolumeRange: HTMLInputElement | null = null;
+    private toggleSoundCheckbox: HTMLInputElement | null = null;
+    private soundVolumeRange: HTMLInputElement | null = null;
 
     private game: Game;
 
@@ -143,7 +147,6 @@ export class OptionsMenuManager {
         this.gameSpeedRange.value = "3";
         this.gameSpeedRange.addEventListener("change", () => {
             if (this.gameSpeedRange) {
-                console.log('gameSpeedRange changed to:', this.gameSpeedRange.value);
                 this.game.setGameSpeed(parseInt(this.gameSpeedRange.value, 10));
             }
         });
@@ -184,7 +187,6 @@ export class OptionsMenuManager {
         this.scrollSpeedRange.value = "3";
         this.scrollSpeedRange.addEventListener("change", () => {
             if (this.scrollSpeedRange) {
-                console.log('scrollSpeedRange changed to:', this.scrollSpeedRange.value);
                 this.game.setScrollSpeed(parseInt(this.scrollSpeedRange.value, 10));
             }
         });
@@ -266,7 +268,6 @@ export class OptionsMenuManager {
         this.dragSpeedRange.value = "3";
         this.dragSpeedRange.addEventListener("change", () => {
             if (this.dragSpeedRange) {
-                console.log('dragSpeedRange changed to:', this.dragSpeedRange.value);
                 this.game.setDragSpeed(parseInt(this.dragSpeedRange.value, 10));
             }
         });
@@ -298,6 +299,111 @@ export class OptionsMenuManager {
         });
         this.gameMenuElement.appendChild(this.invertDragCheckbox);
         this.gameMenuElement.appendChild(document.createElement("br"));
+
+
+        // Create toggle music checkbox
+        const toggleMusicLabel = document.createElement("label");
+        toggleMusicLabel.textContent = "Toggle Music";
+        toggleMusicLabel.htmlFor = "toggle-music";
+        this.gameMenuElement.appendChild(toggleMusicLabel);
+        this.toggleMusicCheckbox = document.createElement("input");
+        this.toggleMusicCheckbox.id = "toggle-music";
+        this.toggleMusicCheckbox.type = "checkbox";
+        this.toggleMusicCheckbox.checked = true;
+        this.toggleMusicCheckbox.addEventListener("change", () => {
+            // Toggle music
+            this.game.toggleMusic();
+        });
+        this.gameMenuElement.appendChild(this.toggleMusicCheckbox);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+
+        // Create music volume range input made of two buttons to decrement and increment, 
+        const musicVolumeLabel = document.createElement("label");
+        musicVolumeLabel.htmlFor = "music-volume";
+        musicVolumeLabel.textContent = "Music Volume";
+        this.gameMenuElement.appendChild(musicVolumeLabel);
+
+        const musicVolumeDecrement = document.createElement("button");
+        musicVolumeDecrement.textContent = "-";
+        musicVolumeDecrement.addEventListener("click", () => {
+            this.game.decrementMusicVolume();
+        });
+        this.gameMenuElement.appendChild(musicVolumeDecrement);
+        this.musicVolumeRange = document.createElement("input");
+        this.musicVolumeRange.id = "music-volume";
+        this.musicVolumeRange.type = "range";
+        this.musicVolumeRange.min = "0";
+        this.musicVolumeRange.max = "100";
+        this.musicVolumeRange.step = "1";
+        this.musicVolumeRange.value = "50";
+        this.musicVolumeRange.addEventListener("change", () => {
+            if (this.musicVolumeRange) {
+                this.game.setMusicVolume(
+                    parseInt(this.musicVolumeRange.value, 10)
+                );
+            }
+        });
+        this.gameMenuElement.appendChild(this.musicVolumeRange);
+        const musicVolumeIncrement = document.createElement("button");
+        musicVolumeIncrement.textContent = "+";
+        musicVolumeIncrement.classList.add("button-increment");
+        musicVolumeIncrement.addEventListener("click", () => {
+            this.game.incrementMusicVolume();
+        });
+        this.gameMenuElement.appendChild(musicVolumeIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create toggle sound checkbox
+        const toggleSoundLabel = document.createElement("label");
+        toggleSoundLabel.textContent = "Toggle Sound";
+        toggleSoundLabel.htmlFor = "toggle-sound";
+        this.gameMenuElement.appendChild(toggleSoundLabel);
+        this.toggleSoundCheckbox = document.createElement("input");
+        this.toggleSoundCheckbox.id = "toggle-sound";
+        this.toggleSoundCheckbox.type = "checkbox";
+        this.toggleSoundCheckbox.checked = true;
+        this.toggleSoundCheckbox.addEventListener("change", () => {
+            // Toggle sound
+            this.game.toggleSound();
+        });
+        this.gameMenuElement.appendChild(this.toggleSoundCheckbox);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
+        // Create music volume range input made of two buttons to decrement and increment, 
+        const soundVolumeLabel = document.createElement("label");
+        soundVolumeLabel.textContent = "Sound Volume";
+        soundVolumeLabel.htmlFor = "sound-volume";
+        this.gameMenuElement.appendChild(soundVolumeLabel);
+
+        const soundVolumeDecrement = document.createElement("button");
+        soundVolumeDecrement.textContent = "-";
+        soundVolumeDecrement.addEventListener("click", () => {
+            this.game.decrementSoundVolume();
+        });
+        this.gameMenuElement.appendChild(soundVolumeDecrement);
+        this.soundVolumeRange = document.createElement("input");
+        this.soundVolumeRange.id = "sound-volume";
+        this.soundVolumeRange.type = "range";
+        this.soundVolumeRange.min = "0";
+        this.soundVolumeRange.max = "100";
+        this.soundVolumeRange.step = "1";
+        this.soundVolumeRange.value = "50";
+        this.soundVolumeRange.addEventListener("change", () => {
+            if (this.soundVolumeRange) {
+                this.game.setSoundVolume(parseInt(this.soundVolumeRange.value, 10));
+            }
+        });
+        this.gameMenuElement.appendChild(this.soundVolumeRange);
+        const soundVolumeIncrement = document.createElement("button");
+        soundVolumeIncrement.textContent = "+";
+        soundVolumeIncrement.classList.add("button-increment");
+        soundVolumeIncrement.addEventListener("click", () => {
+            this.game.incrementSoundVolume();
+        });
+        this.gameMenuElement.appendChild(soundVolumeIncrement);
+        this.gameMenuElement.appendChild(document.createElement("br"));
+
 
         // Add 'OK' and 'Cancel' buttons
         const okButton = document.createElement("button");

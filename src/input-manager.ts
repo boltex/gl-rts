@@ -12,6 +12,7 @@ export class InputManager {
     private selecting: boolean = false;
     private minimapDragging: boolean = false;
     private dragScrolling: boolean = false;
+    private borderScrolling: boolean = false;
     public mouseInScreen = true;
     public mouseX = 0;  // in gameScreen coordinates.
     public mouseY = 0;
@@ -243,6 +244,41 @@ export class InputManager {
             // Then, convert the difference to game coordinates.
             this.scrollNowX = this.dragSpeed * dragX * (this.game.cameraManager.gameScreenWidth / this.game.canvasBoundingRect.width);
             this.scrollNowY = this.dragSpeed * dragY * (this.game.cameraManager.gameScreenHeight / this.game.canvasBoundingRect.height);
+
+            // Update the cursor to reflect the drag direction based on scrollNowX and scrollNowY.
+            let cursor = 'cur-none';
+
+            // Only update if we're actually moving
+            if (this.scrollNowX !== 0 || this.scrollNowY !== 0) {
+                // Calculate the angle in radians
+                const angle = Math.atan2(this.scrollNowY, this.scrollNowX);
+
+                // Convert to degrees (0-360)
+                let degrees = angle * 180 / Math.PI;
+                if (degrees < 0) {
+                    degrees += 360;
+                }
+
+                // Determine direction based on angle with 45-degree segments (±22.5° around each direction)
+                if ((degrees >= 337.5 || degrees < 22.5)) {
+                    cursor = 'cur-scroll-right';
+                } else if (degrees >= 22.5 && degrees < 67.5) {
+                    cursor = 'cur-scroll-bottom-right';
+                } else if (degrees >= 67.5 && degrees < 112.5) {
+                    cursor = 'cur-scroll-bottom';
+                } else if (degrees >= 112.5 && degrees < 157.5) {
+                    cursor = 'cur-scroll-bottom-left';
+                } else if (degrees >= 157.5 && degrees < 202.5) {
+                    cursor = 'cur-scroll-left';
+                } else if (degrees >= 202.5 && degrees < 247.5) {
+                    cursor = 'cur-scroll-top-left';
+                } else if (degrees >= 247.5 && degrees < 292.5) {
+                    cursor = 'cur-scroll-top';
+                } else if (degrees >= 292.5 && degrees < 337.5) {
+                    cursor = 'cur-scroll-top-right';
+                }
+            }
+            this.game.cursorManager.setCursor(cursor);
         }
         this.setCursorPos(event);
         if (this.minimapDragging) {
@@ -332,12 +368,14 @@ export class InputManager {
     }
 
     /**
-     * Set the scroll velocity based on the mouse position. (If not dragging)
+     * Set the scroll velocity based on the mouse position.
      */
     private applyMouseScroll(): void {
-        if (!this.dragScrolling && !this.selecting) {
-            this.scrollNowX = 0;
-            this.scrollNowY = 0;
+        if (!this.selecting) {
+            if (!this.dragScrolling) {
+                this.scrollNowX = 0;
+                this.scrollNowY = 0;
+            }
             const fps = this.game.timeManager.fps || 1; // Avoid division by zero.
             let cursor: string | undefined;
             const camera = this.game.cameraManager;
@@ -365,9 +403,13 @@ export class InputManager {
                 }
             }
             if (cursor) {
+                this.borderScrolling = true;
                 this.game.cursorManager.setCursor(cursor);
-            } else {
+            } else if (!this.dragScrolling) {
                 this.game.cursorManager.setCursor('cur-pointer');
+                this.borderScrolling = false;
+            } else {
+                this.borderScrolling = false;
             }
         }
     }
@@ -534,8 +576,8 @@ export class InputManager {
         // Scroll if not currently dragging a selection and in the game area.
         if (!this.selecting && this.mouseInScreen) {
             this.game.cameraManager.scroll(this.scrollVelocity);
-            if (this.dragScrolling) {
-                // Reset veolcity to 0 after scrolling.
+            if (this.dragScrolling && !this.borderScrolling) {
+                // Reset velocity to 0 after scrolling.
                 this.scrollNowX = 0;
                 this.scrollNowY = 0;
             }

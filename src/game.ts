@@ -666,7 +666,6 @@ export class Game {
     setSoundVolume(volume: number): void {
         this.soundVolume = volume;
         this.audioManager.setSoundVolume(this.soundEnabled ? this.soundVolume / 100 : 0);
-
     }
 
     incrementSoundVolume(): void {
@@ -688,9 +687,8 @@ export class Game {
     }
 
     toggleTerrain(): void {
-        // todo
-        console.log('todo: toggleTerrain');
         this.rendererManager.toggleTerrain();
+        this.gameMapChanged = true;
     }
 
     setTileAt(gameMouseX: number, gameMouseY: number, tileIndex: number): void {

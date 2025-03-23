@@ -188,7 +188,7 @@ export class Game {
     initGameStates(): void {
         this.entities = new Entities(CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.entityBehaviors = new Behaviors(this);
-        // Prepare 64 animations of 10 frames going from 1 to 10.
+        // Prepare 64 'default' animations of 10 frames going from 1 to 10.
         for (let i = 0; i < 64; i++) {
             this.animations.push([]);
             for (let j = 0; j < 10; j++) {
@@ -759,24 +759,37 @@ export class Game {
     }
 
     saveEntities(): void {
-        // Todo: save the entities list (only for active, not all pool)
-        // to a file
+        // TODO : Save the entities list (only for active, not all pool)
+        console.log("Save Entities!");
     }
 
     openEntities(): void {
-        // Open an entities list from file, replacing the current entities list
+        // TODO : Open an entities list from file, replacing the current entities list
         // The file is a JSON file containing an array of entities
-        // TODO : implement
+        console.log("Open Entities!");
     }
 
-    saveAnimationList(): void {
-        // Todo: save the animations dictionary to a file
-        //
+    saveAnimations(animations?: number[][]): void {
+        if (!animations) {
+            animations = this.animations;
+        }
+        const jsonString = JSON.stringify(animations, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "animations.json";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
-    openAnimationList(): void {
-        // Open a json animation dictionary file
-        // TODO : Implement
+    openAnimations(jsonData: number[][]): void {
+        // Load the animations from a JSON file
+        this.animations = jsonData;
+        // Refresh the editor's animations list
+        this.editorManager.updateAnimationPreview();
     }
 
     saveSettingsLocalStorage(): void {

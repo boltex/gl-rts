@@ -93,6 +93,18 @@ export class EditorManager {
 
     updateAnimationPreview(): void {
         // Put the content of the current animation list into the animListText input.
+        if (this.game.animations[this.currentAnimIndex] == null) {
+            // This specific animation of currentAnimIndex does not exist!
+            this.currentAnimIndex = 0;
+            if (this.game.animations[this.currentAnimIndex] == null) {
+                // Not even the first animation list is initialized!
+                this.game.animations[this.currentAnimIndex] = []; // Initialize the first animation list
+            }
+            if (this.animInput) {
+                this.animInput.value = this.currentAnimIndex.toString();
+            }
+        }
+
         if (this.animListText) {
             this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         }

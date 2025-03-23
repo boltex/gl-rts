@@ -130,7 +130,7 @@ const AUDIO = {
 const UI = {
     WIDGET: {
         TOTAL_FRAMES: 6,
-        ANIMATION_FRAMES: [0, 2, 4, 3, 2, 1] // 6 frames
+        ANIMATION_FRAMES: [0, 2, 4, 3, 2, 1] // Widget animation has 6 frames
     }
 } as const;
 

@@ -50,18 +50,18 @@ export class EditorManager {
 
     incrementMapTile(): void {
         this.currentTileIndex = (this.currentTileIndex + 1) % CONFIG.GAME.TILE.DEPTH;
-        this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
         }
+        this.updateTilePreview();
     }
 
     decrementMapTile(): void {
         this.currentTileIndex = (this.currentTileIndex - 1 + CONFIG.GAME.TILE.DEPTH) % CONFIG.GAME.TILE.DEPTH;
-        this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
         }
+        this.updateTilePreview();
     }
 
     incrementAnimation(): void {
@@ -164,13 +164,6 @@ export class EditorManager {
             this.fileManager.saveMapFile();
         });
 
-        // Append elements to map editor container
-        this.mapEditorElement.appendChild(this.tilePreview);
-        this.mapEditorElement.appendChild(upTileButton);
-        this.mapEditorElement.appendChild(downTileButton);
-        this.mapEditorElement.appendChild(this.tileInput);
-        // Insert newline
-        this.mapEditorElement.appendChild(document.createElement("br"));
         this.mapEditorElement.appendChild(openMapButton);
         this.mapEditorElement.appendChild(saveMapButton);
 
@@ -196,14 +189,14 @@ export class EditorManager {
         this.animInput = document.createElement("input");
         this.animInput.type = "number";
         this.animInput.min = "0";
-        this.animInput.max = (CONFIG.GAME.TILE.DEPTH - 1).toString();
+        this.animInput.max = (CONFIG.GAME.ANIMATIONS.TOTAL - 1).toString();
         this.animInput.value = this.currentAnimIndex.toString();
         this.animInput.addEventListener("change", () => {
             if (this.animInput) {
                 let newValue = parseInt(this.animInput.value, 10);
                 if (isNaN(newValue)) newValue = 0;
                 const min = 0;
-                const max = CONFIG.GAME.TILE.DEPTH - 1;
+                const max = CONFIG.GAME.ANIMATIONS.TOTAL - 1;
                 newValue = Math.max(min, Math.min(newValue, max));
                 this.currentAnimIndex = newValue;
                 this.animInput.value = newValue.toString();
@@ -220,6 +213,7 @@ export class EditorManager {
             if (this.animListText) {
                 console.log("animListText changed to:", this.animListText.value);
                 // parse the input value into an array of numbers, checking that it is valid.
+                const previousValue = this.animListText.value;
                 try {
                     const animList = JSON.parse(this.animListText.value);
                     if (Array.isArray(animList) && animList.every((val: any) => typeof val === 'number')) {
@@ -229,6 +223,8 @@ export class EditorManager {
                     }
                 } catch (err) {
                     console.error('Error parsing animation list:', err);
+                    // Reset to previous valid value
+                    this.animListText.value = previousValue;
                 }
             }
         });

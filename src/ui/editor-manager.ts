@@ -233,12 +233,12 @@ export class EditorManager {
         const openAnimationsButton = document.createElement("button");
         openAnimationsButton.textContent = "Open";
         openAnimationsButton.addEventListener("click", () => {
-            this.game.fileManager.openAnimationsFile();
+            this.fileManager.openAnimationsFile();
         });
         const saveAnimationsButton = document.createElement("button");
         saveAnimationsButton.textContent = "Save";
         saveAnimationsButton.addEventListener("click", () => {
-            this.game.fileManager.saveAnimationsFile();
+            this.fileManager.saveAnimationsFile();
         });
 
         this.mapEditorElement.appendChild(upAnimButton);

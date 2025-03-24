@@ -11,7 +11,9 @@ export class EditorManager {
 
     private animInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
-    private currentAnimIndex: number = 0;
+    currentAnimIndex: number = 0; // Current animation shown in the editor
+
+    previewAnimationFrame: number = 0; // Current frame of the animation being previewed
 
     private game: Game;
     private fileManager: FileManager;
@@ -108,6 +110,9 @@ export class EditorManager {
         if (this.animListText) {
             this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         }
+
+        // restart the preview animation
+        this.previewAnimationFrame = 0;
     }
 
     private buildMapEditor(): void {
@@ -228,7 +233,10 @@ export class EditorManager {
                 const previousValue = this.animListText.value;
                 try {
                     const animList = JSON.parse(this.animListText.value);
-                    if (Array.isArray(animList) && animList.every((val: any) => typeof val === 'number')) {
+                    if (Array.isArray(animList) && animList.every((val: any) => {
+                        // Now make sure the array of arrays is valid by limiting the number values to 255
+                        return typeof val === 'number' && val >= 0 && val <= 255;
+                    })) {
                         this.game.animations[this.currentAnimIndex] = animList;
                     } else {
                         throw new Error('Invalid animation list');

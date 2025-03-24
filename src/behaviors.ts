@@ -9,6 +9,11 @@ export class Behaviors {
         this.game = game;
     }
 
+    public preview(entity: TEntity): void {
+        const animation = this.game.animations[this.game.editorManager.currentAnimIndex];
+        entity.frameIndex = animation[this.game.editorManager.previewAnimationFrame];
+    }
+
     process(entity: TEntity): void {
         switch (entity.type) {
             case EntityType.ALIEN:
@@ -25,6 +30,7 @@ export class Behaviors {
         // 249 is the number of frames in the sprite sheet
         entity.frameIndex = (entity.frameIndex + 1) % 249;
         // TODO : Add real behaviors!
+
     }
 
 

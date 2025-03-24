@@ -576,15 +576,39 @@ export class Game {
     }
 
     tick(): void {
+
         // Advance game states in pool from currentTick count, to the next one.
         let processed = 0;
         let entity;
-        for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
-            entity = this.entities.pool[i];
-            if (entity.active) {
-                processed += 1;
-                this.entityBehaviors.process(entity);
+
+        if (this.editorManager.isMapEditorOpen) {
+
+            // Preview the animation being edited in the editor
+            const animation = this.animations[this.editorManager.currentAnimIndex];
+            if (animation[this.editorManager.previewAnimationFrame + 1] == null) {
+                this.editorManager.previewAnimationFrame = 0;
+            } else {
+                this.editorManager.previewAnimationFrame++;
             }
+            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
+                entity = this.entities.pool[i];
+                if (entity.active) {
+                    processed += 1;
+                    this.entityBehaviors.preview(entity);
+                }
+            }
+
+        } else {
+
+            // Process the real entities
+            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
+                entity = this.entities.pool[i];
+                if (entity.active) {
+                    processed += 1;
+                    this.entityBehaviors.process(entity);
+                }
+            }
+
         }
     }
 

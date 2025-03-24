@@ -43,8 +43,16 @@ export class FileManager {
                                 // todo
                                 break;
                             case 'animation':
-                                console.log('Opening animation list file:', jsonData);
-                                // todo
+                                // Animations are an array of arrays of numbers.
+                                if (!Array.isArray(jsonData)) {
+                                    throw new Error('Invalid animation data');
+                                }
+                                for (let i = 0; i < jsonData.length; i++) {
+                                    if (!Array.isArray(jsonData[i])) {
+                                        throw new Error('Invalid animation data');
+                                    }
+                                }
+                                this.game.openAnimations(jsonData);
                                 break;
                             default:
                                 console.log('unknown file input type');
@@ -76,13 +84,16 @@ export class FileManager {
     }
 
     openAnimationsFile(): void {
-        // Todo
-        console.log("todo openAnimationsFile");
+        // Use a file picker dialog to select an animation file.
+        if (this.fileInput) {
+            this.fileInputFor = 'animation';
+            this.fileInput.click();  // This opens the file picker dialog
+        }
     }
 
     saveAnimationsFile(): void {
-        // Todo
-        console.log("todo saveAnimationsFile");
+        // No need for a file picker dialog, just save the animations data to a file.
+        this.game.saveAnimations(); // No param is default to save the current animations.
     }
 
     openEntityListFile(): void {
@@ -97,17 +108,6 @@ export class FileManager {
         this.game.saveEntities();
     }
 
-    openAnimationListFile(): void {
-        if (this.fileInput) {
-            this.fileInputFor = 'animation';
-            this.fileInput.click();  // This opens the file picker dialog
-        }
-    }
-
-    saveAnimationListFile(): void {
-        // No need for a file picker dialog, just save the active entities
-        this.game.saveAnimationList();
-    }
 
 }
 

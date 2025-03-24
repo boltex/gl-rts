@@ -612,8 +612,7 @@ export class MinimapRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null);
     }
 
-    // Render the game map to minimap texture
-    renderMapToTexture(tileRenderer: TileRenderer, gamemap: number[], rendererManager: RendererManager): void {
+    renderMapToTexture(tileRenderer: TileRenderer, gamemap: number[], terrainVisible: boolean): void {
         // Save current WebGL state
         const viewport = this.gl.getParameter(this.gl.VIEWPORT);
 
@@ -625,28 +624,31 @@ export class MinimapRenderer extends BaseRenderer {
         this.gl.clearColor(0, 0, 0, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        // Prepare tile data for rendering at minimap scale
-        const mapWidth = CONFIG.GAME.MAP.WIDTH;
-        const mapHeight = CONFIG.GAME.MAP.HEIGHT;
-        const minimapTileSize = this.minimapSize / Math.max(mapWidth, mapHeight);
-        const minimapTiles: [number, number, number][] = [];
+        // Leave a black buffer if the terrainVisible flag is false
+        if (terrainVisible) {
+            // Prepare tile data for rendering at minimap scale
+            const mapWidth = CONFIG.GAME.MAP.WIDTH;
+            const mapHeight = CONFIG.GAME.MAP.HEIGHT;
+            const minimapTileSize = this.minimapSize / Math.max(mapWidth, mapHeight);
+            const minimapTiles: [number, number, number][] = [];
 
-        for (let y = 0; y < mapHeight; y++) {
-            for (let x = 0; x < mapWidth; x++) {
-                const tileIndex = gamemap[x + y * mapWidth];
-                minimapTiles.push([
-                    x * minimapTileSize,
-                    // Fix the upside-down issue by flipping y-coordinates
-                    // (mapHeight - 1 - y) * minimapTileSize, // THis only flips each tile's position, not the whole map
-                    y * minimapTileSize,
-                    tileIndex
-                ]);
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    const tileIndex = gamemap[x + y * mapWidth];
+                    minimapTiles.push([
+                        x * minimapTileSize,
+                        // Fix the upside-down issue by flipping y-coordinates
+                        // (mapHeight - 1 - y) * minimapTileSize, // THis only flips each tile's position, not the whole map
+                        y * minimapTileSize,
+                        tileIndex
+                    ]);
+                }
             }
-        }
 
-        // Render tiles to minimap texture
-        tileRenderer.updateTransformDataForMinimap(minimapTiles, minimapTileSize);
-        tileRenderer.render();
+            // Render tiles to minimap texture
+            tileRenderer.updateTransformDataForMinimap(minimapTiles, minimapTileSize);
+            tileRenderer.render();
+        }
 
         // Unbind framebuffer and restore viewport
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);

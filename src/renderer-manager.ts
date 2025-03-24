@@ -94,7 +94,7 @@ export class RendererManager {
             // Set UBO for minimap rendering
             this.setUboWorldTransforms(this.minimapSize, this.minimapSize);
 
-            this.minimapRenderer.renderMapToTexture(this.tileRenderer, gamemap, this);
+            this.minimapRenderer.renderMapToTexture(this.tileRenderer, gamemap, this.terrainVisible);
 
             // Restore UBO for main game rendering
             this.setUboWorldTransforms(camera.gameScreenWidth, camera.gameScreenHeight);

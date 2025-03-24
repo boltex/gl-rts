@@ -11,7 +11,9 @@ export class EditorManager {
 
     private animInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
-    private currentAnimIndex: number = 0;
+    currentAnimIndex: number = 0; // Current animation shown in the editor
+
+    previewAnimationFrame: number = 0; // Current frame of the animation being previewed
 
     private game: Game;
     private fileManager: FileManager;
@@ -50,18 +52,18 @@ export class EditorManager {
 
     incrementMapTile(): void {
         this.currentTileIndex = (this.currentTileIndex + 1) % CONFIG.GAME.TILE.DEPTH;
-        this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
         }
+        this.updateTilePreview();
     }
 
     decrementMapTile(): void {
         this.currentTileIndex = (this.currentTileIndex - 1 + CONFIG.GAME.TILE.DEPTH) % CONFIG.GAME.TILE.DEPTH;
-        this.updateTilePreview();
         if (this.tileInput) {
             this.tileInput.value = this.currentTileIndex.toString();
         }
+        this.updateTilePreview();
     }
 
     incrementAnimation(): void {
@@ -93,9 +95,24 @@ export class EditorManager {
 
     updateAnimationPreview(): void {
         // Put the content of the current animation list into the animListText input.
+        if (this.game.animations[this.currentAnimIndex] == null) {
+            // This specific animation of currentAnimIndex does not exist!
+            this.currentAnimIndex = 0;
+            if (this.game.animations[this.currentAnimIndex] == null) {
+                // Not even the first animation list is initialized!
+                this.game.animations[this.currentAnimIndex] = []; // Initialize the first animation list
+            }
+            if (this.animInput) {
+                this.animInput.value = this.currentAnimIndex.toString();
+            }
+        }
+
         if (this.animListText) {
             this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
         }
+
+        // restart the preview animation
+        this.previewAnimationFrame = 0;
     }
 
     private buildMapEditor(): void {
@@ -164,13 +181,6 @@ export class EditorManager {
             this.fileManager.saveMapFile();
         });
 
-        // Append elements to map editor container
-        this.mapEditorElement.appendChild(this.tilePreview);
-        this.mapEditorElement.appendChild(upTileButton);
-        this.mapEditorElement.appendChild(downTileButton);
-        this.mapEditorElement.appendChild(this.tileInput);
-        // Insert newline
-        this.mapEditorElement.appendChild(document.createElement("br"));
         this.mapEditorElement.appendChild(openMapButton);
         this.mapEditorElement.appendChild(saveMapButton);
 
@@ -196,14 +206,14 @@ export class EditorManager {
         this.animInput = document.createElement("input");
         this.animInput.type = "number";
         this.animInput.min = "0";
-        this.animInput.max = (CONFIG.GAME.TILE.DEPTH - 1).toString();
+        this.animInput.max = (CONFIG.GAME.ANIMATIONS.TOTAL - 1).toString();
         this.animInput.value = this.currentAnimIndex.toString();
         this.animInput.addEventListener("change", () => {
             if (this.animInput) {
                 let newValue = parseInt(this.animInput.value, 10);
                 if (isNaN(newValue)) newValue = 0;
                 const min = 0;
-                const max = CONFIG.GAME.TILE.DEPTH - 1;
+                const max = CONFIG.GAME.ANIMATIONS.TOTAL - 1;
                 newValue = Math.max(min, Math.min(newValue, max));
                 this.currentAnimIndex = newValue;
                 this.animInput.value = newValue.toString();
@@ -220,15 +230,21 @@ export class EditorManager {
             if (this.animListText) {
                 console.log("animListText changed to:", this.animListText.value);
                 // parse the input value into an array of numbers, checking that it is valid.
+                const previousValue = this.animListText.value;
                 try {
                     const animList = JSON.parse(this.animListText.value);
-                    if (Array.isArray(animList) && animList.every((val: any) => typeof val === 'number')) {
+                    if (Array.isArray(animList) && animList.every((val: any) => {
+                        // Now make sure the array of arrays is valid by limiting the number values to 255
+                        return typeof val === 'number' && val >= 0 && val <= 255;
+                    })) {
                         this.game.animations[this.currentAnimIndex] = animList;
                     } else {
                         throw new Error('Invalid animation list');
                     }
                 } catch (err) {
                     console.error('Error parsing animation list:', err);
+                    // Reset to previous valid value
+                    this.animListText.value = previousValue;
                 }
             }
         });
@@ -237,12 +253,12 @@ export class EditorManager {
         const openAnimationsButton = document.createElement("button");
         openAnimationsButton.textContent = "Open";
         openAnimationsButton.addEventListener("click", () => {
-            this.game.fileManager.openAnimationsFile();
+            this.fileManager.openAnimationsFile();
         });
         const saveAnimationsButton = document.createElement("button");
         saveAnimationsButton.textContent = "Save";
         saveAnimationsButton.addEventListener("click", () => {
-            this.game.fileManager.saveAnimationsFile();
+            this.fileManager.saveAnimationsFile();
         });
 
         this.mapEditorElement.appendChild(upAnimButton);

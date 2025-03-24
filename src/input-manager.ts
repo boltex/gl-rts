@@ -138,13 +138,21 @@ export class InputManager {
 
         if (this.game.started) {
             // Only when the game has started (game shortcuts)
+            if (e.key === 'F1') {
+                e.preventDefault();
+                if (this.game.optionsMenuManager.isMenuOpen || this.game.editorManager.isMapEditorOpen) {
+                    return;
+                }
+                this.game.helpMenuManager.toggleHelp();
+                return;
+            }
             if (e.key === 'F5' || e.ctrlKey && e.key === 'r') {
                 e.preventDefault();
                 return;
             }
             if (e.key === 'F9') {
                 e.preventDefault();
-                if (this.game.optionsMenuManager.isMenuOpen) {
+                if (this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
                     return;
                 }
                 this.selecting = false;
@@ -154,7 +162,7 @@ export class InputManager {
             }
             if (e.key === 'F10') {
                 e.preventDefault();
-                if (this.game.optionsMenuManager.isMenuOpen) {
+                if (this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
                     return; // Use the ok or cancel buttons instead.
                 }
                 this.selecting = false;
@@ -176,6 +184,13 @@ export class InputManager {
                     this.game.optionsMenuManager.cancelMenu();
                     return;
                 }
+                if (this.game.helpMenuManager.isHelpMenuOpen) {
+                    this.game.helpMenuManager.toggleHelp();
+                    return;
+                }
+
+                // TODO : If interface is waiting for a target (e.g. building placement), cancel that action.
+
             }
             // Check for CTRL+ALT+F for toggling 'showFPS' option.
             if (e.ctrlKey && e.altKey && e.key === 'f') {

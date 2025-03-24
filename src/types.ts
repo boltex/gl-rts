@@ -95,3 +95,8 @@ export enum EntityType {
     ALIEN = 1,
     // ...
 }
+
+export type EntityAnimation = {
+    label: string;
+    frames: number[];
+}

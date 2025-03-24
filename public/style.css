@@ -151,7 +151,8 @@ canvas {
 }
 
 /* TODO : improve game menu styling */
-#game-menu {
+#game-menu,
+#help-menu {
   font-family: "Orbitron", "Franklin Gothic Medium", "Arial Narrow", Arial,
     sans-serif;
   position: fixed;
@@ -166,9 +167,45 @@ canvas {
   display: block;
 }
 
-#game-menu h2 {
+#game-menu h2,
+#help-menu h2 {
   color: #29ff00;
   /* text-shadow: 0 0 10px #03391b, 0 0 30px #e3ff71; */
+}
+
+#help-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  color: #29ff00;
+}
+
+/* Shortcuts table styling */
+#shortcuts-table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  color: #29ff00;
+}
+
+.shortcut-key {
+  text-align: right;
+  padding-right: 10px;
+  font-weight: bold;
+}
+
+.shortcut-action {
+  text-align: left;
+  padding-left: 10px;
+}
+
+#shortcuts-table tr {
+  transition: color 0.2s;
+}
+
+#shortcuts-table tr:hover {
+  text-shadow: 0 0 11px #0f2716, 0 0 24px #e3ff71;
+  color: #e5ff20;
 }
 
 #game-menu label {

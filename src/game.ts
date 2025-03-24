@@ -13,6 +13,7 @@ import { MainMenuManager } from "./ui/main-menu-manager";
 import { OptionsMenuManager } from "./ui/options-menu-manager";
 import * as utils from "./utils";
 import { AudioManager } from "./audio-manager";
+import { HelpMenuManager } from "./ui/help-menu-manager";
 
 export class Game {
 
@@ -22,6 +23,7 @@ export class Game {
     cameraManager: CameraManager;
     timeManager: TimeManager;
     cursorManager: CursorManager;
+    helpMenuManager: HelpMenuManager;
     mainMenuManager: MainMenuManager;
     optionsMenuManager: OptionsMenuManager;
     fileManager: FileManager;
@@ -119,6 +121,7 @@ export class Game {
         this.resizeCanvasToDisplaySize(this.canvasElement);
         this.fileManager = new FileManager(this);
         this.cursorManager = new CursorManager(this);
+        this.helpMenuManager = new HelpMenuManager(this);
         this.mainMenuManager = new MainMenuManager(this);
         this.optionsMenuManager = new OptionsMenuManager(this);
         this.editorManager = new EditorManager(this, this.fileManager);

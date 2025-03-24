@@ -154,6 +154,37 @@ const RECTANGLE_MODEL_DATA = new Float32Array([
     0, 1,
 ]);
 
+const SHORTCUT_KEYS = [
+    {
+        key: "F1",
+        action: "Help menu"
+    },
+    {
+        key: "F6",
+        action: "Reset zoom"
+    },
+    {
+        key: "F10",
+        action: "Options menu"
+    },
+    {
+        key: "Ctrl+Alt+F",
+        action: "Toggle FPS display"
+    },
+    {
+        key: "Ctrl+M",
+        action: "Toggle music"
+    },
+    {
+        key: "Ctrl+S",
+        action: "Toggle sound"
+    },
+    {
+        key: "Tab",
+        action: "Toggle minimap terrain"
+    }
+] as const;
+
 const FONT_SIZES = [
     10,
     10.625,
@@ -254,6 +285,8 @@ const FONT_SIZES = [
 
 // Export all configs from a single point
 export const CONFIG = {
+    AUDIO,
+    SHORTCUT_KEYS,
     TEXTURE_MODEL_DATA,
     RECTANGLE_MODEL_DATA,
     DISPLAY,

@@ -10,6 +10,7 @@ export class EditorManager {
     private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
 
     private animInput: HTMLInputElement | null = null;
+    private animLabelInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
     currentAnimIndex: number = 0; // Current animation shown in the editor
 
@@ -100,15 +101,23 @@ export class EditorManager {
             this.currentAnimIndex = 0;
             if (this.game.animations[this.currentAnimIndex] == null) {
                 // Not even the first animation list is initialized!
-                this.game.animations[this.currentAnimIndex] = []; // Initialize the first animation list
+                this.game.animations[this.currentAnimIndex] = { label: "default" + this.currentAnimIndex.toString(), frames: [] };
+
+            }
+            if (this.animLabelInput) {
+                this.animLabelInput.value = this.game.animations[this.currentAnimIndex].label;
             }
             if (this.animInput) {
                 this.animInput.value = this.currentAnimIndex.toString();
             }
         }
 
+        if (this.animLabelInput) {
+            this.animLabelInput.value = this.game.animations[this.currentAnimIndex].label;
+        }
+
         if (this.animListText) {
-            this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
+            this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex].frames);
         }
 
         // restart the preview animation
@@ -222,10 +231,21 @@ export class EditorManager {
             }
         });
 
+        // Create text input for animation label
+        this.animLabelInput = document.createElement("input");
+        this.animLabelInput.type = "text";
+        this.animLabelInput.value = this.game.animations[this.currentAnimIndex].label;
+        this.animLabelInput.addEventListener("change", () => {
+            if (this.animLabelInput) {
+                console.log("animLabelInput changed to:", this.animLabelInput.value);
+                this.game.animations[this.currentAnimIndex].label = this.animLabelInput.value;
+            }
+        });
+
         // Create text input for animation lists to be parsed like: "[0,1,2,22,33,255]"
         this.animListText = document.createElement("input");
         this.animListText.type = "text";
-        this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex]);
+        this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex].frames);
         this.animListText.addEventListener("change", () => {
             if (this.animListText) {
                 console.log("animListText changed to:", this.animListText.value);
@@ -237,7 +257,7 @@ export class EditorManager {
                         // Now make sure the array of arrays is valid by limiting the number values to 255
                         return typeof val === 'number' && val >= 0 && val <= 255;
                     })) {
-                        this.game.animations[this.currentAnimIndex] = animList;
+                        this.game.animations[this.currentAnimIndex].frames = animList;
                     } else {
                         throw new Error('Invalid animation list');
                     }
@@ -264,6 +284,7 @@ export class EditorManager {
         this.mapEditorElement.appendChild(upAnimButton);
         this.mapEditorElement.appendChild(downAnimButton);
         this.mapEditorElement.appendChild(this.animInput);
+        this.mapEditorElement.appendChild(this.animLabelInput);
         this.mapEditorElement.appendChild(this.animListText);
         this.mapEditorElement.appendChild(openAnimationsButton);
         this.mapEditorElement.appendChild(saveAnimationsButton);

@@ -3,7 +3,7 @@ import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
-import { EntityType, TRectangle, TSelectAnim, Settings } from "./types";
+import { EntityType, TRectangle, TSelectAnim, Settings, EntityAnimation } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
 import { CursorManager } from "./ui/cursor-manager";
@@ -81,7 +81,7 @@ export class Game {
     lastScrollY = -1;
     lastScreenWidth = -1;
     lastScreenHeight = -1;
-    animations: number[][] = [];
+    animations: EntityAnimation[] = [];
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -193,10 +193,10 @@ export class Game {
         this.entityBehaviors = new Behaviors(this);
         // Prepare 64 'default' animations of 10 frames going from 1 to 10.
         for (let i = 0; i < 64; i++) {
-            this.animations.push([]);
-            for (let j = 0; j < 10; j++) {
-                this.animations[i].push(j + 1);
-            }
+            this.animations.push({
+                label: 'default' + i.toString(),
+                frames: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            });
         }
 
         // Fill Entities pool
@@ -587,7 +587,7 @@ export class Game {
         if (this.editorManager.isMapEditorOpen) {
 
             // Preview the animation being edited in the editor
-            const animation = this.animations[this.editorManager.currentAnimIndex];
+            const animation = this.animations[this.editorManager.currentAnimIndex].frames;
             if (animation[this.editorManager.previewAnimationFrame + 1] == null) {
                 this.editorManager.previewAnimationFrame = 0;
             } else {
@@ -796,7 +796,7 @@ export class Game {
         console.log("Open Entities!");
     }
 
-    saveAnimations(animations?: number[][]): void {
+    saveAnimations(animations?: EntityAnimation[]): void {
         if (!animations) {
             animations = this.animations;
         }
@@ -812,7 +812,7 @@ export class Game {
         document.body.removeChild(link);
     }
 
-    openAnimations(jsonData: number[][]): void {
+    openAnimations(jsonData: EntityAnimation[]): void {
         // Load the animations from a JSON file
         this.animations = jsonData;
         // Refresh the editor's animations list

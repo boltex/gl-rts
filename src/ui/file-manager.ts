@@ -43,12 +43,19 @@ export class FileManager {
                                 // todo
                                 break;
                             case 'animation':
-                                // Animations are an array of arrays of numbers.
+                                // Animations are an array of EntityAnimation.
                                 if (!Array.isArray(jsonData)) {
                                     throw new Error('Invalid animation data');
                                 }
                                 for (let i = 0; i < jsonData.length; i++) {
-                                    if (!Array.isArray(jsonData[i])) {
+                                    // check that each animation has the required properties
+                                    const anim = jsonData[i];
+                                    // Check if anim.label is a string
+                                    if (typeof anim.label !== 'string') {
+                                        throw new Error('Invalid animation data');
+                                    }
+                                    // Check if anim.frames is an array of numbers
+                                    if (!Array.isArray(anim.frames) || !anim.frames.every((frame: any) => typeof frame === 'number')) {
                                         throw new Error('Invalid animation data');
                                     }
                                 }

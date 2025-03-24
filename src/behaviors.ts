@@ -11,7 +11,7 @@ export class Behaviors {
 
     public preview(entity: TEntity): void {
         const animation = this.game.animations[this.game.editorManager.currentAnimIndex];
-        entity.frameIndex = animation[this.game.editorManager.previewAnimationFrame];
+        entity.frameIndex = animation.frames[this.game.editorManager.previewAnimationFrame];
     }
 
     process(entity: TEntity): void {

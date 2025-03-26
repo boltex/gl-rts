@@ -191,13 +191,11 @@ export class Game {
     initGameStates(): void {
         this.entities = new Entities(CONFIG.GAME.ENTITY.INITIAL_POOL_SIZE);
         this.entityBehaviors = new Behaviors(this);
-        // Prepare 64 'default' animations of 10 frames going from 1 to 10.
-        for (let i = 0; i < 64; i++) {
-            this.animations.push({
-                label: 'default' + i.toString(),
-                frames: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-            });
-        }
+        // Prepare a 'default' animation of 10 frames going from 1 to 10.
+        this.animations.push({
+            label: 'default',
+            frames: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        });
 
         // Fill Entities pool
         // EXPERIMENTAL TEST: Create 3 test Aliens

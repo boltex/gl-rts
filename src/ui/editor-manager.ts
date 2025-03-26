@@ -4,6 +4,9 @@ import { FileManager } from './file-manager';
 
 export class EditorManager {
     isMapEditorOpen: boolean = false;
+    isAnimationPreviewVisible = false
+    isAnimationPreviewPlaying = false;
+
     private mapEditorElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
@@ -12,8 +15,8 @@ export class EditorManager {
     private animInput: HTMLInputElement | null = null;
     private animLabelInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
-    currentAnimIndex: number = 0; // Current animation shown in the editor
 
+    currentAnimIndex: number = 0; // Current animation shown in the editor
     previewAnimationFrame: number = 0; // Current frame of the animation being previewed
 
     private game: Game;
@@ -68,7 +71,7 @@ export class EditorManager {
     }
 
     incrementAnimation(): void {
-        this.currentAnimIndex = (this.currentAnimIndex + 1) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        this.currentAnimIndex = (this.currentAnimIndex + 1) % this.game.animations.length;
         if (this.animInput) {
             this.animInput.value = this.currentAnimIndex.toString();
         }
@@ -76,7 +79,7 @@ export class EditorManager {
     }
 
     decrementAnimation(): void {
-        this.currentAnimIndex = (this.currentAnimIndex - 1 + CONFIG.GAME.ANIMATIONS.TOTAL) % CONFIG.GAME.ANIMATIONS.TOTAL;
+        this.currentAnimIndex = (this.currentAnimIndex - 1 + this.game.animations.length) % this.game.animations.length;
         if (this.animInput) {
             this.animInput.value = this.currentAnimIndex.toString();
         }
@@ -198,7 +201,7 @@ export class EditorManager {
         // Create Up and Down buttons
         const upAnimButton = document.createElement("button");
         upAnimButton.textContent = "▲";
-        upAnimButton.title = "Next animation (or press '+' key)";
+        upAnimButton.title = "Next animation";
         upAnimButton.addEventListener("click", () => {
             this.incrementAnimation();
 
@@ -206,23 +209,52 @@ export class EditorManager {
 
         const downAnimButton = document.createElement("button");
         downAnimButton.textContent = "▼";
-        downAnimButton.title = "Previous animation (or press '-' key)";
+        downAnimButton.title = "Previous animation";
         downAnimButton.addEventListener("click", () => {
             this.decrementAnimation();
+        });
+
+        // Create Add and Delete buttons
+        const addAnimButton = document.createElement("button");
+        addAnimButton.textContent = "+";
+        addAnimButton.title = "Add new animation";
+        addAnimButton.addEventListener("click", () => {
+            // Add a new animation with empty frames at the current index
+            this.game.animations.splice(this.currentAnimIndex + 1, 0, { label: "new", frames: [1, 2, 3, 4, 5] });
+            this.currentAnimIndex++;
+            if (this.animInput) {
+                this.animInput.value = this.currentAnimIndex.toString();
+            }
+            this.updateAnimationPreview();
+        });
+
+        // Create Delete button
+        const deleteAnimButton = document.createElement("button");
+        deleteAnimButton.textContent = "-";
+        deleteAnimButton.title = "Delete current animation";
+        deleteAnimButton.addEventListener("click", () => {
+            if (this.game.animations.length > 1) {
+                this.game.animations.splice(this.currentAnimIndex, 1); // This will remove the current animation at the current index
+                this.currentAnimIndex = Math.min(this.currentAnimIndex, this.game.animations.length - 1);
+                if (this.animInput) {
+                    this.animInput.value = this.currentAnimIndex.toString();
+                }
+                this.updateAnimationPreview();
+            }
         });
 
         // Create number input to manually select anim index
         this.animInput = document.createElement("input");
         this.animInput.type = "number";
         this.animInput.min = "0";
-        this.animInput.max = (CONFIG.GAME.ANIMATIONS.TOTAL - 1).toString();
+        this.animInput.max = (this.game.animations.length - 1).toString();
         this.animInput.value = this.currentAnimIndex.toString();
         this.animInput.addEventListener("change", () => {
             if (this.animInput) {
                 let newValue = parseInt(this.animInput.value, 10);
                 if (isNaN(newValue)) newValue = 0;
                 const min = 0;
-                const max = CONFIG.GAME.ANIMATIONS.TOTAL - 1;
+                const max = this.game.animations.length - 1;
                 newValue = Math.max(min, Math.min(newValue, max));
                 this.currentAnimIndex = newValue;
                 this.animInput.value = newValue.toString();
@@ -234,6 +266,8 @@ export class EditorManager {
         // Create text input for animation label
         this.animLabelInput = document.createElement("input");
         this.animLabelInput.type = "text";
+        // Add 'anim-name' class
+        this.animLabelInput.className = "anim-name";
         this.animLabelInput.value = this.game.animations[this.currentAnimIndex].label;
         this.animLabelInput.addEventListener("change", () => {
             if (this.animLabelInput) {
@@ -281,8 +315,43 @@ export class EditorManager {
             this.fileManager.saveAnimationsFile();
         });
 
+        // Create 'Hide' and 'Show' buttons for the main animation preview
+        const hideAnimationButton = document.createElement("button");
+        hideAnimationButton.textContent = "Hide";
+        hideAnimationButton.title = "Hide animation preview";
+        hideAnimationButton.addEventListener("click", () => {
+            this.isAnimationPreviewVisible = false;
+        });
+
+        const showAnimationButton = document.createElement("button");
+        showAnimationButton.textContent = "Show";
+        showAnimationButton.title = "Show animation preview";
+        showAnimationButton.addEventListener("click", () => {
+            this.isAnimationPreviewVisible = true;
+        });
+
+        // Create 'Play' and 'Pause' buttons for the main animation preview
+        const playAnimationButton = document.createElement("button");
+        playAnimationButton.textContent = "Play";
+        playAnimationButton.title = "Play animation preview";
+        playAnimationButton.addEventListener("click", () => {
+            this.isAnimationPreviewPlaying = true;
+        });
+
+        const pauseAnimationButton = document.createElement("button");
+        pauseAnimationButton.textContent = "Pause";
+        pauseAnimationButton.title = "Pause animation preview";
+        pauseAnimationButton.addEventListener("click", () => {
+            this.isAnimationPreviewPlaying = false;
+        });
+
         this.mapEditorElement.appendChild(upAnimButton);
         this.mapEditorElement.appendChild(downAnimButton);
+
+        this.mapEditorElement.appendChild(addAnimButton);
+        this.mapEditorElement.appendChild(deleteAnimButton);
+
+
         this.mapEditorElement.appendChild(this.animInput);
         this.mapEditorElement.appendChild(this.animLabelInput);
         this.mapEditorElement.appendChild(this.animListText);

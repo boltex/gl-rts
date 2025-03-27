@@ -1,6 +1,6 @@
 import { TileRenderer, SpriteRenderer, RectangleRenderer, WidgetRenderer, FontRenderer, MinimapRenderer } from "./renderers";
 import { CONFIG } from "./config";
-import { TEntity, TRectangle, TSelectAnim } from "./types";
+import { TEntity, TRectangle } from "./types";
 import { CameraManager } from "./camera-manager";
 
 export class RendererManager {

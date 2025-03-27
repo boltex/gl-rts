@@ -3,7 +3,7 @@ import { InputManager } from "./input-manager";
 import { Behaviors } from "./behaviors";
 import { Entities } from "./entities";
 import { CONFIG } from './config';
-import { EntityType, TRectangle, TSelectAnim, Settings, EntityAnimation } from "./types";
+import { EntityType, TRectangle, TSelectAnim, Settings, EntityAnimation, TEntity } from "./types";
 import { CameraManager } from "./camera-manager";
 import { TimeManager } from "./time-manager";
 import { CursorManager } from "./ui/cursor-manager";
@@ -49,6 +49,9 @@ export class Game {
     soundEnabled: boolean = true;
     soundVolume: number = 50;
 
+    // Game editor state
+    previewEntity: TEntity | null = null;
+
     // Game state Properties
     started: boolean = false;
     isMultiplayer: boolean = false;
@@ -70,13 +73,6 @@ export class Game {
     gameAction: number = 0;    // 0 = none
     entities!: Entities;
     entityBehaviors!: Behaviors;
-    selectAnim: [TSelectAnim] = [{
-        x: 0,
-        y: 0,
-        orientation: 0,
-        frameIndex: 0,
-        active: false
-    }];
     lastScrollX = -1; // initialized at -1 so that we can detect first frame.
     lastScrollY = -1;
     lastScreenWidth = -1;
@@ -199,29 +195,33 @@ export class Game {
 
         // Fill Entities pool
         // EXPERIMENTAL TEST: Create 3 test Aliens
-        const alien1 = this.entities.spawn();
-        alien1.type = EntityType.ALIEN;
-        alien1.hitPoints = 100;
-        alien1.x = 1100;
-        alien1.y = 1100;
-        alien1.frameIndex = 33;
-        alien1.orientation = 6;
-
-        const alien2 = this.entities.spawn();
-        alien2.type = EntityType.ALIEN;
-        alien2.hitPoints = 100;
-        alien2.x = 0;
-        alien2.y = 0;
-        alien2.frameIndex = 212;
-        alien2.orientation = 5;
-
-        const alien3 = this.entities.spawn();
-        alien3.type = EntityType.ALIEN;
-        alien3.hitPoints = 100;
-        alien3.x = 455;
-        alien3.y = 455;
-        alien3.frameIndex = 122;
-        alien3.orientation = 14;
+        // 1
+        let alien = this.entities.spawn();
+        alien.type = EntityType.ALIEN;
+        alien.hitPoints = 100;
+        alien.size = 128;
+        alien.x = 1100;
+        alien.y = 1100;
+        alien.frameIndex = 33;
+        alien.orientation = 6;
+        // 2
+        alien = this.entities.spawn();
+        alien.type = EntityType.ALIEN;
+        alien.hitPoints = 100;
+        alien.size = 128;
+        alien.x = 0;
+        alien.y = 0;
+        alien.frameIndex = 212;
+        alien.orientation = 5;
+        // 3
+        alien = this.entities.spawn();
+        alien.type = EntityType.ALIEN;
+        alien.hitPoints = 100;
+        alien.size = 128;
+        alien.x = 455;
+        alien.y = 455;
+        alien.frameIndex = 122;
+        alien.orientation = 14;
 
         // Build Map (Will later be bigger maps loaded from file)
         // Use Config.GAME.MAP.WIDTH and Config.GAME.MAP.HEIGHT
@@ -487,7 +487,7 @@ export class Game {
                 this.minimapRect[0].height = cameraManager.gameScreenHeight * minimapScale;
             }
 
-            // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones.
+            // If the map Editor is toggled, add a grid to the visible tiles, also highlight the mouse scroll zones. Also do animations if needed.
             if (this.editorManager.isMapEditorOpen) {
 
                 const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
@@ -518,6 +518,36 @@ export class Game {
                     { x: x * tilesize - (this.lastScrollX % tilesize), y: y * tilesize - (this.lastScrollY % tilesize), width: tilesize, height: tilesize, r: 1, g: 1, b: 1, a: 0.2 }
                 );
 
+                // If animation preview is visible, make sure the special entity is present in the entities pool.
+                // If already there, just update its position, orientation and frame index. 
+                // Make sure its centered in the screen relative to the scroll (instead of being fixed on the game map), and also very big.
+                if (this.editorManager.isAnimationPreviewVisible) {
+                    if (!this.previewEntity) {
+                        // spawn it
+                        this.previewEntity = this.entities.spawn();
+                        this.previewEntity.type = EntityType.ALIEN;
+                        this.previewEntity.hitPoints = 100;
+                        this.previewEntity.size = 256;
+                    }
+
+                    // Update its position, orientation and frame index.
+                    this.previewEntity.x = this.lastScreenWidth / 2 + this.lastScrollX;
+                    this.previewEntity.y = this.lastScreenHeight / 2 + this.lastScrollY;
+                    this.previewEntity.orientation = this.editorManager.previewAnimationOrientation;
+                    this.previewEntity.frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
+                } else {
+                    // editor manager is not open, so remove the preview entity if it exists.
+                    if (this.previewEntity) {
+                        this.entities.remove(this.previewEntity);
+                        this.previewEntity = null;
+                    }
+                }
+            } else {
+                // editor manager is not open, so remove the preview entity if it exists.
+                if (this.previewEntity) {
+                    this.entities.remove(this.previewEntity);
+                    this.previewEntity = null;
+                }
             }
 
             // Animated selection widget, if any.
@@ -529,8 +559,6 @@ export class Game {
                     cursorManager.widgetAnimFrames[cursorManager.widgetAnim], // 0-3 are other, animate 6 frames from 4 to 9.
                     CONFIG.GAME.WIDGETS.SIZE / 2  // half of 128 is 64
                 ]);
-            } else {
-                // this.selectAnim[0].active = false;
             }
 
             // Text to render, such as APM or FPS.
@@ -582,34 +610,12 @@ export class Game {
         let processed = 0;
         let entity;
 
-        if (this.editorManager.isMapEditorOpen) {
-
-            // Preview the animation being edited in the editor
-            const animation = this.animations[this.editorManager.currentAnimIndex].frames;
-            if (animation[this.editorManager.previewAnimationFrame + 1] == null) {
-                this.editorManager.previewAnimationFrame = 0;
-            } else {
-                this.editorManager.previewAnimationFrame++;
+        for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
+            entity = this.entities.pool[i];
+            if (entity.active) {
+                processed += 1;
+                this.entityBehaviors.process(entity);
             }
-            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
-                entity = this.entities.pool[i];
-                if (entity.active) {
-                    processed += 1;
-                    this.entityBehaviors.preview(entity);
-                }
-            }
-
-        } else {
-
-            // Process the real entities
-            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
-                entity = this.entities.pool[i];
-                if (entity.active) {
-                    processed += 1;
-                    this.entityBehaviors.process(entity);
-                }
-            }
-
         }
     }
 

@@ -30,6 +30,7 @@ export type TEntity = {
     y: number;
     oldX: number; // For interpolation. Meaning that the entity is moving from oldX, oldY to x, y
     oldY: number;
+    size: number;
     orientation: number;
     frameIndex: number;
     // Ten queuable commands

@@ -2,7 +2,6 @@ import { TEntity, GLResources, ShaderType, TRectangle, TSelectAnim } from "./typ
 import { CONFIG } from './config';
 import { SHADERS } from './shaders';
 import { CameraManager } from "./camera-manager";
-import { RendererManager } from "./renderer-manager";
 
 abstract class BaseRenderer {
 
@@ -409,7 +408,7 @@ export class SpriteRenderer extends BaseRenderer {
         this.gl.bindVertexArray(null); // All done, unbind the VAO
     }
 
-    updateTransformData(data: Array<TEntity | TSelectAnim>, camera: CameraManager): void {
+    updateTransformData(data: Array<TEntity>, camera: CameraManager): void {
         const scrollX = camera.scrollX;
         const scrollY = camera.scrollY;
         const screenWidth = camera.gameScreenWidth;
@@ -441,7 +440,7 @@ export class SpriteRenderer extends BaseRenderer {
             // Adjust position with camera scroll (addition order adjusted)
             this.transformData[offset] = x - scrollX;
             this.transformData[offset + 1] = y - scrollY;
-            this.transformData[offset + 2] = 128; // default entity size
+            this.transformData[offset + 2] = item.size; // Scalable
             this.transformData[offset + 3] = 1;   // default color
             this.transformData[offset + 4] = 1;   // default color
             this.transformData[offset + 5] = 1;   // default color

@@ -18,6 +18,7 @@ export class EditorManager {
 
     currentAnimIndex: number = 0; // Current animation shown in the editor
     previewAnimationFrame: number = 0; // Current frame of the animation being previewed
+    previewAnimationOrientation: number = 0; // Orientation of the previewed unit. (independant of the animation being previewed)
 
     private game: Game;
     private fileManager: FileManager;
@@ -357,6 +358,11 @@ export class EditorManager {
         this.mapEditorElement.appendChild(this.animListText);
         this.mapEditorElement.appendChild(openAnimationsButton);
         this.mapEditorElement.appendChild(saveAnimationsButton);
+
+        this.mapEditorElement.appendChild(hideAnimationButton);
+        this.mapEditorElement.appendChild(showAnimationButton);
+        this.mapEditorElement.appendChild(playAnimationButton);
+        this.mapEditorElement.appendChild(pauseAnimationButton);
 
         // Append the map editor container to the document body
         document.body.appendChild(this.mapEditorElement);

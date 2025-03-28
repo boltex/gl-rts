@@ -610,13 +610,30 @@ export class Game {
         let processed = 0;
         let entity;
 
-        for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
-            entity = this.entities.pool[i];
-            if (entity.active) {
-                processed += 1;
-                this.entityBehaviors.process(entity);
+        // if the map editor is open and the animation preview is visible, process the preview entity only.
+        if (this.editorManager.isMapEditorOpen && this.editorManager.isAnimationPreviewVisible) {
+
+            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
+                entity = this.entities.pool[i];
+                if (entity.active) {
+                    processed += 1;
+                    this.entityBehaviors.preview(entity);
+                }
             }
+
+        } else {
+
+            // Process the real entities
+            for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
+                entity = this.entities.pool[i];
+                if (entity.active) {
+                    processed += 1;
+                    this.entityBehaviors.process(entity);
+                }
+            }
+
         }
+
     }
 
     loop(timestamp: number): void {

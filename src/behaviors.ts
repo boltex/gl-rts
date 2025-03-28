@@ -20,23 +20,29 @@ export class Behaviors {
         }
     }
 
-    private alien(entity: TEntity): void {
-
+    public preview(entity: TEntity): void {
         // if size is 256 this is an animation preview so set its frame index accordingly
-        // otherwise, for now, test by just incrementing forward in animations
-        // 249 is the number of frames in the sprite sheet
 
-        if (entity.size === 256 && this.game.editorManager.isAnimationPreviewPlaying) {
+        if (entity.size === 256) {
             const animation = this.game.animations[this.game.editorManager.currentAnimIndex];
-            this.game.editorManager.previewAnimationFrame = (this.game.editorManager.previewAnimationFrame + 1) % animation.frames.length;
+            if (this.game.editorManager.isAnimationPreviewPlaying) {
+                this.game.editorManager.previewAnimationFrame = (this.game.editorManager.previewAnimationFrame + 1) % animation.frames.length;
+            }
             entity.frameIndex = animation.frames[this.game.editorManager.previewAnimationFrame];
         } else {
 
             // Regular game mode for this entity
-            entity.frameIndex = (entity.frameIndex + 1) % 249;
-            // TODO : Add real behaviors if not in preview mode
-
+            this.alien(entity);
         }
+    }
+
+    private alien(entity: TEntity): void {
+
+        // TODO : Add real behaviors 
+        // for now, test by just incrementing forward in animations.
+        // (249 is the number of frames in the sprite sheet)
+        entity.frameIndex = (entity.frameIndex + 1) % 249;
+
     }
 }
 

@@ -68,9 +68,6 @@ const GAME = {
     },
     ENTITY: {
         INITIAL_POOL_SIZE: 100
-    },
-    ANIMATIONS: {
-        TOTAL: 64
     }
 } as const;
 

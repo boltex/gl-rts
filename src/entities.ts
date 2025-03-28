@@ -23,6 +23,7 @@ export class Entities {
                 y: 0,
                 oldX: 0,
                 oldY: 0,
+                size: 0,
                 orderQty: 0,
                 orderIndex: 0,
                 orderPool: [

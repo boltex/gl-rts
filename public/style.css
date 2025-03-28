@@ -119,7 +119,7 @@ canvas {
   top: 10px;
   right: 10px;
   width: 130px;
-  height: 280px;
+  height: 320px;
   text-align: center;
   background-color: #ccc;
   border: 1px solid #333;
@@ -135,8 +135,16 @@ canvas {
   box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
 }
 
+#map-editor input {
+  width: 60px;
+}
+
 #map-editor input[type="text"] {
   width: 120px;
+}
+
+#map-editor input.anim-name {
+  width: 60px;
 }
 
 #tile-preview {

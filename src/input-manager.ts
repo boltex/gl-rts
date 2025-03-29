@@ -141,7 +141,7 @@ export class InputManager {
                 // If up/down arrows are pressed, change the sprite number at the current frame.
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                     e.preventDefault();
-                    this.game.editorManager.changeSpriteNumber(e.key === 'ArrowUp' ? -1 : 1);
+                    this.game.editorManager.changeSpriteNumber(e.key === 'ArrowUp' ? 1 : -1);
                     return;
                 }
 

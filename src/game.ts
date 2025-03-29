@@ -526,6 +526,7 @@ export class Game {
                 // If already there, just update its position, orientation and frame index. 
                 // Make sure its centered in the screen relative to the scroll (instead of being fixed on the game map), and also very big.
                 if (this.editorManager.isAnimationPreviewVisible) {
+                    const editorManager = this.editorManager;
                     if (!this.previewEntity) {
                         // spawn it
                         this.previewEntity = this.entities.spawn();
@@ -537,23 +538,26 @@ export class Game {
                     // Update its position, orientation and frame index.
                     this.previewEntity.x = this.lastScreenWidth / 2 + this.lastScrollX;
                     this.previewEntity.y = this.lastScreenHeight / 2 + this.lastScrollY;
-                    this.previewEntity.orientation = this.editorManager.previewAnimationOrientation;
-                    this.previewEntity.frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
+                    this.previewEntity.orientation = editorManager.previewAnimationOrientation;
+                    const animIndex = editorManager.currentAnimIndex;
+                    const previewFrame = editorManager.previewAnimationFrame;
+                    const animations = this.animations
+                    this.previewEntity.frameIndex = animations[animIndex].frames[previewFrame];
 
                     // Add text underneath to show the current frame index.
-                    const frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
-                    const frameString = `Frame: ${this.editorManager.previewAnimationFrame} of ${this.animations[this.editorManager.currentAnimIndex].frames.length}`;
+                    const frameIndex = animations[animIndex].frames[previewFrame];
+                    const frameString = `Frame: ${previewFrame} of ${animations[animIndex].frames.length}`;
                     const spriteString = `Sprite ${frameIndex} `
                     // Loop each letter in the string and add to the text array
-                    let x = this.cameraManager.gameScreenWidth / 2;
-                    let y = this.cameraManager.gameScreenHeight / 2
+                    let x = cameraManager.gameScreenWidth / 2;
+                    let y = cameraManager.gameScreenHeight / 2;
                     for (let i = 0; i < frameString.length; i++) {
                         const charIndex = frameString.charCodeAt(i) - 32;
                         text.push([x, y, charIndex, 32 / cameraManager.zoom]);
                         x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
                     }
-                    x = this.cameraManager.gameScreenWidth / 2
-                    y = this.cameraManager.gameScreenHeight / 2 + 128 / cameraManager.zoom;
+                    x = cameraManager.gameScreenWidth / 2
+                    y = cameraManager.gameScreenHeight / 2 + 128 / cameraManager.zoom;
                     for (let i = 0; i < spriteString.length; i++) {
                         const charIndex = spriteString.charCodeAt(i) - 32;
                         text.push([x, y, charIndex, 32 / cameraManager.zoom]);

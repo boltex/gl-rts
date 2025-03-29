@@ -535,13 +535,19 @@ export class Game {
                         this.previewEntity = this.entities.spawn();
                         this.previewEntity.type = EntityType.ALIEN;
                         this.previewEntity.hitPoints = 100;
-                        this.previewEntity.size = 256;
                     }
 
-                    // Update its position, orientation and frame index.
+                    // Update its position, size, orientation and frame index.
                     this.previewEntity.x = this.lastScreenWidth / 2 + this.lastScrollX;
                     this.previewEntity.y = this.lastScreenHeight / 2 + this.lastScrollY;
                     this.previewEntity.orientation = editorManager.previewAnimationOrientation;
+                    // Make it bigger than the other entities, And compensate for zoom to be constant on screen.
+                    this.previewEntity.size = 128 * 4 / cameraManager.zoom;
+
+                    // Now translate x and y so that it is centered instead of having its top-left corner at origin
+                    this.previewEntity.x -= this.previewEntity.size / 2;
+                    this.previewEntity.y -= this.previewEntity.size / 2;
+
                     const animIndex = editorManager.currentAnimIndex;
                     const previewFrame = editorManager.previewAnimationFrame;
                     const animations = this.animations
@@ -552,14 +558,14 @@ export class Game {
                     const frameString = `Frame: ${previewFrame} of ${animations[animIndex].frames.length}`;
                     const spriteString = `Sprite ${frameIndex} `
                     // Loop each letter in the string and add to the text array
-                    let x = cameraManager.gameScreenWidth / 2;
-                    let y = cameraManager.gameScreenHeight / 2;
+                    let x = cameraManager.gameScreenWidth / 2 - this.previewEntity.size / 2;
+                    let y = cameraManager.gameScreenHeight / 2 - this.previewEntity.size / 2;
                     for (let i = 0; i < frameString.length; i++) {
                         const charIndex = frameString.charCodeAt(i) - 32;
                         text.push([x, y, charIndex, 32 / cameraManager.zoom]);
                         x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
                     }
-                    x = cameraManager.gameScreenWidth / 2
+                    x = cameraManager.gameScreenWidth / 2 - this.previewEntity.size / 2;
                     y = cameraManager.gameScreenHeight / 2 + 128 / cameraManager.zoom;
                     for (let i = 0; i < spriteString.length; i++) {
                         const charIndex = spriteString.charCodeAt(i) - 32;

@@ -411,7 +411,11 @@ export class Game {
             // Before rendering, resize canvas to display size. (in case of changing window size)
             this.resizeCanvasToDisplaySize(this.canvasElement)
 
+            // Text to render, such as animation frame number, APM or FPS.
+            const text: [number, number, number, number][] = []; // X, Y, Char Index, Scale
+
             const visibleTiles: [number, number, number][] = []; // X, Y and Tile Index
+
             // If camera did not move nor zoom, we can reuse the last visible tiles by leaving visibleTiles empty.
             const cameraChanged = cameraManager.scrollX !== this.lastScrollX ||
                 cameraManager.scrollY !== this.lastScrollY ||
@@ -535,6 +539,18 @@ export class Game {
                     this.previewEntity.y = this.lastScreenHeight / 2 + this.lastScrollY;
                     this.previewEntity.orientation = this.editorManager.previewAnimationOrientation;
                     this.previewEntity.frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
+
+                    // Add text underneath to show the current frame index.
+                    const frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
+                    const frameString = `Frame: ${frameIndex}`;
+                    // Loop each letter in the string and add to the text array
+                    let x = (this.lastScreenWidth / 2) / cameraManager.zoom
+                    const y = (this.lastScreenHeight / 2) / cameraManager.zoom
+                    for (let i = 0; i < frameString.length; i++) {
+                        const charIndex = frameString.charCodeAt(i) - 32;
+                        text.push([x, y, charIndex, 32 / cameraManager.zoom]);
+                        x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
+                    }
                 } else {
                     // editor manager is not open, so remove the preview entity if it exists.
                     if (this.previewEntity) {
@@ -560,10 +576,6 @@ export class Game {
                     CONFIG.GAME.WIDGETS.SIZE / 2  // half of 128 is 64
                 ]);
             }
-
-            // Text to render, such as APM or FPS.
-            const text: [number, number, number, number][] = []; // X, Y, Char Index, Scale
-
 
             if (this.showFPS) {
                 const fps = 'FPS: ' + timeManager.fps.toString();

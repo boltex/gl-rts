@@ -15,6 +15,8 @@ export class EditorManager {
     private animInput: HTMLInputElement | null = null;
     private animLabelInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
+    private toggleAnimationVisibleButton: HTMLButtonElement | null = null;
+    private toggleAnimationPlayPauseButton: HTMLButtonElement | null = null;
 
     currentAnimIndex: number = 0; // Current animation shown in the editor
     previewAnimationFrame: number = 0; // Current frame of the animation being previewed
@@ -316,34 +318,20 @@ export class EditorManager {
             this.fileManager.saveAnimationsFile();
         });
 
-        // Create 'Hide' and 'Show' buttons for the main animation preview
-        const hideAnimationButton = document.createElement("button");
-        hideAnimationButton.textContent = "Hide";
-        hideAnimationButton.title = "Hide animation preview";
-        hideAnimationButton.addEventListener("click", () => {
-            this.isAnimationPreviewVisible = false;
-        });
-
-        const showAnimationButton = document.createElement("button");
-        showAnimationButton.textContent = "Show";
-        showAnimationButton.title = "Show animation preview";
-        showAnimationButton.addEventListener("click", () => {
-            this.isAnimationPreviewVisible = true;
+        // Create a 'Hide/Show' button for the main animation preview
+        this.toggleAnimationVisibleButton = document.createElement("button");
+        this.toggleAnimationVisibleButton.textContent = "Show";
+        this.toggleAnimationVisibleButton.title = "Toggle animation visibility";
+        this.toggleAnimationVisibleButton.addEventListener("click", () => {
+            this.toggleAnimationVisibility();
         });
 
         // Create 'Play' and 'Pause' buttons for the main animation preview
-        const playAnimationButton = document.createElement("button");
-        playAnimationButton.textContent = "Play";
-        playAnimationButton.title = "Play animation preview";
-        playAnimationButton.addEventListener("click", () => {
-            this.isAnimationPreviewPlaying = true;
-        });
-
-        const pauseAnimationButton = document.createElement("button");
-        pauseAnimationButton.textContent = "Pause";
-        pauseAnimationButton.title = "Pause animation preview";
-        pauseAnimationButton.addEventListener("click", () => {
-            this.isAnimationPreviewPlaying = false;
+        this.toggleAnimationPlayPauseButton = document.createElement("button");
+        this.toggleAnimationPlayPauseButton.textContent = "Play";
+        this.toggleAnimationPlayPauseButton.title = "Toggle animation play";
+        this.toggleAnimationPlayPauseButton.addEventListener("click", () => {
+            this.toggleAnimationPlayPause();
         });
 
         this.mapEditorElement.appendChild(upAnimButton);
@@ -359,10 +347,9 @@ export class EditorManager {
         this.mapEditorElement.appendChild(openAnimationsButton);
         this.mapEditorElement.appendChild(saveAnimationsButton);
 
-        this.mapEditorElement.appendChild(hideAnimationButton);
-        this.mapEditorElement.appendChild(showAnimationButton);
-        this.mapEditorElement.appendChild(playAnimationButton);
-        this.mapEditorElement.appendChild(pauseAnimationButton);
+        this.mapEditorElement.appendChild(this.toggleAnimationVisibleButton);
+        this.mapEditorElement.appendChild(this.toggleAnimationPlayPauseButton);
+
 
         // Append the map editor container to the document body
         document.body.appendChild(this.mapEditorElement);
@@ -408,6 +395,69 @@ export class EditorManager {
             document.removeEventListener("mousemove", elementDrag);
         }
     }
+    toggleAnimationPlayPause(): void {
+        if (this.isAnimationPreviewPlaying) {
+            this.isAnimationPreviewPlaying = false;
+        } else {
+            this.isAnimationPreviewPlaying = true;
+        }
+        // change text from 'Play' to 'Pause' and vice versa
+        if (this.toggleAnimationPlayPauseButton) {
+            if (this.isAnimationPreviewPlaying) {
+                this.toggleAnimationPlayPauseButton.textContent = "Pause";
+            } else {
+                this.toggleAnimationPlayPauseButton.textContent = "Play";
+            }
+        }
+    }
+
+    toggleAnimationVisibility(): void {
+        if (this.isAnimationPreviewVisible) {
+            this.isAnimationPreviewVisible = false;
+        } else {
+            this.isAnimationPreviewVisible = true;
+        }
+        // change text from 'Show' to 'Hide' and vice versa
+        if (this.toggleAnimationVisibleButton) {
+            if (this.isAnimationPreviewVisible) {
+                this.toggleAnimationVisibleButton.textContent = "Hide";
+            } else {
+                this.toggleAnimationVisibleButton.textContent = "Show";
+            }
+        }
+    }
+
+    changeSelectedFrame(amount: number): void {
+        // If paused and not animating, change the current frame shown of the selected animation (previewAnimationFrame). Roll over if exceeding the number of frames
+        // Otherwise, if animating or not visible, ignore.
+        if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
+            const animation = this.game.animations[this.currentAnimIndex];
+            this.previewAnimationFrame = (this.previewAnimationFrame + amount + animation.frames.length) % animation.frames.length;
+            console.log('previewAnimationFrame', this.previewAnimationFrame);
+        }
+
+    }
+
+    changeSpriteNumber(amount: number): void {
+        // If paused and not animating, change the sprite at the current slot of selected animation. 
+        // which is the frame at this.game.animations[this.currentAnimIndex].frames[this.previewAnimationFrame]
+        // 
+        // Roll over if exceeding the number of sprites
+        // Otherwise, if animating or not visible, ignore.
+        console.log(amount);
+        if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
+            const animation = this.game.animations[this.currentAnimIndex];
+            console.log('was', animation.frames[this.previewAnimationFrame]);
+            animation.frames[this.previewAnimationFrame] = (animation.frames[this.previewAnimationFrame] + amount + 256) % 256;
+            console.log('sprite number', animation.frames[this.previewAnimationFrame]);
+        }
+        // Update the input text box with the new value
+        if (this.animListText) {
+            this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex].frames);
+        }
+
+    }
+
 
 }
 

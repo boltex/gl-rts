@@ -122,6 +122,32 @@ export class InputManager {
             if (e.ctrlKey && (e.key === 's' || e.key === 'o')) {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
+
+            if (this.game.editorManager.isAnimationPreviewVisible) {
+                // If spacebar is pressed, toggle play/pause animation preview.
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    this.game.editorManager.toggleAnimationPlayPause();
+                    return;
+                }
+
+                // If left/right arrows are pressed, change selected frame.
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    this.game.editorManager.changeSelectedFrame(e.key === 'ArrowLeft' ? -1 : 1);
+                    return;
+                }
+
+                // If up/down arrows are pressed, change the sprite number at the current frame.
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.game.editorManager.changeSpriteNumber(e.key === 'ArrowUp' ? 1 : -1);
+                    return;
+                }
+
+            }
+
+
         } else if (!this.game.optionsMenuManager.isMenuOpen) {
             // Only when not in map editor nor game menu (game speed shortcuts)
             if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {

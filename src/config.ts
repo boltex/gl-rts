@@ -179,6 +179,37 @@ const SHORTCUT_KEYS = [
     {
         key: "Tab",
         action: "Toggle minimap terrain"
+    },
+    {
+        key: "+ or -",
+        action: "Change game speed"
+    }
+] as const;
+
+const EDITOR_KEYS = [
+    {
+        key: "F9",
+        action: "Toggle editor-mode"
+    },
+    {
+        key: "+ or -",
+        action: "Change map tile"
+    },
+    {
+        key: "Spacebar",
+        action: "Play / Pause animation"
+    },
+    {
+        key: "A or D",
+        action: "Change orientation"
+    },
+    {
+        key: "← or →",
+        action: "Change selected frame"
+    },
+    {
+        key: "↑ or ↓",
+        action: "Change current sprite"
     }
 ] as const;
 
@@ -284,6 +315,7 @@ const FONT_SIZES = [
 export const CONFIG = {
     AUDIO,
     SHORTCUT_KEYS,
+    EDITOR_KEYS,
     TEXTURE_MODEL_DATA,
     RECTANGLE_MODEL_DATA,
     DISPLAY,

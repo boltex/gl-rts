@@ -33,8 +33,7 @@ export class HelpMenuManager {
         this.helpMenuElement.style.display = "block";
         this.helpMenuElement.id = "help-menu";
 
-
-        // 'help' heading
+        // 'Main help' heading
         const heading = document.createElement("h2");
         heading.textContent = "Game Shortcuts";
         this.helpMenuElement.appendChild(heading);
@@ -60,6 +59,32 @@ export class HelpMenuManager {
         });
 
         this.helpMenuElement.appendChild(table);
+
+        // 'Editor help' heading
+        const editorHeading = document.createElement("h2");
+        editorHeading.textContent = "Editor Shortcuts";
+        this.helpMenuElement.appendChild(editorHeading);
+
+        // Create a table for editor shortcuts
+        const editorTable = document.createElement("table");
+        editorTable.id = "shortcuts-table";
+        CONFIG.EDITOR_KEYS.forEach((shortcut) => {
+            const row = document.createElement("tr");
+
+            const keyCell = document.createElement("td");
+            keyCell.className = "shortcut-key";
+            keyCell.textContent = shortcut.key;
+
+            const actionCell = document.createElement("td");
+            actionCell.className = "shortcut-action";
+            actionCell.textContent = shortcut.action;
+
+            row.appendChild(keyCell);
+            row.appendChild(actionCell);
+            editorTable.appendChild(row);
+        });
+
+        this.helpMenuElement.appendChild(editorTable);
 
         // Append the help menu container to the document body
         document.body.appendChild(this.helpMenuElement);

@@ -243,6 +243,9 @@ export class InputManager {
                 this.game.toggleSound();
                 return;
             }
+            if (e.ctrlKey && (e.key === 'o')) {
+                e.preventDefault();  // Prevent the default open behavior
+            }
             // Check for 'tab' to toggle the minimap terrain visibility.
             if (e.key === 'Tab') {
                 e.preventDefault();

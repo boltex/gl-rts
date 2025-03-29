@@ -542,12 +542,20 @@ export class Game {
 
                     // Add text underneath to show the current frame index.
                     const frameIndex = this.animations[this.editorManager.currentAnimIndex].frames[this.editorManager.previewAnimationFrame];
-                    const frameString = `Frame: ${frameIndex}`;
+                    const frameString = `Frame: ${this.editorManager.previewAnimationFrame} of ${this.animations[this.editorManager.currentAnimIndex].frames.length}`;
+                    const spriteString = `Sprite ${frameIndex} `
                     // Loop each letter in the string and add to the text array
-                    let x = (this.lastScreenWidth / 2) / cameraManager.zoom
-                    const y = (this.lastScreenHeight / 2) / cameraManager.zoom
+                    let x = this.cameraManager.gameScreenWidth / 2;
+                    let y = this.cameraManager.gameScreenHeight / 2
                     for (let i = 0; i < frameString.length; i++) {
                         const charIndex = frameString.charCodeAt(i) - 32;
+                        text.push([x, y, charIndex, 32 / cameraManager.zoom]);
+                        x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
+                    }
+                    x = this.cameraManager.gameScreenWidth / 2
+                    y = this.cameraManager.gameScreenHeight / 2 + 128 / cameraManager.zoom;
+                    for (let i = 0; i < spriteString.length; i++) {
+                        const charIndex = spriteString.charCodeAt(i) - 32;
                         text.push([x, y, charIndex, 32 / cameraManager.zoom]);
                         x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
                     }

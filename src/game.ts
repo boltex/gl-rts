@@ -497,20 +497,23 @@ export class Game {
                 const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
-                // Draw horizontal grid lines
-                for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
-                    const lineY = y * tilesize - (this.lastScrollY % tilesize);
-                    cursor.push(
-                        { x: 0, y: lineY, width: this.lastScreenWidth, height: thickness, r: 1, g: 1, b: 1, a: 1 }
-                    );
-                }
+                // if the animation preview is not shown, draw the grid lines.
+                if (!this.editorManager.isAnimationPreviewVisible) {
+                    // Draw horizontal grid lines
+                    for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
+                        const lineY = y * tilesize - (this.lastScrollY % tilesize);
+                        cursor.push(
+                            { x: 0, y: lineY, width: this.lastScreenWidth, height: thickness, r: 1, g: 1, b: 1, a: 1 }
+                        );
+                    }
 
-                // Draw vertical grid lines
-                for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
-                    const lineX = x * tilesize - (this.lastScrollX % tilesize);
-                    cursor.push(
-                        { x: lineX, y: 0, width: thickness, height: this.lastScreenHeight, r: 1, g: 1, b: 1, a: 1 }
-                    );
+                    // Draw vertical grid lines 
+                    for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
+                        const lineX = x * tilesize - (this.lastScrollX % tilesize);
+                        cursor.push(
+                            { x: lineX, y: 0, width: thickness, height: this.lastScreenHeight, r: 1, g: 1, b: 1, a: 1 }
+                        );
+                    }
                 }
 
                 // Draw a full rectangle over the tile which contains the current mouse pointer.

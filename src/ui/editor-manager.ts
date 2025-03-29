@@ -427,13 +427,21 @@ export class EditorManager {
         }
     }
 
+    rotatePreview(amount: number): void {
+        // Adjust previewAnimationOrientation by amount
+        // Roll over if exceeding the number of orientations (16, from 0 to 15)
+        // Otherwise, if animating or not visible, ignore.
+        if (this.isAnimationPreviewVisible) {
+            this.previewAnimationOrientation = (this.previewAnimationOrientation + amount + 16) % 16;
+        }
+    }
+
     changeSelectedFrame(amount: number): void {
         // If paused and not animating, change the current frame shown of the selected animation (previewAnimationFrame). Roll over if exceeding the number of frames
         // Otherwise, if animating or not visible, ignore.
         if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
             const animation = this.game.animations[this.currentAnimIndex];
             this.previewAnimationFrame = (this.previewAnimationFrame + amount + animation.frames.length) % animation.frames.length;
-            console.log('previewAnimationFrame', this.previewAnimationFrame);
         }
 
     }
@@ -444,12 +452,9 @@ export class EditorManager {
         // 
         // Roll over if exceeding the number of sprites
         // Otherwise, if animating or not visible, ignore.
-        console.log(amount);
         if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
             const animation = this.game.animations[this.currentAnimIndex];
-            console.log('was', animation.frames[this.previewAnimationFrame]);
             animation.frames[this.previewAnimationFrame] = (animation.frames[this.previewAnimationFrame] + amount + 256) % 256;
-            console.log('sprite number', animation.frames[this.previewAnimationFrame]);
         }
         // Update the input text box with the new value
         if (this.animListText) {

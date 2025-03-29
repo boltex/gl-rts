@@ -131,6 +131,13 @@ export class InputManager {
                     return;
                 }
 
+                // If 'a' or 'd' are pressed, rotate the orientation of the preview left/right.
+                if (e.key === 'a' || e.key === 'd') {
+                    e.preventDefault();
+                    this.game.editorManager.rotatePreview(e.key === 'a' ? -1 : 1);
+                    return;
+                }
+
                 // If left/right arrows are pressed, change selected frame.
                 if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                     e.preventDefault();
@@ -268,7 +275,7 @@ export class InputManager {
 
     private handleMouseMove(event: MouseEvent): void {
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         if (this.dragScrolling) {
@@ -459,7 +466,7 @@ export class InputManager {
         this.setCursorPos(event);
 
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
 
@@ -503,7 +510,7 @@ export class InputManager {
         this.setCursorPos(event);
 
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
 
@@ -545,7 +552,7 @@ export class InputManager {
             event.stopImmediatePropagation();
         }
         // ignore in game menu,  while selecting or if not started
-        if (!this.game.started || this.selecting || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.selecting || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         if (event.deltaY < 0) {
@@ -575,7 +582,7 @@ export class InputManager {
 
     processInputs(): void {
         // ignore in game menu
-        if (this.game.optionsMenuManager.isMenuOpen) {
+        if (this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         const fps = this.game.timeManager.fps || 1; // Avoid division by zero.

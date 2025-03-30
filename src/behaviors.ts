@@ -23,7 +23,7 @@ export class Behaviors {
     public preview(entity: TEntity): void {
         // if size is 256 this is an animation preview so set its frame index accordingly
 
-        if (entity.size === 256) {
+        if (entity.size > 128) {
             const animation = this.game.animations[this.game.editorManager.currentAnimIndex];
             if (this.game.editorManager.isAnimationPreviewPlaying) {
                 this.game.editorManager.previewAnimationFrame = (this.game.editorManager.previewAnimationFrame + 1) % animation.frames.length;

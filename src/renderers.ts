@@ -659,7 +659,7 @@ export class MinimapRenderer extends BaseRenderer {
 
     updateTransformData(p_unused: any[], camera: CameraManager): void {
         const minimapPadding = 10 / camera.zoom;
-        const minimapDisplaySize = Math.min(camera.gameScreenWidth, camera.gameScreenHeight) / 5;
+        const minimapDisplaySize = Math.min(camera.gameScreenWidth, camera.gameScreenHeight) / CONFIG.UI.MINIMAP_RATIO;
         this.transformData[0] = minimapPadding;           // x constant position
         this.transformData[1] = camera.gameScreenHeight - minimapDisplaySize - minimapPadding;
         this.transformData[2] = minimapDisplaySize;        // constant scale

@@ -125,6 +125,7 @@ const AUDIO = {
 }
 
 const UI = {
+    MINIMAP_RATIO: 3.75,
     WIDGET: {
         TOTAL_FRAMES: 6,
         ANIMATION_FRAMES: [0, 2, 4, 3, 2, 1] // Widget animation has 6 frames

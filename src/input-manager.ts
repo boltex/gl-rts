@@ -353,7 +353,7 @@ export class InputManager {
 
         // Calculate minimap bounds
         const minimapPadding = 10 / cameraManager.zoom;
-        const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+        const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / CONFIG.UI.MINIMAP_RATIO;
         const minimapX = minimapPadding;
         const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
 

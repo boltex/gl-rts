@@ -123,7 +123,7 @@ export class InputManager {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
 
-            if (this.game.editorManager.isAnimationPreviewVisible) {
+            if (this.game.editorManager.editorMode === "animation") {
                 // If spacebar is pressed, toggle play/pause animation preview.
                 if (e.key === ' ') {
                     e.preventDefault();

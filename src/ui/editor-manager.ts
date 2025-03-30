@@ -4,10 +4,12 @@ import { FileManager } from './file-manager';
 
 export class EditorManager {
     isMapEditorOpen: boolean = false;
-    isAnimationPreviewVisible = false
     isAnimationPreviewPlaying = false;
+    editorMode: "map" | "animation" = "map"; // Default to map editor mode
 
-    private mapEditorElement: HTMLDivElement | null = null;
+    private floatingPaletteElement: HTMLDivElement | null = null;
+    private mapEditorContainerElement: HTMLDivElement | null = null;
+    private animEditorContainerElement: HTMLDivElement | null = null;
     private tilePreview: HTMLDivElement | null = null;
     private tileInput: HTMLInputElement | null = null;
     private currentTileIndex: number = 0; // between 0 and CONFIG.GAME.TILE.DEPTH
@@ -31,15 +33,15 @@ export class EditorManager {
     }
 
     toggleMapEditor(): void {
-        if (!this.mapEditorElement) {
+        if (!this.floatingPaletteElement) {
             this.buildMapEditor();
         } else {
             // Toggle visibility
-            if (this.mapEditorElement.style.display === "none" || this.mapEditorElement.style.display === "") {
-                this.mapEditorElement.style.display = "block";
+            if (this.floatingPaletteElement.style.display === "none" || this.floatingPaletteElement.style.display === "") {
+                this.floatingPaletteElement.style.display = "block";
                 this.isMapEditorOpen = true;
             } else {
-                this.mapEditorElement.style.display = "none";
+                this.floatingPaletteElement.style.display = "none";
                 this.isMapEditorOpen = false;
             }
         }
@@ -132,9 +134,64 @@ export class EditorManager {
 
     private buildMapEditor(): void {
         // Create the map editor container
-        this.mapEditorElement = document.createElement("div");
-        this.mapEditorElement.style.display = "block";
-        this.mapEditorElement.id = "map-editor";
+        this.floatingPaletteElement = document.createElement("div");
+        this.floatingPaletteElement.style.display = "block";
+        this.floatingPaletteElement.id = "map-editor";
+
+        // First should be a radio button to select between map and animation editor
+        const mapEditorRadio = document.createElement("input");
+        mapEditorRadio.type = "radio";
+        mapEditorRadio.name = "editor-mode";
+        mapEditorRadio.value = "map";
+        mapEditorRadio.checked = true;
+        mapEditorRadio.addEventListener("change", () => {
+            this.editorMode = "map";
+            this.floatingPaletteElement!.style.backgroundColor = "lightblue";
+            // Update the visibility of the map editor container
+            if (this.mapEditorContainerElement) {
+                this.mapEditorContainerElement.style.display = "block";
+            }
+            if (this.animEditorContainerElement) {
+                this.animEditorContainerElement.style.display = "none";
+            }
+            this.updateTilePreview();
+            this.updateAnimationPreview();
+        });
+        const mapEditorLabel = document.createElement("label");
+        mapEditorLabel.textContent = "Map";
+        mapEditorLabel.appendChild(mapEditorRadio);
+        this.floatingPaletteElement.appendChild(mapEditorLabel);
+
+        const animationEditorRadio = document.createElement("input");
+        animationEditorRadio.type = "radio";
+        animationEditorRadio.name = "editor-mode";
+        animationEditorRadio.value = "animation";
+        animationEditorRadio.addEventListener("change", () => {
+            this.editorMode = "animation";
+            this.floatingPaletteElement!.style.backgroundColor = "lightgreen";
+            // Update the visibility of the animation editor container
+            if (this.mapEditorContainerElement) {
+                this.mapEditorContainerElement.style.display = "none";
+            }
+            if (this.animEditorContainerElement) {
+                this.animEditorContainerElement.style.display = "block";
+            }
+            this.updateTilePreview();
+            this.updateAnimationPreview();
+        });
+        const animationEditorLabel = document.createElement("label");
+        animationEditorLabel.textContent = "Anim";
+        animationEditorLabel.appendChild(animationEditorRadio);
+        this.floatingPaletteElement.appendChild(animationEditorLabel);
+
+        // Set the initial background color
+        this.floatingPaletteElement.style.backgroundColor = "lightblue";
+
+        // * MAP EDITOR *
+        // Create a div to hold all the map editor elements
+        this.mapEditorContainerElement = document.createElement("div");
+        this.mapEditorContainerElement.id = "map-editor-container";
+        this.floatingPaletteElement.appendChild(this.mapEditorContainerElement);
 
         // Create tile preview element using the atlas (using background positioning)
         this.tilePreview = document.createElement("div");
@@ -176,13 +233,10 @@ export class EditorManager {
         });
 
         // Append elements to map editor container
-        this.mapEditorElement.appendChild(this.tilePreview);
-        this.mapEditorElement.appendChild(upTileButton);
-        this.mapEditorElement.appendChild(downTileButton);
-        this.mapEditorElement.appendChild(this.tileInput);
-
-        // Insert newline
-        this.mapEditorElement.appendChild(document.createElement("br"));
+        this.mapEditorContainerElement.appendChild(this.tilePreview);
+        this.mapEditorContainerElement.appendChild(upTileButton);
+        this.mapEditorContainerElement.appendChild(downTileButton);
+        this.mapEditorContainerElement.appendChild(this.tileInput);
 
         // Create open and Save map buttons
         const openMapButton = document.createElement("button");
@@ -196,11 +250,15 @@ export class EditorManager {
             this.fileManager.saveMapFile();
         });
 
-        this.mapEditorElement.appendChild(openMapButton);
-        this.mapEditorElement.appendChild(saveMapButton);
+        this.mapEditorContainerElement.appendChild(openMapButton);
+        this.mapEditorContainerElement.appendChild(saveMapButton);
 
-        this.mapEditorElement.appendChild(document.createElement("br"));
-        this.mapEditorElement.appendChild(document.createElement("br"));
+        // * ANIMATION EDITOR *
+        // Create a div to hold all the animation editor elements
+        this.animEditorContainerElement = document.createElement("div");
+        this.animEditorContainerElement.id = "anim-editor-container";
+        this.floatingPaletteElement.appendChild(this.animEditorContainerElement);
+
         // Create Up and Down buttons
         const upAnimButton = document.createElement("button");
         upAnimButton.textContent = "▲";
@@ -318,44 +376,45 @@ export class EditorManager {
             this.fileManager.saveAnimationsFile();
         });
 
-        // Create a 'Hide/Show' button for the main animation preview
-        this.toggleAnimationVisibleButton = document.createElement("button");
-        this.toggleAnimationVisibleButton.textContent = "Show";
-        this.toggleAnimationVisibleButton.title = "Toggle animation visibility";
-        this.toggleAnimationVisibleButton.addEventListener("click", () => {
-            this.toggleAnimationVisibility();
-        });
-
         // Create 'Play' and 'Pause' buttons for the main animation preview
         this.toggleAnimationPlayPauseButton = document.createElement("button");
-        this.toggleAnimationPlayPauseButton.textContent = "Play";
+        if (this.isAnimationPreviewPlaying) {
+            this.toggleAnimationPlayPauseButton.textContent = "Pause";
+        } else {
+            this.toggleAnimationPlayPauseButton.textContent = "Play";
+        }
         this.toggleAnimationPlayPauseButton.title = "Toggle animation play";
         this.toggleAnimationPlayPauseButton.addEventListener("click", () => {
             this.toggleAnimationPlayPause();
         });
 
-        this.mapEditorElement.appendChild(upAnimButton);
-        this.mapEditorElement.appendChild(downAnimButton);
+        this.animEditorContainerElement.appendChild(upAnimButton);
+        this.animEditorContainerElement.appendChild(downAnimButton);
 
-        this.mapEditorElement.appendChild(addAnimButton);
-        this.mapEditorElement.appendChild(deleteAnimButton);
+        this.animEditorContainerElement.appendChild(addAnimButton);
+        this.animEditorContainerElement.appendChild(deleteAnimButton);
 
+        this.animEditorContainerElement.appendChild(this.animInput);
+        this.animEditorContainerElement.appendChild(this.animLabelInput);
+        this.animEditorContainerElement.appendChild(this.animListText);
+        this.animEditorContainerElement.appendChild(openAnimationsButton);
+        this.animEditorContainerElement.appendChild(saveAnimationsButton);
 
-        this.mapEditorElement.appendChild(this.animInput);
-        this.mapEditorElement.appendChild(this.animLabelInput);
-        this.mapEditorElement.appendChild(this.animListText);
-        this.mapEditorElement.appendChild(openAnimationsButton);
-        this.mapEditorElement.appendChild(saveAnimationsButton);
+        this.animEditorContainerElement.appendChild(this.toggleAnimationPlayPauseButton);
 
-        this.mapEditorElement.appendChild(this.toggleAnimationVisibleButton);
-        this.mapEditorElement.appendChild(this.toggleAnimationPlayPauseButton);
-
+        // Set the initial visibility of the map editor container
+        if (this.mapEditorContainerElement) {
+            this.mapEditorContainerElement.style.display = "block";
+        }
+        if (this.animEditorContainerElement) {
+            this.animEditorContainerElement.style.display = "none";
+        }
 
         // Append the map editor container to the document body
-        document.body.appendChild(this.mapEditorElement);
+        document.body.appendChild(this.floatingPaletteElement);
 
         // Make the map editor draggable
-        this.addDragElement(this.mapEditorElement);
+        this.addDragElement(this.floatingPaletteElement);
         this.isMapEditorOpen = true;
     }
 
@@ -411,27 +470,11 @@ export class EditorManager {
         }
     }
 
-    toggleAnimationVisibility(): void {
-        if (this.isAnimationPreviewVisible) {
-            this.isAnimationPreviewVisible = false;
-        } else {
-            this.isAnimationPreviewVisible = true;
-        }
-        // change text from 'Show' to 'Hide' and vice versa
-        if (this.toggleAnimationVisibleButton) {
-            if (this.isAnimationPreviewVisible) {
-                this.toggleAnimationVisibleButton.textContent = "Hide";
-            } else {
-                this.toggleAnimationVisibleButton.textContent = "Show";
-            }
-        }
-    }
-
     rotatePreview(amount: number): void {
         // Adjust previewAnimationOrientation by amount
         // Roll over if exceeding the number of orientations (16, from 0 to 15)
-        // Otherwise, if animating or not visible, ignore.
-        if (this.isAnimationPreviewVisible) {
+        // Otherwise, if not visible, ignore.
+        if (this.editorMode === "animation") {
             this.previewAnimationOrientation = (this.previewAnimationOrientation + amount + 16) % 16;
         }
     }
@@ -439,7 +482,7 @@ export class EditorManager {
     changeSelectedFrame(amount: number): void {
         // If paused and not animating, change the current frame shown of the selected animation (previewAnimationFrame). Roll over if exceeding the number of frames
         // Otherwise, if animating or not visible, ignore.
-        if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
+        if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
             const animation = this.game.animations[this.currentAnimIndex];
             this.previewAnimationFrame = (this.previewAnimationFrame + amount + animation.frames.length) % animation.frames.length;
         }
@@ -452,7 +495,7 @@ export class EditorManager {
         // 
         // Roll over if exceeding the number of sprites
         // Otherwise, if animating or not visible, ignore.
-        if (!this.isAnimationPreviewPlaying && this.isAnimationPreviewVisible) {
+        if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
             const animation = this.game.animations[this.currentAnimIndex];
             animation.frames[this.previewAnimationFrame] = (animation.frames[this.previewAnimationFrame] + amount + 256) % 256;
         }

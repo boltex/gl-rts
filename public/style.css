@@ -135,6 +135,24 @@ canvas {
   box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
 }
 
+/* setup radio to be layout horizontally and with sans-serif font */
+#map-editor input[type="radio"] {
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+  width: 18px;
+  cursor: pointer;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  font-size: 12px;
+}
+#map-editor label {
+  display: inline-block;
+  margin: 0 5px 5px 0;
+  cursor: pointer;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  font-size: 12px;
+}
+
 #map-editor input {
   width: 60px;
 }

@@ -497,8 +497,8 @@ export class Game {
                 const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
-                // if the animation preview is not shown, draw the grid lines.
-                if (!this.editorManager.isAnimationPreviewVisible) {
+                // if the animation preview is not shown, (map mode) draw the grid lines.
+                if (this.editorManager.editorMode === "map") {
                     // Draw horizontal grid lines
                     for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
                         const lineY = y * tilesize - (this.lastScrollY % tilesize);
@@ -528,7 +528,7 @@ export class Game {
                 // If animation preview is visible, make sure the special entity is present in the entities pool.
                 // If already there, just update its position, orientation and frame index. 
                 // Make sure its centered in the screen relative to the scroll (instead of being fixed on the game map), and also very big.
-                if (this.editorManager.isAnimationPreviewVisible) {
+                if (this.editorManager.editorMode === "animation") {
                     const editorManager = this.editorManager;
                     if (!this.previewEntity) {
                         // spawn it
@@ -644,7 +644,7 @@ export class Game {
         let entity;
 
         // if the map editor is open and the animation preview is visible, process the preview entity only.
-        if (this.editorManager.isMapEditorOpen && this.editorManager.isAnimationPreviewVisible) {
+        if (this.editorManager.isMapEditorOpen && this.editorManager.editorMode === "animation") {
 
             for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
                 entity = this.entities.pool[i];

@@ -123,11 +123,18 @@ export class InputManager {
                 e.preventDefault();  // Prevent the default save/open behavior
             }
 
-            if (this.game.editorManager.isAnimationPreviewVisible) {
+            if (this.game.editorManager.editorMode === "animation") {
                 // If spacebar is pressed, toggle play/pause animation preview.
                 if (e.key === ' ') {
                     e.preventDefault();
                     this.game.editorManager.toggleAnimationPlayPause();
+                    return;
+                }
+
+                // If 'a' or 'd' are pressed, rotate the orientation of the preview left/right.
+                if (e.key === 'a' || e.key === 'd') {
+                    e.preventDefault();
+                    this.game.editorManager.rotatePreview(e.key === 'a' ? -1 : 1);
                     return;
                 }
 
@@ -236,6 +243,9 @@ export class InputManager {
                 this.game.toggleSound();
                 return;
             }
+            if (e.ctrlKey && (e.key === 'o')) {
+                e.preventDefault();  // Prevent the default open behavior
+            }
             // Check for 'tab' to toggle the minimap terrain visibility.
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -268,7 +278,7 @@ export class InputManager {
 
     private handleMouseMove(event: MouseEvent): void {
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         if (this.dragScrolling) {
@@ -343,7 +353,7 @@ export class InputManager {
 
         // Calculate minimap bounds
         const minimapPadding = 10 / cameraManager.zoom;
-        const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+        const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / CONFIG.UI.MINIMAP_RATIO;
         const minimapX = minimapPadding;
         const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
 
@@ -459,7 +469,7 @@ export class InputManager {
         this.setCursorPos(event);
 
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
 
@@ -503,7 +513,7 @@ export class InputManager {
         this.setCursorPos(event);
 
         // ignore if not started or in game menu
-        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
 
@@ -545,7 +555,7 @@ export class InputManager {
             event.stopImmediatePropagation();
         }
         // ignore in game menu,  while selecting or if not started
-        if (!this.game.started || this.selecting || this.game.optionsMenuManager.isMenuOpen) {
+        if (!this.game.started || this.selecting || this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         if (event.deltaY < 0) {
@@ -575,7 +585,7 @@ export class InputManager {
 
     processInputs(): void {
         // ignore in game menu
-        if (this.game.optionsMenuManager.isMenuOpen) {
+        if (this.game.optionsMenuManager.isMenuOpen || this.game.helpMenuManager.isHelpMenuOpen) {
             return;
         }
         const fps = this.game.timeManager.fps || 1; // Avoid division by zero.

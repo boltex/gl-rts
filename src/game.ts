@@ -475,7 +475,7 @@ export class Game {
             if (cameraChanged) {
                 // Calculate minimap properties (match those used in MinimapRenderer.updateTransformData)
                 const minimapPadding = 10 / cameraManager.zoom;
-                const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / 5;
+                const minimapDisplaySize = Math.min(cameraManager.gameScreenWidth, cameraManager.gameScreenHeight) / CONFIG.UI.MINIMAP_RATIO;
                 const minimapX = minimapPadding;
                 const minimapY = cameraManager.gameScreenHeight - minimapDisplaySize - minimapPadding;
 
@@ -497,20 +497,23 @@ export class Game {
                 const thickness = 2 / cameraManager.zoom; // Divide by zoom to keep thickness constant
                 const tilesize = CONFIG.GAME.TILE.SIZE;
 
-                // Draw horizontal grid lines
-                for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
-                    const lineY = y * tilesize - (this.lastScrollY % tilesize);
-                    cursor.push(
-                        { x: 0, y: lineY, width: this.lastScreenWidth, height: thickness, r: 1, g: 1, b: 1, a: 1 }
-                    );
-                }
+                // if the animation preview is not shown, (map mode) draw the grid lines.
+                if (this.editorManager.editorMode === "map") {
+                    // Draw horizontal grid lines
+                    for (let y = 0; y <= CONFIG.GAME.MAP.HEIGHT; y++) {
+                        const lineY = y * tilesize - (this.lastScrollY % tilesize);
+                        cursor.push(
+                            { x: 0, y: lineY, width: this.lastScreenWidth, height: thickness, r: 1, g: 1, b: 1, a: 1 }
+                        );
+                    }
 
-                // Draw vertical grid lines
-                for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
-                    const lineX = x * tilesize - (this.lastScrollX % tilesize);
-                    cursor.push(
-                        { x: lineX, y: 0, width: thickness, height: this.lastScreenHeight, r: 1, g: 1, b: 1, a: 1 }
-                    );
+                    // Draw vertical grid lines 
+                    for (let x = 0; x <= CONFIG.GAME.MAP.WIDTH; x++) {
+                        const lineX = x * tilesize - (this.lastScrollX % tilesize);
+                        cursor.push(
+                            { x: lineX, y: 0, width: thickness, height: this.lastScreenHeight, r: 1, g: 1, b: 1, a: 1 }
+                        );
+                    }
                 }
 
                 // Draw a full rectangle over the tile which contains the current mouse pointer.
@@ -525,20 +528,26 @@ export class Game {
                 // If animation preview is visible, make sure the special entity is present in the entities pool.
                 // If already there, just update its position, orientation and frame index. 
                 // Make sure its centered in the screen relative to the scroll (instead of being fixed on the game map), and also very big.
-                if (this.editorManager.isAnimationPreviewVisible) {
+                if (this.editorManager.editorMode === "animation") {
                     const editorManager = this.editorManager;
                     if (!this.previewEntity) {
                         // spawn it
                         this.previewEntity = this.entities.spawn();
                         this.previewEntity.type = EntityType.ALIEN;
                         this.previewEntity.hitPoints = 100;
-                        this.previewEntity.size = 256;
                     }
 
-                    // Update its position, orientation and frame index.
+                    // Update its position, size, orientation and frame index.
                     this.previewEntity.x = this.lastScreenWidth / 2 + this.lastScrollX;
                     this.previewEntity.y = this.lastScreenHeight / 2 + this.lastScrollY;
                     this.previewEntity.orientation = editorManager.previewAnimationOrientation;
+                    // Make it bigger than the other entities, And compensate for zoom to be constant on screen.
+                    this.previewEntity.size = 128 * 4 / cameraManager.zoom;
+
+                    // Now translate x and y so that it is centered instead of having its top-left corner at origin
+                    this.previewEntity.x -= this.previewEntity.size / 2;
+                    this.previewEntity.y -= this.previewEntity.size / 2;
+
                     const animIndex = editorManager.currentAnimIndex;
                     const previewFrame = editorManager.previewAnimationFrame;
                     const animations = this.animations
@@ -546,17 +555,17 @@ export class Game {
 
                     // Add text underneath to show the current frame index.
                     const frameIndex = animations[animIndex].frames[previewFrame];
-                    const frameString = `Frame: ${previewFrame} of ${animations[animIndex].frames.length}`;
+                    const frameString = `Frame: ${previewFrame} of 0-${animations[animIndex].frames.length - 1} (R: ${this.previewEntity.orientation})`;
                     const spriteString = `Sprite ${frameIndex} `
                     // Loop each letter in the string and add to the text array
-                    let x = cameraManager.gameScreenWidth / 2;
-                    let y = cameraManager.gameScreenHeight / 2;
+                    let x = cameraManager.gameScreenWidth / 2 - this.previewEntity.size / 2;
+                    let y = cameraManager.gameScreenHeight / 2 - this.previewEntity.size / 2;
                     for (let i = 0; i < frameString.length; i++) {
                         const charIndex = frameString.charCodeAt(i) - 32;
                         text.push([x, y, charIndex, 32 / cameraManager.zoom]);
                         x += CONFIG.FONT_SIZES[charIndex] / cameraManager.zoom;
                     }
-                    x = cameraManager.gameScreenWidth / 2
+                    x = cameraManager.gameScreenWidth / 2 - this.previewEntity.size / 2;
                     y = cameraManager.gameScreenHeight / 2 + 128 / cameraManager.zoom;
                     for (let i = 0; i < spriteString.length; i++) {
                         const charIndex = spriteString.charCodeAt(i) - 32;
@@ -635,7 +644,7 @@ export class Game {
         let entity;
 
         // if the map editor is open and the animation preview is visible, process the preview entity only.
-        if (this.editorManager.isMapEditorOpen && this.editorManager.isAnimationPreviewVisible) {
+        if (this.editorManager.isMapEditorOpen && this.editorManager.editorMode === "animation") {
 
             for (let i = 0; processed < this.entities.active || i < this.entities.total; i++) {
                 entity = this.entities.pool[i];

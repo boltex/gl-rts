@@ -126,10 +126,13 @@ export class EditorManager {
 
         if (this.animListText) {
             this.animListText.value = JSON.stringify(this.game.animations[this.currentAnimIndex].frames);
+            // Select the current frame number in the text
+            this.selectFrameInAnimList(this.previewAnimationFrame);
         }
 
         // restart the preview animation
         this.previewAnimationFrame = 0;
+        this.selectFrameInAnimList(this.previewAnimationFrame);
     }
 
     private buildMapEditor(): void {
@@ -545,13 +548,14 @@ export class EditorManager {
         if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
             const animation = this.game.animations[this.currentAnimIndex];
             this.previewAnimationFrame = (this.previewAnimationFrame + amount + animation.frames.length) % animation.frames.length;
+            this.selectFrameInAnimList(this.previewAnimationFrame);
         }
-
     }
 
     rewindAnimation(): void {
         if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
             this.previewAnimationFrame = 0; // Set to first frame
+            this.selectFrameInAnimList(this.previewAnimationFrame);
         }
     }
 
@@ -559,6 +563,7 @@ export class EditorManager {
         if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
             const animation = this.game.animations[this.currentAnimIndex];
             this.previewAnimationFrame = animation.frames.length - 1; // Set to last frame
+            this.selectFrameInAnimList(this.previewAnimationFrame);
         }
     }
 
@@ -579,6 +584,54 @@ export class EditorManager {
 
     }
 
+    private selectFrameInAnimList(index: number): void {
+        if (!this.animListText) { return; };
+
+        const text = this.animListText.value;
+        try {
+            const array = JSON.parse(text);
+            if (!Array.isArray(array) || index < 0 || index >= array.length) {
+                return;
+            }
+
+            // Start after the opening bracket
+            let pos = text.indexOf('[') + 1;
+            let currentIndex = 0;
+
+            // Navigate to our target index
+            while (currentIndex < index) {
+                pos = text.indexOf(',', pos) + 1;
+                if (pos <= 0) {
+                    return;
+                } // No comma found
+                currentIndex++;
+            }
+
+            // Skip whitespace
+            while (pos < text.length && /\s/.test(text[pos])) {
+                pos++;
+            }
+
+            const start = pos;
+
+            // Find the end (next comma or closing bracket)
+            let end = text.indexOf(',', start);
+            if (end === -1 || end > text.indexOf(']', start)) {
+                end = text.indexOf(']', start);
+            }
+
+            // Adjust end to exclude trailing whitespace
+            let adjustedEnd = end;
+            while (adjustedEnd > start && /\s/.test(text[adjustedEnd - 1])) {
+                adjustedEnd--;
+            }
+
+            this.animListText.setSelectionRange(start, adjustedEnd);
+            this.animListText.focus();
+        } catch (e) {
+            console.error("Error selecting frame in animation list:", e);
+        }
+    }
 
 }
 

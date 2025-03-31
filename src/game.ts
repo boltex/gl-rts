@@ -555,7 +555,7 @@ export class Game {
 
                     // Add text underneath to show the current frame index.
                     const frameIndex = animations[animIndex].frames[previewFrame];
-                    const frameString = `Frame: ${previewFrame} of ${animations[animIndex].frames.length}`;
+                    const frameString = `Frame: ${previewFrame} of 0-${animations[animIndex].frames.length - 1} (R: ${this.previewEntity.orientation})`;
                     const spriteString = `Sprite ${frameIndex} `
                     // Loop each letter in the string and add to the text array
                     let x = cameraManager.gameScreenWidth / 2 - this.previewEntity.size / 2;

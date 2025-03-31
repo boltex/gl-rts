@@ -146,7 +146,8 @@ export class EditorManager {
         mapEditorRadio.checked = true;
         mapEditorRadio.addEventListener("change", () => {
             this.editorMode = "map";
-            this.floatingPaletteElement!.style.backgroundColor = "lightblue";
+            this.floatingPaletteElement!.classList.remove("anim-mode");
+            this.floatingPaletteElement!.classList.add("map-mode");
             // Update the visibility of the map editor container
             if (this.mapEditorContainerElement) {
                 this.mapEditorContainerElement.style.display = "block";
@@ -168,7 +169,8 @@ export class EditorManager {
         animationEditorRadio.value = "animation";
         animationEditorRadio.addEventListener("change", () => {
             this.editorMode = "animation";
-            this.floatingPaletteElement!.style.backgroundColor = "lightgreen";
+            this.floatingPaletteElement!.classList.remove("map-mode");
+            this.floatingPaletteElement!.classList.add("anim-mode");
             // Update the visibility of the animation editor container
             if (this.mapEditorContainerElement) {
                 this.mapEditorContainerElement.style.display = "none";
@@ -184,8 +186,8 @@ export class EditorManager {
         animationEditorLabel.appendChild(animationEditorRadio);
         this.floatingPaletteElement.appendChild(animationEditorLabel);
 
-        // Set the initial background color
-        this.floatingPaletteElement.style.backgroundColor = "lightblue";
+        // Set the initial class for styling
+        this.floatingPaletteElement.classList.add("map-mode");
 
         // * MAP EDITOR *
         // Create a div to hold all the map editor elements
@@ -364,6 +366,36 @@ export class EditorManager {
             }
         });
 
+
+        // Create 'Rewind' button for the main animation preview
+        const rewindAnimationButton = document.createElement("button");
+        rewindAnimationButton.textContent = "⏮";
+        rewindAnimationButton.title = "Go to first frame";
+        rewindAnimationButton.addEventListener("click", () => {
+            this.rewindAnimation();
+        });
+
+        // Create 'Play' and 'Pause' buttons for the main animation preview
+        this.toggleAnimationPlayPauseButton = document.createElement("button");
+        if (this.isAnimationPreviewPlaying) {
+            this.toggleAnimationPlayPauseButton.textContent = "⏸";
+        } else {
+            this.toggleAnimationPlayPauseButton.textContent = "▶";
+        }
+        this.toggleAnimationPlayPauseButton.title = "Toggle animation play";
+        this.toggleAnimationPlayPauseButton.addEventListener("click", () => {
+            this.toggleAnimationPlayPause();
+        });
+
+        // Create 'Fast Forward' button for the main animation preview
+        const fastForwardAnimationButton = document.createElement("button");
+        fastForwardAnimationButton.textContent = "⏭";
+        fastForwardAnimationButton.title = "Go to last frame";
+        fastForwardAnimationButton.addEventListener("click", () => {
+            this.fastForwardAnimation();
+        });
+
+
         // Create open and Save buttons
         const openAnimationsButton = document.createElement("button");
         openAnimationsButton.textContent = "Open";
@@ -376,18 +408,6 @@ export class EditorManager {
             this.fileManager.saveAnimationsFile();
         });
 
-        // Create 'Play' and 'Pause' buttons for the main animation preview
-        this.toggleAnimationPlayPauseButton = document.createElement("button");
-        if (this.isAnimationPreviewPlaying) {
-            this.toggleAnimationPlayPauseButton.textContent = "Pause";
-        } else {
-            this.toggleAnimationPlayPauseButton.textContent = "Play";
-        }
-        this.toggleAnimationPlayPauseButton.title = "Toggle animation play";
-        this.toggleAnimationPlayPauseButton.addEventListener("click", () => {
-            this.toggleAnimationPlayPause();
-        });
-
         this.animEditorContainerElement.appendChild(upAnimButton);
         this.animEditorContainerElement.appendChild(downAnimButton);
 
@@ -396,11 +416,24 @@ export class EditorManager {
 
         this.animEditorContainerElement.appendChild(this.animInput);
         this.animEditorContainerElement.appendChild(this.animLabelInput);
+
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+
         this.animEditorContainerElement.appendChild(this.animListText);
+
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+
+        this.animEditorContainerElement.appendChild(rewindAnimationButton);
+        this.animEditorContainerElement.appendChild(this.toggleAnimationPlayPauseButton);
+        this.animEditorContainerElement.appendChild(fastForwardAnimationButton);
+
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+
         this.animEditorContainerElement.appendChild(openAnimationsButton);
         this.animEditorContainerElement.appendChild(saveAnimationsButton);
-
-        this.animEditorContainerElement.appendChild(this.toggleAnimationPlayPauseButton);
 
         // Set the initial visibility of the map editor container
         if (this.mapEditorContainerElement) {
@@ -463,9 +496,9 @@ export class EditorManager {
         // change text from 'Play' to 'Pause' and vice versa
         if (this.toggleAnimationPlayPauseButton) {
             if (this.isAnimationPreviewPlaying) {
-                this.toggleAnimationPlayPauseButton.textContent = "Pause";
+                this.toggleAnimationPlayPauseButton.textContent = "⏸";
             } else {
-                this.toggleAnimationPlayPauseButton.textContent = "Play";
+                this.toggleAnimationPlayPauseButton.textContent = "▶";
             }
         }
     }
@@ -487,6 +520,19 @@ export class EditorManager {
             this.previewAnimationFrame = (this.previewAnimationFrame + amount + animation.frames.length) % animation.frames.length;
         }
 
+    }
+
+    rewindAnimation(): void {
+        if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
+            this.previewAnimationFrame = 0; // Set to first frame
+        }
+    }
+
+    fastForwardAnimation(): void {
+        if (!this.isAnimationPreviewPlaying && this.editorMode === "animation") {
+            const animation = this.game.animations[this.currentAnimIndex];
+            this.previewAnimationFrame = animation.frames.length - 1; // Set to last frame
+        }
     }
 
     changeSpriteNumber(amount: number): void {

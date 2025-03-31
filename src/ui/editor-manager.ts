@@ -17,8 +17,8 @@ export class EditorManager {
     private animInput: HTMLInputElement | null = null;
     private animLabelInput: HTMLInputElement | null = null;
     private animListText: HTMLInputElement | null = null;
-    private toggleAnimationVisibleButton: HTMLButtonElement | null = null;
     private toggleAnimationPlayPauseButton: HTMLButtonElement | null = null;
+    private totalAnimationsLabel: HTMLLabelElement | null = null;
 
     currentAnimIndex: number = 0; // Current animation shown in the editor
     previewAnimationFrame: number = 0; // Current frame of the animation being previewed
@@ -190,10 +190,25 @@ export class EditorManager {
         this.floatingPaletteElement.classList.add("map-mode");
 
         // * MAP EDITOR *
+
         // Create a div to hold all the map editor elements
         this.mapEditorContainerElement = document.createElement("div");
         this.mapEditorContainerElement.id = "map-editor-container";
         this.floatingPaletteElement.appendChild(this.mapEditorContainerElement);
+        this.mapEditorContainerElement.appendChild(document.createElement("br"));
+
+        // Show the total of tiles in the atlas
+        const totalTilesLabel = document.createElement("label");
+        totalTilesLabel.textContent = `Total tiles: ${CONFIG.GAME.TILE.DEPTH}`;
+        this.mapEditorContainerElement.appendChild(totalTilesLabel);
+        this.mapEditorContainerElement.appendChild(document.createElement("br"));
+
+        // Create a label for the tile preview
+        const tilePreviewLabel = document.createElement("label");
+        tilePreviewLabel.textContent = "Tile preview:";
+        this.mapEditorContainerElement.appendChild(tilePreviewLabel);
+
+        this.mapEditorContainerElement.appendChild(document.createElement("br"));
 
         // Create tile preview element using the atlas (using background positioning)
         this.tilePreview = document.createElement("div");
@@ -252,6 +267,9 @@ export class EditorManager {
             this.fileManager.saveMapFile();
         });
 
+        this.mapEditorContainerElement.appendChild(document.createElement("br"));
+        this.mapEditorContainerElement.appendChild(document.createElement("br"));
+
         this.mapEditorContainerElement.appendChild(openMapButton);
         this.mapEditorContainerElement.appendChild(saveMapButton);
 
@@ -260,6 +278,13 @@ export class EditorManager {
         this.animEditorContainerElement = document.createElement("div");
         this.animEditorContainerElement.id = "anim-editor-container";
         this.floatingPaletteElement.appendChild(this.animEditorContainerElement);
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
+
+        // Create a label for the animation preview that shows the total of animations
+        this.totalAnimationsLabel = document.createElement("label");
+        this.totalAnimationsLabel.textContent = `Total animations: ${this.game.animations.length}`;
+        this.animEditorContainerElement.appendChild(this.totalAnimationsLabel);
+        this.animEditorContainerElement.appendChild(document.createElement("br"));
 
         // Create Up and Down buttons
         const upAnimButton = document.createElement("button");
@@ -288,6 +313,7 @@ export class EditorManager {
             if (this.animInput) {
                 this.animInput.value = this.currentAnimIndex.toString();
             }
+            this.totalAnimationsLabel!.textContent = `Total animations: ${this.game.animations.length}`;
             this.updateAnimationPreview();
         });
 
@@ -302,6 +328,7 @@ export class EditorManager {
                 if (this.animInput) {
                     this.animInput.value = this.currentAnimIndex.toString();
                 }
+                this.totalAnimationsLabel!.textContent = `Total animations: ${this.game.animations.length}`;
                 this.updateAnimationPreview();
             }
         });

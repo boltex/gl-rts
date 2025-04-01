@@ -133,6 +133,8 @@ export class EditorManager {
         // restart the preview animation
         this.previewAnimationFrame = 0;
         this.selectFrameInAnimList(this.previewAnimationFrame);
+        this.totalAnimationsLabel!.textContent = `Total animations: ${this.game.animations.length}`;
+
     }
 
     private buildMapEditor(): void {

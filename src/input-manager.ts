@@ -108,17 +108,20 @@ export class InputManager {
         // For example, the default behavior of the 'F5' or keyboard zooms +/- should also be prevented by default.
 
         if (this.game.editorManager.isMapEditorOpen) {
-            // Only when in Map Editor (Add tile inc/dec and ctrl+s/ctrl+o shortcuts)
-            if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
-                e.preventDefault();
-                this.game.editorManager.incrementMapTile();
-                return;
+            if (this.game.editorManager.editorMode === 'map') {
+
+                if (e.key === 'NumPad+' || e.key === '+' || (!e.shiftKey && e.key === '=')) {
+                    e.preventDefault();
+                    this.game.editorManager.incrementMapTile();
+                    return;
+                }
+                if (e.key === 'NumPad-' || e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    this.game.editorManager.decrementMapTile();
+                    return;
+                }
             }
-            if (e.key === 'NumPad-' || e.key === '-' || e.key === '_') {
-                e.preventDefault();
-                this.game.editorManager.decrementMapTile();
-                return;
-            }
+
             if (e.ctrlKey && (e.key === 's' || e.key === 'o')) {
                 e.preventDefault();  // Prevent the default save/open behavior
             }

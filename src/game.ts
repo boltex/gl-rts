@@ -14,6 +14,7 @@ import { OptionsMenuManager } from "./ui/options-menu-manager";
 import * as utils from "./utils";
 import { AudioManager } from "./audio-manager";
 import { HelpMenuManager } from "./ui/help-menu-manager";
+import { Animations } from "./animations";
 
 export class Game {
 
@@ -77,7 +78,7 @@ export class Game {
     lastScrollY = -1;
     lastScreenWidth = -1;
     lastScreenHeight = -1;
-    animations: EntityAnimation[] = [];
+    animations: EntityAnimation[] = Animations;
 
     private startGameHandler = this.startGame.bind(this);
     private handleContextMenu = (event: MouseEvent) => event.preventDefault();

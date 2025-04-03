@@ -1,4 +1,4 @@
-[
+export const Animations = [
   {
     "label": "idle1",
     "frames": [
@@ -332,4 +332,4 @@
       5
     ]
   }
-]
+];
